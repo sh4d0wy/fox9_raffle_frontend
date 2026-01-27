@@ -4,13 +4,13 @@ import { toast } from "react-toastify";
 import { PublicKey, Transaction } from "@solana/web3.js";
 // import type { GumballBackendType } from "../types/backend/gumballTypes";
 // import { createGumballSchema } from "../types/backend/gumballTypes";
-import { createGumballOverBackend, getCreateGumballTx } from "../api/routes/gumballRoutes";
+import { createGumballOverBackend, getCreateGumballTx } from "../../api/routes/gumballRoutes";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useGumballStore } from "../store/useGumballStore";
+import { useGumballStore } from "../../store/useGumballStore";
 import { useRouter } from "@tanstack/react-router";
-import { useCheckAuth } from "./useCheckAuth";
+import { useCheckAuth } from "../useCheckAuth";
 import { WRAPPED_SOL_MINT } from "@/constants";
-import { connection } from "./helpers";
+import { connection } from "../helpers";
 
 
 export const useCreateGumball = () => {

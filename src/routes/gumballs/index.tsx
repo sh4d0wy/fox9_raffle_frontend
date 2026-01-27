@@ -7,7 +7,7 @@ import { GumballsCard } from '../../components/gumballs/GumballsCard';
 import { ToolsSection } from '@/components/home/ToolsSection';
 import { TryToolsSection } from '@/components/home/TryToolsSection';
 import { useRafflesStore } from "../../../store/gumballs-store"
-import { useGumballsQuery } from "../../../hooks/useGumballsQuery"
+import { useGumballsQuery } from "../../../hooks/gumball/useGumballsQuery"
 import { useGlobalStore } from "../../../store/globalStore";
 import CryptoCardSkeleton from '@/components/skeleton/RafflesCardSkeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';

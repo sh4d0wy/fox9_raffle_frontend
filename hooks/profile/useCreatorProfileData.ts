@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { RafflesData } from "../data/raffles-data"; 
-import { RafflersPurchasedData } from "../data/Rafflers-Purchased-data"; 
-import { GumballsData } from "../data/gumballs-data"; 
-import { AucationsData } from "../data/aucations-data"; 
+import { RafflesData } from "../../data/raffles-data"; 
+import { RafflersPurchasedData } from "../../data/Rafflers-Purchased-data"; 
+import { GumballsData } from "../../data/gumballs-data"; 
+import { AucationsData } from "../../data/aucations-data"; 
 
 export type CreatorCategory = "rafflers" | "gumballs" | "auctions";
 export type RafflerFilter = "created" | "purchased" | "favourite" | "followed";

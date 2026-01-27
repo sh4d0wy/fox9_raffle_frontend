@@ -1,8 +1,8 @@
 import {useQuery} from "@tanstack/react-query";
-import { getEndedRafflesNotifications } from "../api/routes/notificationRoutes";
+import { getEndedRafflesNotifications } from "../../api/routes/notificationRoutes";
 import {useWallet} from "@solana/wallet-adapter-react";
-import { useNavbarStore } from "../store/globalStore";
-import { useCheckAuth } from "./useCheckAuth";
+import { useNavbarStore } from "../../store/globalStore";
+import { useCheckAuth } from "../useCheckAuth";
 
 export const useEndedRafflesNotificationQuery = () => {
     const {publicKey} = useWallet();

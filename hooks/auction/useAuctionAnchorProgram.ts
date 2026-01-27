@@ -6,11 +6,11 @@ import { BN } from "@coral-xyz/anchor";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
-import { useAnchorProvider } from "../src/providers/SolanaProvider";
-import auctionIdl from "../types/auction.json";
-import type { Auction } from "../types/auction";
-import { getTokenProgramFromMint, ensureAtaIx } from './helpers';
-import { WRAPPED_SOL_MINT } from "../src/constants";
+import { useAnchorProvider } from "../../src/providers/SolanaProvider";
+import auctionIdl from "../../types/auction.json";
+import type { Auction } from "../../types/auction";
+import { getTokenProgramFromMint, ensureAtaIx } from '../helpers';
+import { WRAPPED_SOL_MINT } from "../../src/constants";
 
 export const AUCTION_PROGRAM_ID = new anchor.web3.PublicKey(auctionIdl.address);
 const FAKE_MINT = new PublicKey(WRAPPED_SOL_MINT);

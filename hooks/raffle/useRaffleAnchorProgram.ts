@@ -7,11 +7,11 @@ import { BN } from "@coral-xyz/anchor";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
-import { useAnchorProvider } from "../src/providers/SolanaProvider";
-import raffleIdl from "../types/raffle.json";
-import type { Raffle } from "../types/raffle";
-import { getTokenProgramFromMint, ensureAtaIx } from './helpers';
-import { WRAPPED_SOL_MINT } from "../src/constants";
+import { useAnchorProvider } from "../../src/providers/SolanaProvider";
+import raffleIdl from "../../types/raffle.json";
+import type { Raffle } from "../../types/raffle";
+import { getTokenProgramFromMint, ensureAtaIx } from '../helpers';
+import { WRAPPED_SOL_MINT } from "../../src/constants";
 
 export const RAFFLE_PROGRAM_ID = new anchor.web3.PublicKey(raffleIdl.address);
 

@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
-import { fetchGumballById, fetchGumballs } from "../api/GumballsApi"
-import type { GumballBackendDataType } from "../types/backend/gumballTypes"
+import { fetchGumballById, fetchGumballs } from "../../api/GumballsApi"
+import type { GumballBackendDataType } from "../../types/backend/gumballTypes"
 
 export const useGumballsQuery = (filter: string) => {
   return useInfiniteQuery({

@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query"
-import { fetchAuctions } from "../api/AuctionsApi"
+import { fetchAuctions } from "../../api/AuctionsApi"
 
 export const useAucationsQuery = (filter: string) => {
   return useInfiniteQuery({

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAuctionFavourite, getGumballFavourite, getRaffleFavourite } from "../api/routes/userRoutes";
+import { getAuctionFavourite, getGumballFavourite, getRaffleFavourite } from "../../api/routes/userRoutes";
 
 export type MainFilter = "Rafflers" | "Gumballs" | "Auctions";
 export type TabFilter = "created" | "purchased" | "favourite";

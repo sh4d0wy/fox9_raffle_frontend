@@ -7,7 +7,7 @@ import { NoAuctions } from "../../components/home/NoAuctions"
 import InfiniteScroll from "react-infinite-scroll-component"
 import FilterModel from "../../components/home/FilterModel"
 import { useRafflesStore } from "../../../store/rafflesStore"
-import { useRaffles } from "../../../hooks/useRaffles"
+import { useRaffles } from "../../../hooks/raffle/useRaffles"
 import { useEffect, useState } from 'react'
 import CryptoCardSkeleton from '@/components/skeleton/RafflesCardSkeleton'
 import { TryToolsSection } from '@/components/home/TryToolsSection'

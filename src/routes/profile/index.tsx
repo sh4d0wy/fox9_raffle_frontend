@@ -7,7 +7,7 @@ import Dropdown from '@/components/ui/Dropdown';
 import InputSwitch from '@/components/ui/Switch';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useCreatorProfileStore } from "../../../store/creatorProfile-store";
-import { useCreatorProfileData } from "../../../hooks/useCreatorProfileData";
+import { useCreatorProfileData } from "../../../hooks/profile/useCreatorProfileData";
 import { useState } from 'react';
 import CryptoCardSkeleton from '@/components/skeleton/RafflesCardSkeleton';
 

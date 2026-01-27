@@ -1,18 +1,22 @@
 import { useMutation } from "@tanstack/react-query";
-import { getClaimGumballTx, claimPrize } from "../api/routes/gumballRoutes";
-import { Transaction } from "@solana/web3.js";
+// import { useGumballAnchorProgram } from "./useGumballAnchorProgram";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCheckAuth } from "./useCheckAuth";
+import { useRouter } from "@tanstack/react-router";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { connection } from "./helpers";
+import { creatorClaimPrizeBack, getClaimBackMultiplePrizesTx } from "../../api/routes/gumballRoutes";
+import { useCheckAuth } from "../useCheckAuth";
+import { Transaction } from "@solana/web3.js";
+import { connection } from "../helpers";
 
-export const useClaimGumballPrize = () => {
+export const useCreatorClaimPrizeBack = () => {
+    const router = useRouter();
+    // const { claimMultiplePrizesBackMutation } = useGumballAnchorProgram();
+    const { publicKey, sendTransaction } = useWallet();
     const queryClient = useQueryClient();
     const { checkAndInvalidateToken } = useCheckAuth();
-    const { publicKey, sendTransaction } = useWallet();
 
-    const validateForm = async (args: { gumballId: number; spinId: number; }) => {
+    const validateForm = async (args: { gumballId: number; prizeIndexes: number[] }) => {
         try {
             if (!publicKey) {
                 throw new Error("Wallet not connected");
@@ -24,10 +28,9 @@ export const useClaimGumballPrize = () => {
             if (!args.gumballId) {
                 throw new Error("Gumball ID is required");
             }
-            if (!args.spinId) {
-                throw new Error("Spin ID is required");
+            if (!args.prizeIndexes || args.prizeIndexes.length === 0) {
+                throw new Error("At least one prize index must be selected");
             }
-
             return true;
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -37,20 +40,21 @@ export const useClaimGumballPrize = () => {
             }
             return false;
         }
-
     };
 
-    const claimGumballPrizeFunction = useMutation({
-        mutationKey: ["gumball", "claim"],
+    const creatorClaimPrizeBackMutation = useMutation({
+        mutationKey: ["creatorClaimPrizeBack"],
         mutationFn: async (args: {
             gumballId: number;
-            spinId: number;
+            prizeIndexes: number[];
         }) => {
             if (!(await validateForm(args))) {
                 throw new Error("Validation failed");
             }
-            console.log("args", args);
-            const { base64Transaction, minContextSlot, blockhash, lastValidBlockHeight, prizeIndex } = await getClaimGumballTx(args.gumballId.toString(), args.spinId.toString());
+            const { base64Transaction, minContextSlot, blockhash, lastValidBlockHeight } = await getClaimBackMultiplePrizesTx(
+                args.gumballId,
+                args.prizeIndexes.map((prizeIndex) => { return { prizeIndex: prizeIndex } }),
+            );
             const decodedTx = Buffer.from(base64Transaction, "base64");
             const transaction = Transaction.from(decodedTx);
 
@@ -68,21 +72,23 @@ export const useClaimGumballPrize = () => {
                 console.log("Failed to create auction", confirmation.value.err);
                 throw new Error("Failed to create auction");
             }
-            const claimResponse = await claimPrize(args.gumballId.toString(), signature.toString(), prizeIndex, args.spinId);
-            if (claimResponse.error) {
-                throw new Error(claimResponse.error);
+
+            const response = await creatorClaimPrizeBack(args.gumballId.toString(), signature);
+            if (response.error) {
+                throw new Error(response.error);
             }
-            return { gumballId: args.gumballId, prizeIndex };
+            return args.gumballId;
         },
-        onSuccess: (result: { gumballId: number; prizeIndex: number }) => {
-            queryClient.invalidateQueries({ queryKey: ["gumball", result.gumballId.toString()] });
-            toast.success("Gumball prize claimed successfully");
+        onSuccess: (gumballId: number) => {
+            queryClient.invalidateQueries({ queryKey: ["gumball", gumballId.toString()] });
+            toast.success("Prize claimed successfully");
+            router.navigate({ to: "/gumballs" });
         },
         onError: (error: Error) => {
             if (error.message !== "Validation failed") {
-                toast.error("Failed to claim gumball prize");
+                toast.error("Failed to claim prize");
             }
-        }
+        },
     });
-    return { claimGumballPrizeFunction };
-}   
+    return { creatorClaimPrizeBackMutation };
+}

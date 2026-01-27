@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getRafflerLeaderboard, getRaffleBuyerLeaderboard } from "../api/routes/statsRoutes";
+import { getRafflerLeaderboard, getRaffleBuyerLeaderboard } from "../../api/routes/statsRoutes";
 
 
 export const useLeaderboard = () => {

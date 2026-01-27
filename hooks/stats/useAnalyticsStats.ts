@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAnalyticsAverageTickets, getAnalyticsPurchases, getAnalyticsRaffles, getAnalyticsRaffleType, getAnalyticsUniqueBuyers, getAnalyticsVolume } from "../api/routes/statsRoutes";
+import { getAnalyticsAverageTickets, getAnalyticsPurchases, getAnalyticsRaffles, getAnalyticsRaffleType, getAnalyticsUniqueBuyers, getAnalyticsVolume } from "../../api/routes/statsRoutes";
 export const useAnalyticsStats = ({timeframe}:{timeframe:"day"|"week"|"month"|"year"}) => {
     const volume = useQuery({
         queryKey: ['analytics-volume', timeframe],

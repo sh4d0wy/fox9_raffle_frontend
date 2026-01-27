@@ -4,14 +4,14 @@ import { useAuctionAnchorProgram } from "./useAuctionAnchorProgram";
 import { PublicKey, Transaction } from "@solana/web3.js";
 // import type { AuctionTypeBackend } from "../types/backend/auctionTypes";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { VerifiedTokens, WRAPPED_SOL_MINT } from "../src/utils/verifiedTokens";
+import { VerifiedTokens, WRAPPED_SOL_MINT } from "../../src/utils/verifiedTokens";
 import {
     createAuctionOverBackend,
     getCreateAuctionTx,
-} from "../api/routes/auctionRoutes";
+} from "../../api/routes/auctionRoutes";
 import { useRouter } from "@tanstack/react-router";
-import { useCheckAuth } from "./useCheckAuth";
-import { connection } from "./helpers";
+import { useCheckAuth } from "../useCheckAuth";
+import { connection } from "../helpers";
 
 
 export type AuctionOnChainArgs = {

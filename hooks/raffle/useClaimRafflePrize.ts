@@ -1,14 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {toast} from "react-toastify";
-import { cancelRaffleOverBackend, getCancelRaffleTx } from "../api/routes/raffleRoutes";
-import { useRouter } from "@tanstack/react-router";
+import { claimRafflePrize, getClaimRaffleTx } from "../../api/routes/raffleRoutes";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useCheckAuth } from "./useCheckAuth";
-import { connection } from "./helpers";
+import { useCheckAuth } from "../useCheckAuth";
+import { connection } from "../helpers";
 import { Transaction } from "@solana/web3.js";
 
-export const useCancelRaffle = () => {
-    const router = useRouter();
+export const useClaimRafflePrize = () => {
     const queryClient = useQueryClient();
     const { publicKey, sendTransaction } = useWallet();
     const { checkAndInvalidateToken } = useCheckAuth();
@@ -38,13 +36,15 @@ export const useCancelRaffle = () => {
 
     };
 
-    const cancelRaffle = useMutation({
-        mutationKey: ["cancelRaffle"],
-        mutationFn: async (raffleId: number) => {
-            if (!(await validateForm(raffleId))) {
+    const claimPrize = useMutation({
+        mutationKey: ["claimPrize"],
+        mutationFn: async (args: {
+            raffleId: number;
+        }) => {
+            if (!(await validateForm(args.raffleId))) {
                 throw new Error("Validation failed");
             }
-            const { base64Transaction, minContextSlot, blockhash, lastValidBlockHeight } = await getCancelRaffleTx(raffleId.toString());
+            const { base64Transaction, minContextSlot, blockhash, lastValidBlockHeight } = await getClaimRaffleTx(args.raffleId.toString());
             console.log("Received transaction from backend", base64Transaction);
             const decodedTx = Buffer.from(base64Transaction, "base64");
             const transaction = Transaction.from(decodedTx);
@@ -60,27 +60,27 @@ export const useCancelRaffle = () => {
                 signature,
             });
             if (confirmation.value.err) {
-                throw new Error("Failed to cancel auction");
+                throw new Error("Failed to claim prize");
             }
-            const response = await cancelRaffleOverBackend(raffleId.toString(), signature);
+            const response = await claimRafflePrize(args.raffleId.toString(), signature);
             if (response.error) {
                 throw new Error(response.error);
             }
-            return raffleId;
+            return args.raffleId;
         },
         onSuccess: (raffleId: number) => {
             queryClient.invalidateQueries({ queryKey: ["raffle", raffleId.toString()] });
-            queryClient.invalidateQueries({ queryKey: ["raffles", "All Raffles"] });
-            queryClient.invalidateQueries({ queryKey: ["profile-raffle-created", publicKey?.toBase58()] });
-            toast.success("Raffle cancelled successfully");
-            router.navigate({ to: "/raffles" });
+            queryClient.invalidateQueries({ queryKey: ["raffleWinnersWhoClaimedPrize", raffleId.toString()] });
+            toast.success("Prize claimed successfully");
         },
         onError: (error: Error) => {
-            console.error("Raffle cancelled failed:", error);
+            console.error(error);
             if (error.message !== "Validation failed") {
-                toast.error("Raffle cancelled failed");
+                toast.error("Failed to claim prize");
             }
         },
     });
-    return { cancelRaffle };
-}   
+    return {
+        claimPrize
+    };
+};

@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
-import { fetchRaffleById, fetchRaffles } from "../api/rafflesApi"
-import type { RaffleTypeBackend } from "../types/backend/raffleTypes";
-import { getRaffleWinnersWhoClaimedPrize } from "../api/routes/raffleRoutes";
+import { fetchRaffleById, fetchRaffles } from "../../api/rafflesApi"
+import type { RaffleTypeBackend } from "../../types/backend/raffleTypes";
+import { getRaffleWinnersWhoClaimedPrize } from "../../api/routes/raffleRoutes";
 
 export const useRaffles = (filter: string) => {
   return useInfiniteQuery({

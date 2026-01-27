@@ -6,9 +6,9 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import {
     bidInAuction,
     getBidAuctionTx,
-} from "../api/routes/auctionRoutes";
-import { useCheckAuth } from "./useCheckAuth";
-import { connection } from "./helpers";
+} from "../../api/routes/auctionRoutes";
+import { useCheckAuth } from "../useCheckAuth";
+import { connection } from "../helpers";
 import { Transaction } from "@solana/web3.js";
 
 interface BidAuctionArgs {

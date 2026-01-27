@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getBoughtPnl, getSoldPnl } from "../api/routes/statsRoutes";
+import { getBoughtPnl, getSoldPnl } from "../../api/routes/statsRoutes";
 
 export const usePnlStats = ({timeframe}:{timeframe:string}) => {
     const boughtPnl = useQuery({

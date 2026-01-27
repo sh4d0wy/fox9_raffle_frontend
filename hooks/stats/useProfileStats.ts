@@ -12,7 +12,7 @@ import {
   getRaffleCreated,
   getRaffleFavourite,
   getRafflePurchased,
-} from "../api/routes/userRoutes";
+} from "../../api/routes/userRoutes";
 
 export type MainFilter = "Rafflers" | "Gumballs" | "Auctions";
 export type TabFilter = "created" | "purchased" | "favourite";

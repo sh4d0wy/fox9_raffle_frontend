@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMyProfile } from "../api/routes/userRoutes";
+import { getMyProfile } from "../../api/routes/userRoutes";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 export const useMyProfile = (isAuthenticated: boolean) => {

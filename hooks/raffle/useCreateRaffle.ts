@@ -1,19 +1,19 @@
-import { useCreateRaffleStore } from "../store/createRaffleStore";
+import { useCreateRaffleStore } from "../../store/createRaffleStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { useRaffleAnchorProgram } from "./useRaffleAnchorProgram";
+import { useRaffleAnchorProgram } from "../useRaffleAnchorProgram";
 import { Transaction } from "@solana/web3.js";
 import type { RaffleTypeBackend } from "types/backend/raffleTypes";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { VerifiedTokens } from "../src/utils/verifiedTokens";
+import { VerifiedTokens } from "../../src/utils/verifiedTokens";
 import {
   createRaffleOverBackend,
   createRaffleTx,
-} from "../api/routes/raffleRoutes";
+} from "../../api/routes/raffleRoutes";
 import { useRouter } from "@tanstack/react-router";
 // import { VerifiedNftCollections } from "@/utils/verifiedNftCollections";
-import { useCheckAuth } from "./useCheckAuth";
-import { connection } from "./helpers";
+import { useCheckAuth } from "../useCheckAuth";
+import { connection } from "../helpers";
 import { useMemo } from "react";
 
 export const useCreateRaffle = () => {
