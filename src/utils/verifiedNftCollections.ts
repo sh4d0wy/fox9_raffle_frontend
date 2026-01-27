@@ -1,0 +1,92 @@
+export const VerifiedNftCollections = [
+    {
+        name: "COLLECTOR CRYPTO",
+        address: "CCryptWBYktukHDQ2vHGtVcmtjXxYzvw8XNVY64YN2Yf",
+        image:"https://prod-tensor-creators-s3.s3.us-east-1.amazonaws.com/image/9acf269c-4c4b-44e4-b230-9d8ce4be3078",
+        twitter:"https://x.com/Collector_Crypt",
+        website:"https://collectorcrypt.com/",
+        symbol:"collector_crypt",
+        url:"https://solscan.io/token/CCryptWBYktukHDQ2vHGtVcmtjXxYzvw8XNVY64YN2Yf"
+    },
+    {
+        name:"FROGANA",
+        address:"C7on9fL8YFp5W6M7a6SvehMKBppauZXu2eYDTZG4BN2i",
+        image:"https://prod-image-cdn.tensor.trade/images/90x90/freeze=false/https%3A%2F%2Fprod-tensor-creators-s3.s3.us-east-1.amazonaws.com%2Fimage-9ef3f879-ec4e-4994-9eff-098990d43aa0",
+        twitter:"https://x.com/FroganaHQ",
+        website:"https://solscan.io/token/C7on9fL8YFp5W6M7a6SvehMKBppauZXu2eYDTZG4BN2i",
+        symbol:"froganas",
+        url:"https://solscan.io/token/C7on9fL8YFp5W6M7a6SvehMKBppauZXu2eYDTZG4BN2i"
+    },
+    {
+        name:"MAD LADS",
+        address:"J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w",
+        image:"https://prod-tensor-creators-s3.s3.us-east-1.amazonaws.com/image-59c7bcf2-bcb3-4cd3-9301-68ee6a474926",
+        twitter:"https://x.com/madlads",
+        website:"https://www.madlads.com/",
+        symbol:"mad_lads",
+        url:"https://solscan.io/token/J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w"
+    },
+    {
+        name:"SMB GEN 2",
+        address:"SMBtHCCC6RYRutFEPb4gZqeBLUZbMNhRKaMKZZLHi7W",
+        image:"https://prod-tensor-creators-s3.s3.us-east-1.amazonaws.com/image/adf0c9f9-8438-4ed3-862a-b82d8f380495",
+        twitter:"https://x.com/SolanaMBS",
+        website:"https://monkedao.tensor.trade/",
+        symbol:"solana_monkey_business",
+        url:"https://solscan.io/token/SMBtHCCC6RYRutFEPb4gZqeBLUZbMNhRKaMKZZLHi7W"
+    },
+    {
+        name:"DEGODS",
+        address:"6XxjKYFbcndh2gDcsUrmZgVEsoDxXMnfsaGY6fpTJzNr",
+        image:"https://vut5qyanv6mf6unysy67eksn5txhivep6idvs3apk3rqn75pci5a.arweave.net/rSfYYA2vmF9RuJY98ipN7O50VI_yB1lsD1bjBv-vEjo",
+        twitter:"https://x.com/DeGodsNFT",
+        website:"https://de.xyz/",
+        symbol:"degods",
+        url:"https://solscan.io/token/6XxjKYFbcndh2gDcsUrmZgVEsoDxXMnfsaGY6fpTJzNr"
+    },
+    {
+        name:"FAMOUS FOX FEDERATION",
+        address:"BUjZjAS2vbbb65g7Z1Ca9ZRVYoJscURG5L3AkVvHP9ac",
+        image:"https://tif4yznyukz4abh4ver5j2nzojogtmpdujsb7nsdqqcvcvvpb5oq.arweave.net/mgvMZbiis8AE_Kkj1Om5clxpseOiZB-2Q4QFUVavD10",
+        twitter:"https://x.com/FamousFoxFed",
+        website:"https://famousfoxes.com/",
+        symbol:"famous_fox_federation",
+        url:"https://solscan.io/token/BUjZjAS2vbbb65g7Z1Ca9ZRVYoJscURG5L3AkVvHP9ac"
+    },
+    {
+        name:"QUACK HEADS",
+        address:"HxSsfM9WxQWj79chAUNL6osZxQjJj5iMUwrjEfRBvYBR",
+        image:"https://prod-image-cdn.tensor.trade/images/90x90/freeze=false/https%3A%2F%2Fimg-cdn.magiceden.dev%2Fautoquality%3Anone%2Frs%3Afill%2Fplain%2Fhttps%253A%252F%252Fmedia.cdn.magiceden.dev%252Flaunchpad%252Fwallchain%252F8beb724a-7ffe-4ffb-be52-6751023895b7",
+        twitter:"https://x.com/wallchain",
+        website:"https://app.wallchain.xyz/",
+        symbol:"wallchain",
+        url:"https://solscan.io/token/HxSsfM9WxQWj79chAUNL6osZxQjJj5iMUwrjEfRBvYBR"
+    },
+    {
+        name:"CLAYNOSAURZ",
+        address:"6mszaj17KSfVqADrQj3o4W3zoLMTykgmV37W4QadCczK",
+        image:"https://img-cdn.magiceden.dev/rs:fill:400:0:0/plain/https%3A%2F%2Fcreator-hub-prod.s3.us-east-2.amazonaws.com%2Fclaynosaurz_pfp_1679930706147.jpeg",
+        twitter:"https://x.com/Claynosaurz",
+        website:"https://claynosaurz.com/",
+        symbol:"claynosaurz",
+        url:"https://solscan.io/token/6mszaj17KSfVqADrQj3o4W3zoLMTykgmV37W4QadCczK"
+    },
+    {
+        name:"GAMBA DOGS",
+        address:"6R4yk1D73n5XJY4HXx1Y7SpsJQjAWNFrCdavv5jRhCvZ",
+        image:"https://prod-image-cdn.tensor.trade/images/90x90/freeze=false/https%3A%2F%2Fprod-tensor-creators-s3.s3.us-east-1.amazonaws.com%2Fimage%2Fdd0df8d3-7e5e-4093-866a-c0475694f1b4",
+        twitter:"https://x.com/gambadogs",
+        website:"https://gambadogs.com/",
+        symbol:"gamba_dogs",
+        url:"https://solscan.io/token/6R4yk1D73n5XJY4HXx1Y7SpsJQjAWNFrCdavv5jRhCvZ"
+    },
+    {
+        name:"HAXZ",
+        address:"G86H6xCohHXe8MRbZvfkrm2gTgp6rH8PqAPnDLhUhPab",
+        image:"https://prod-image-cdn.tensor.trade/images/90x90/freeze=false/https%3A%2F%2Fmedia.cdn.magiceden.dev%2Flaunchpad%2F%2Fe4c0f9cf-b909-4084-b01a-4f9a4147ff6d",
+        twitter:"https://x.com/haxz_xyz",
+        website:"https://www.haxz.xyz/",
+        symbol:"haxz",
+        url:"https://solscan.io/token/G86H6xCohHXe8MRbZvfkrm2gTgp6rH8PqAPnDLhUhPab"
+    }
+]

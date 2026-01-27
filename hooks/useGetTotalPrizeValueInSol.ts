@@ -1,0 +1,157 @@
+import { WRAPPED_SOL_MINT } from "../src/constants";
+import { useQueries } from "@tanstack/react-query";
+import { useMemo } from "react";
+
+interface Prize {
+  mint: string;
+  prizeAmount: string;
+  quantity: number;
+  decimals?: number;
+  isNft?: boolean;
+  floorPrice?: string;
+}
+
+interface TokenPriceResult {
+  price: number;
+}
+
+const fetchTokenPrice = async (tokenMint: string): Promise<TokenPriceResult | null> => {
+  if (!tokenMint) return null;
+  try {
+    const response = await fetch(
+      `https://api-v3.raydium.io/mint/price?mints=${tokenMint}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Raydium API request failed');
+    }
+
+    const data = await response.json();
+
+    // Raydium returns: { success: true, data: { [mint]: "priceAsString" } }
+    if (data.success && data.data && data.data[tokenMint]) {
+      const priceString = data.data[tokenMint];
+      const price = parseFloat(priceString);
+      
+      if (!isNaN(price)) {
+        return {
+          price: price,
+        };
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Raydium API error:', error);
+    return null;
+  }
+};
+
+const SOL_MINT = WRAPPED_SOL_MINT;
+
+export const useGetTotalPrizeValueInSol = (prizes: Prize[] | undefined) => {
+  // Filter out NFT prizes - they use floorPrice directly in SOL
+  const tokenPrizes = useMemo(() => {
+    if (!prizes || prizes.length === 0) return [];
+    return prizes.filter(p => !p.isNft);
+  }, [prizes]);
+
+  const nftPrizes = useMemo(() => {
+    if (!prizes || prizes.length === 0) return [];
+    return prizes.filter(p => p.isNft);
+  }, [prizes]);
+
+  // Get unique mints for token prizes only (NFTs don't need price lookups)
+  const uniqueMints = useMemo(() => {
+    if (tokenPrizes.length === 0) return [SOL_MINT];
+    const mints = [...new Set(tokenPrizes.map(p => p.mint))];
+    if (!mints.includes(SOL_MINT)) {
+      mints.push(SOL_MINT);
+    }
+    return mints;
+  }, [tokenPrizes]);
+
+  const priceQueries = useQueries({
+    queries: uniqueMints.map((mint) => ({
+      queryKey: ['getTokenPrice', mint],
+      queryFn: () => fetchTokenPrice(mint),
+      enabled: !!mint,
+      staleTime: 120000,
+    })),
+  });
+
+  const { totalValueInSol, isLoading, isError } = useMemo(() => {
+    if (!prizes || prizes.length === 0) {
+      return { totalValueInSol: 0, isLoading: false, isError: false };
+    }
+
+    const isLoading = priceQueries.some(q => q.isLoading);
+    const isError = priceQueries.some(q => q.isError);
+
+    if (isLoading) {
+      return { totalValueInSol: 0, isLoading: true, isError: false };
+    }
+
+    const priceMap: Record<string, TokenPriceResult> = {};
+    uniqueMints.forEach((mint, index) => {
+      const data = priceQueries[index]?.data;
+      if (data) {
+        priceMap[mint] = data;
+      }
+    });
+
+    const solPriceUsd = priceMap[SOL_MINT]?.price || 0;
+
+    // Calculate NFT value in SOL (floorPrice is in lamports)
+    let totalNftValueInSol = 0;
+    for (const prize of nftPrizes) {
+      if (prize.floorPrice) {
+        const floorPriceInSol = parseFloat(prize.floorPrice) / (10 ** 9);
+        totalNftValueInSol += floorPriceInSol * prize.quantity;
+      }
+    }
+
+    // If no token prizes, just return NFT value
+    if (tokenPrizes.length === 0) {
+      return { totalValueInSol: totalNftValueInSol, isLoading: false, isError: false };
+    }
+
+    // Need SOL price to convert token values to SOL
+    if (solPriceUsd === 0) {
+      return { totalValueInSol: totalNftValueInSol, isLoading: false, isError: true };
+    }
+
+    let totalTokenValueUsd = 0;
+
+    for (const prize of tokenPrizes) {
+      const tokenPrice = priceMap[prize.mint];
+      if (tokenPrice) {
+        // Use prize.decimals since Raydium doesn't provide decimals info
+        const decimals = prize.decimals ?? 9;
+        const prizeAmountNum = parseFloat(prize.prizeAmount) / (10 ** decimals);
+        const totalAmount = prizeAmountNum * prize.quantity;
+        const valueUsd = totalAmount * tokenPrice.price;
+        totalTokenValueUsd += valueUsd;
+      }
+    }
+
+    const tokenValueInSol = totalTokenValueUsd / solPriceUsd;
+    const totalSol = tokenValueInSol + totalNftValueInSol;
+
+    return { totalValueInSol: totalSol, isLoading: false, isError };
+  }, [prizes, priceQueries, uniqueMints, tokenPrizes, nftPrizes]);
+
+  return {
+    totalValueInSol,
+    isLoading,
+    isError,
+    formattedValue: isLoading ? 'Loading...' : `${totalValueInSol.toFixed(6)} SOL`,
+  };
+};
+
