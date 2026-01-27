@@ -196,3 +196,24 @@ html {
   overflow: auto !important;
 padding-right: 0 !important;
 }
+
+
+.wallet-adapter-button-trigger {
+  background: var(--color-yellow-1000) !important;
+  color: var(--color-black-1000) !important;
+  border-radius: 9999px !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button {
+  background: var(--color-black-1000) !important;
+  color: var(--color-white-1000) !important;
+  border-radius: 8px !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button:hover {
+  background: var(--color-black-1200) !important;
+}
+
+.wallet-adapter-modal-wrapper {
+  background: var(--color-black-1100) !important;
+}

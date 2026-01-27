@@ -28,8 +28,18 @@ export default defineConfig({
    resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-    "store": path.resolve(__dirname, "./store"),
-    "hooks": path.resolve(__dirname, "./hooks"),
+    store: path.resolve(__dirname, "./store"),
+    hooks: path.resolve(__dirname, "./hooks"),
+    buffer: "buffer/",
     },
+  },
+
+  define: {
+    global: "globalThis",
+    "process.env": {},
+  },
+
+  optimizeDeps: {
+    include: ["buffer", "process"],
   },
 })

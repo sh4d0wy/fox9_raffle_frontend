@@ -1,14 +1,28 @@
+import { useEffect, useRef } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useNotificationQuery } from "../../../hooks/useNotificationQuery";
+import { useEndedRafflesNotificationQuery } from "hooks/raffle/useEndedRafflesNotificationQuery";
 import { useNavbarStore } from "../../../store/globalStore";
+import { requestMessage, verifyMessage } from "../../../api/routes/userRoutes";
 import SettingsModel from "./SettingsModel";
 import NotificationsModel from "./NotificationsModel";
 import DynamicNewLink from "./DynamicNewLink";
 import StatsDropdown from "./StatsDropdown";
+import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
+import { isTokenExpired, setToken, removeToken } from "../../utils/auth";
+import { toast } from "sonner";
+import Toast from "./Toast";
+import EndedRaffleToast from "./EndedRaffleToast";
+import { invalidateQueries } from "../../utils/invalidateQueries";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Navbar = () => {
 
   const {
     isAuth,
+    walletAddress,
     showSettingsModal,
     showNotificationModal,
     showMobileMenu,
@@ -17,12 +31,220 @@ export const Navbar = () => {
     closeSettings,
     openNotifications,
     closeNotifications,
+    setAuth
   } = useNavbarStore();
 
+  const { publicKey, connected, signMessage } = useWallet();
   const location = useLocation();
+  const tokenCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isAuthenticatingRef = useRef(false);
+  const hasInitializedRef = useRef(false);
+  const lastNotifiedWalletRef = useRef<string | null>(null);
+  const hasShownNotificationsRef = useRef(false);
+  const hasShownEndedRafflesNotificationsRef = useRef(false);
+  const queryClient = useQueryClient();
+
+  const signAndVerifyMessage = async (message: string) => {
+    if (!publicKey || !signMessage) {
+        throw new Error("Wallet not connected");
+    }
+    try {
+      const encodedMessage = new TextEncoder().encode(message);
+      const signature = await signMessage(encodedMessage);
+      const data = await verifyMessage(publicKey.toBase58(), message, bs58.encode(signature));
+      
+      if(!data.error && data.token){
+        setToken(data.token.toString());
+        invalidateQueries(queryClient, publicKey?.toBase58() ?? "");
+
+        return { data, success: true };
+      }
+      return { data, success: false };
+    } catch (error) {
+      console.error("Error signing and verifying message:", error);
+      return { data: null, success: false };
+    }
+  };
+
+  const authenticateWallet = async (currentWalletKey: string, reason: string) => {
+    if (isAuthenticatingRef.current) {
+      return;
+    }
+
+    try {
+      isAuthenticatingRef.current = true;
+      
+      const message = await requestMessage(currentWalletKey);
+      const result = await signAndVerifyMessage(message.message);
+      
+      if (result.success && result.data?.token) {
+        setToken(result.data.token.toString());
+        setAuth(true, currentWalletKey);
+        hasInitializedRef.current = true;
+      } else {
+        removeToken();
+        setAuth(false, null);
+        hasInitializedRef.current = false;
+      }
+    } catch (error) {
+      removeToken();
+      setAuth(false, null);
+      hasInitializedRef.current = false;
+    } finally {
+      isAuthenticatingRef.current = false;
+    }
+  };
+
+  useEffect(() => {
+    const fetchMessage = async () => {
+      if (connected && publicKey) {
+        const currentWalletKey = publicKey.toBase58();
+        
+        if (hasInitializedRef.current && isAuth && walletAddress === currentWalletKey) {
+          return;
+        }
+
+        // Skip if authentication is in progress
+        if (isAuthenticatingRef.current) {
+          return;
+        }
+
+        const authToken = localStorage.getItem('authToken');
+        
+        if (authToken && !isTokenExpired(authToken)) {
+          setAuth(true, currentWalletKey);
+          hasInitializedRef.current = true;
+        } else {
+          await authenticateWallet(currentWalletKey, "initial connection");
+        }
+      } else if (!connected) {
+        if (hasInitializedRef.current) {
+          hasInitializedRef.current = false;
+          isAuthenticatingRef.current = false;
+          removeToken();
+          setAuth(false, null);
+        }
+      }
+    };
+    fetchMessage();
+  }, [connected, publicKey]);
+
+  useEffect(() => {
+    if (!connected || !publicKey || !hasInitializedRef.current) {
+      if (tokenCheckIntervalRef.current) {
+        clearInterval(tokenCheckIntervalRef.current);
+        tokenCheckIntervalRef.current = null;
+      }
+      return;
+    }
+
+    if (tokenCheckIntervalRef.current) {
+      clearInterval(tokenCheckIntervalRef.current);
+      tokenCheckIntervalRef.current = null;
+    }
+
+    tokenCheckIntervalRef.current = setInterval(() => {
+      const authToken = localStorage.getItem('authToken');
+      
+      if (isTokenExpired(authToken) && publicKey) {
+        console.log("Token check: Token expired, renewing...");
+        authenticateWallet(publicKey.toBase58(), "token renewal");
+      }
+    }, 60 * 1000);
+
+    return () => {
+      if (tokenCheckIntervalRef.current) {
+        clearInterval(tokenCheckIntervalRef.current);
+        tokenCheckIntervalRef.current = null;
+      }
+    };
+  }, [connected, publicKey, isAuth]);
+
+  const shortAddress =
+    walletAddress && `${walletAddress.slice(0, 4)}..${walletAddress.slice(-4)}`;
+
+  const { data: notifications } =  useNotificationQuery();
+  const { data: endedRafflesNotifications } = useEndedRafflesNotificationQuery();
+  useEffect(() => {
+    if (!publicKey || !notifications?.raffles) {
+      return;
+    }
+    console.log("checking for wallet change")
+    const walletChanged = lastNotifiedWalletRef.current !== publicKey.toBase58();
+    
+    if (walletChanged) {
+      console.log("wallet changed");
+      hasShownNotificationsRef.current = false;
+      hasShownEndedRafflesNotificationsRef.current = false;
+      lastNotifiedWalletRef.current = publicKey.toBase58();
+    }
+
+    if (hasShownNotificationsRef.current) {
+      console.log("notifications already shown");
+      return;
+    }
+
+    const unclaimedWinnings = notifications.raffles.filter(
+      (raffle: { id: number; claimed: boolean }) => !raffle.claimed
+    );
+
+    if (unclaimedWinnings.length > 0) {
+      console.log("showing notifications");
+      hasShownNotificationsRef.current = true;
+
+      unclaimedWinnings.forEach(
+        (raffle: { id: number; claimed: boolean }, index: number) => {
+          setTimeout(() => {
+            toast.custom(
+              (toastId) => (
+                <Toast id={raffle.id} claimed={raffle.claimed} toastId={toastId as string} />
+              ),
+              {
+                duration: 3000,
+              }
+            );
+          }, index * 400);
+        }
+      );
+    }
+  }, [publicKey, notifications]);
+
+  useEffect(() => {
+    if (!publicKey || !endedRafflesNotifications?.raffles) {
+      return;
+    }
+
+    if (hasShownEndedRafflesNotificationsRef.current) {
+      return;
+    }
+
+    const endedRaffles = endedRafflesNotifications.raffles.filter(
+      (raffle: { id: number; ticketAmountClaimedByCreator: boolean }) => !raffle.ticketAmountClaimedByCreator
+    );
+
+    if (endedRaffles.length > 0) {
+      hasShownEndedRafflesNotificationsRef.current = true;
+
+      endedRaffles.forEach(
+        (raffle: { id: number; totalEntries: number }, index: number) => {
+          setTimeout(() => {
+            toast.custom(
+              (toastId) => (
+                <EndedRaffleToast id={raffle.id} totalEntries={raffle.totalEntries} toastId={toastId as string} />
+              ),
+              {
+                duration: 3000,
+              }
+            );
+          }, index * 400);
+        }
+      );
+    }
+  }, [publicKey, endedRafflesNotifications]);
+
 
   const navLinks = [
-    { label: "Fox9", path: "/" },
+    { label: "Raffles", path: "/" },
     { label: "Auctions", path: "/auctions" },
     { label: "Gumballs", path: "/gumballs" },
   ];
@@ -52,24 +274,7 @@ export const Navbar = () => {
             <DynamicNewLink isAuth={true} />
             </div>
 
-            <Link
-              to={"/"}
-              className="h-11 lg:px-6 px-2  py-2.5 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 rounded-full flex items-center gap-2.5 transition duration-300 hover:opacity-90"
-            >
-              {isAuth ? (
-                <>
-                  <img src="/icons/fox-icon.svg" className="size-7 hidden lg:block" />
-                  <img src="/icons/wallet_icon.svg" className="size-7 block lg:hidden" />
-                  <span className="text-white hidden lg:block text-base font-semibold font-inter">
-                    He1v..J5zi
-                  </span>
-                </>
-              ) : (
-                <span className="text-white  text-base font-semibold font-inter">
-                  Select Wallet
-                </span>
-              )}
-            </Link>
+            <WalletMultiButton className="inline-flex cursor-pointer w-11 h-11 transition duration-300 hover:opacity-90 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5" />
 
             <button
               onClick={toggleMobileMenu}
@@ -133,23 +338,7 @@ export const Navbar = () => {
 
         <div className="hidden lg:flex items-center xl:gap-3 gap-2">
           <DynamicNewLink isAuth={true} />
-          <Link
-            to={"/"}
-            className="h-11 px-6 py-2.5 group bg-linear-to-r hover:from-primary-color hover:via-primary-color hover:to-primary-color from-black-1000 via-neutral-500 to-black-1000 rounded-full flex items-center gap-2.5 transition duration-300 hover:opacity-90"
-          >
-            {isAuth ? (
-              <>
-                <img src="/icons/fox-icon.svg" className="size-7" />
-                <span className="text-white group-hover:text-black-1000 text-base font-semibold font-inter">
-                  He1v..J5zi
-                </span>
-              </>
-            ) : (
-              <span className="text-white text-base font-semibold font-inter">
-                Select Wallet
-              </span>
-            )}
-          </Link>
+          <WalletMultiButton className="inline-flex cursor-pointer w-11 h-11 transition duration-300 hover:opacity-90 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5" />
 
           {isAuth && (
             <Link
