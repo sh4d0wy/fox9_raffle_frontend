@@ -134,11 +134,11 @@ export interface FileRoutesByFullPath {
   '/raffles/create_raffles': typeof RafflesCreate_rafflesRoute
   '/stats/analytics': typeof StatsAnalyticsRoute
   '/stats/profit_loss': typeof StatsProfit_lossRoute
-  '/auctions': typeof AuctionsIndexRoute
-  '/gumballs': typeof GumballsIndexRoute
-  '/profile': typeof ProfileIndexRoute
-  '/raffles': typeof RafflesIndexRoute
-  '/stats': typeof StatsIndexRoute
+  '/auctions/': typeof AuctionsIndexRoute
+  '/gumballs/': typeof GumballsIndexRoute
+  '/profile/': typeof ProfileIndexRoute
+  '/raffles/': typeof RafflesIndexRoute
+  '/stats/': typeof StatsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -197,11 +197,11 @@ export interface FileRouteTypes {
     | '/raffles/create_raffles'
     | '/stats/analytics'
     | '/stats/profit_loss'
-    | '/auctions'
-    | '/gumballs'
-    | '/profile'
-    | '/raffles'
-    | '/stats'
+    | '/auctions/'
+    | '/gumballs/'
+    | '/profile/'
+    | '/raffles/'
+    | '/stats/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -284,35 +284,35 @@ declare module '@tanstack/react-router' {
     '/stats/': {
       id: '/stats/'
       path: '/stats'
-      fullPath: '/stats'
+      fullPath: '/stats/'
       preLoaderRoute: typeof StatsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/raffles/': {
       id: '/raffles/'
       path: '/raffles'
-      fullPath: '/raffles'
+      fullPath: '/raffles/'
       preLoaderRoute: typeof RafflesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile/': {
       id: '/profile/'
       path: '/profile'
-      fullPath: '/profile'
+      fullPath: '/profile/'
       preLoaderRoute: typeof ProfileIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gumballs/': {
       id: '/gumballs/'
       path: '/gumballs'
-      fullPath: '/gumballs'
+      fullPath: '/gumballs/'
       preLoaderRoute: typeof GumballsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auctions/': {
       id: '/auctions/'
       path: '/auctions'
-      fullPath: '/auctions'
+      fullPath: '/auctions/'
       preLoaderRoute: typeof AuctionsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }

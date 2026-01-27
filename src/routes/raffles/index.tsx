@@ -12,8 +12,7 @@ import { useEffect, useState } from 'react'
 import CryptoCardSkeleton from '@/components/skeleton/RafflesCardSkeleton'
 import { TryToolsSection } from '@/components/home/TryToolsSection'
 import { ToolsSection } from '@/components/home/ToolsSection'
-import { useGlobalStore } from "../../../store/globalStore";
-import WinnerModel from '@/components/common/WinnerModel'
+import { useGlobalStore } from "store/globalStore";
 
 
 
@@ -44,22 +43,11 @@ function RafflesPage() {
 
 
   const [filters, setFilters] = useState<string[]>([]);
-  const [winnerModelShow, setWinnerModelShow] = useState(false);
 
   const activeFilters = [
     { id: "all", label: "All Raffles" },
     { id: "past", label: "Past Raffles" },
   ];
-
-
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        setWinnerModelShow(true);
-      }, 3000);
-
-      return () => clearTimeout(timer);
-
-    },[])
   
 
   return (
@@ -241,7 +229,6 @@ function RafflesPage() {
         </div>
       </section>
 
-      <WinnerModel isOpen={winnerModelShow} onClose={() => setWinnerModelShow(false)} />
 
     </main>
   )

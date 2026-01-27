@@ -13,10 +13,10 @@ import StatsDropdown from "./StatsDropdown";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { isTokenExpired, setToken, removeToken } from "../../utils/auth";
 import { toast } from "sonner";
-import Toast from "./Toast";
 import EndedRaffleToast from "./EndedRaffleToast";
 import { invalidateQueries } from "../../utils/invalidateQueries";
 import { useQueryClient } from "@tanstack/react-query";
+import WinnerModel from "./WinnerModel";
 
 export const Navbar = () => {
 
@@ -192,12 +192,12 @@ export const Navbar = () => {
       console.log("showing notifications");
       hasShownNotificationsRef.current = true;
 
-      unclaimedWinnings.forEach(
+      unclaimedWinnings.length > 0 && unclaimedWinnings.forEach(
         (raffle: { id: number; claimed: boolean }, index: number) => {
           setTimeout(() => {
             toast.custom(
               (toastId) => (
-                <Toast id={raffle.id} claimed={raffle.claimed} toastId={toastId as string} />
+                <WinnerModel isOpen={true} onClose={() => toast.dismiss(toastId as string)} id={raffle.id} toastId={toastId as string} />
               ),
               {
                 duration: 3000,

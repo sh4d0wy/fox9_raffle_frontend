@@ -1,23 +1,20 @@
 import { Transition } from "@headlessui/react";
 import { Link } from "@tanstack/react-router";
 import { Fragment } from "react";
+import { toast } from "sonner";
 
 interface WinnerToastProps {
   isOpen: boolean;
   onClose: () => void;
+  id: number;
+  toastId: string;
 }
 
-export default function WinnerToast({ isOpen, onClose }: WinnerToastProps) {
+export default function WinnerToast({ isOpen, onClose,id,toastId }: WinnerToastProps) {
   return (
     <Transition
       show={isOpen}
       as={Fragment}
-      enter="transform ease-out duration-300 transition"
-      enterFrom="translate-x-full opacity-0"
-      enterTo="translate-x-0 opacity-100"
-      leave="transition ease-in duration-200"
-      leaveFrom="translate-x-0 opacity-100"
-      leaveTo="translate-x-full opacity-0"
     >
       <div className="fixed top-4 right-4 z-50 w-full max-w-[356px]">
         <div className="border border-primary-color border-b-4 overflow-hidden rounded-xl bg-black-1300 backdrop-blur-2xl shadow-lg">
@@ -25,7 +22,7 @@ export default function WinnerToast({ isOpen, onClose }: WinnerToastProps) {
             <div className="flex items-center justify-between px-4 pt-3 -mb-4">
               <h4 className="text-lg text-white font-semibold font-inter"></h4>
               <button
-                onClick={onClose}
+                onClick={() => toast.dismiss(toastId)}
                 className="flex items-center justify-center cursor-pointer hover:scale-110 transition duration-300"
               >
                 <img src="/icons/cross-icon-2.svg" className="w-6" alt="cross" />
@@ -42,11 +39,12 @@ export default function WinnerToast({ isOpen, onClose }: WinnerToastProps) {
                   Congratulation! 🎉
                 </h3>
                 <h5 className="text-white text-base">
-                  You won <span className="text-primary-color">reffle #88</span>
+                  You won <span className="text-primary-color">reffle #{id}</span>
                 </h5>
                 <Link
-                onClick={onClose}
-                  to="."
+                onClick={() => toast.dismiss(toastId)}
+                  to="/raffles/$id"
+                  params={{ id: id?.toString() ?? "" }}
                   className="transition duration-300 group flex items-center gap-2 rounded-full text-primary-color py-3 font-semibold"
                 >
                   Claim your prize now
