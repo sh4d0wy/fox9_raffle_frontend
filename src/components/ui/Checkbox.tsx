@@ -1,0 +1,42 @@
+import { Checkbox } from "@headlessui/react";
+
+interface InputCheckboxProps {
+  label?: string;
+  checked?: boolean;
+  onChange?: (checked: boolean) => void;
+  className?: string;
+}
+
+export default function InputCheckbox({
+  label = "Raffle",
+  checked = false,
+  onChange,
+  className,
+}: InputCheckboxProps) {
+  return (
+    <Checkbox
+      checked={checked}
+      onChange={onChange}
+      className={`group flex cursor-pointer items-center w-fit h-6 relative ${className ?? ""}`}
+    >
+      <span className="size-5 fill-black group-data-checked:text-primary-color text-transparent group-data-checked:border-primary-color border border-gray-1100 rounded-md absolute">
+        <svg
+          width={20}
+          height={20}
+          viewBox="0 0 22 22"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M6.75 0C3.02208 0 0 3.02208 0 6.75V14.75C0 18.4779 3.02208 21.5 6.75 21.5H14.75C18.4779 21.5 21.5 18.4779 21.5 14.75V6.75C21.5 3.02208 18.4779 0 14.75 0H6.75ZM15.2803 8.7803C15.5732 8.48742 15.5732 8.01255 15.2803 7.71966C14.9874 7.42676 14.5126 7.42676 14.2197 7.71966L9.5934 12.3459C9.4958 12.4435 9.3375 12.4435 9.2399 12.3459L7.28033 10.3863C6.98744 10.0934 6.51256 10.0934 6.21967 10.3863C5.92678 10.6792 5.92678 11.1541 6.21967 11.447L8.17923 13.4065C8.8626 14.09 9.9707 14.09 10.6541 13.4065L15.2803 8.7803Z"
+            fill="currentColor"
+          />
+        </svg>
+      </span>
+
+      <p className="text-base pl-8 text-white font-medium font-inter">{label}</p>
+    </Checkbox>
+  );
+}
