@@ -1,29 +1,28 @@
-import { Dialog, DialogPanel } from "@headlessui/react";
+import { Transition } from "@headlessui/react";
 import { Link } from "@tanstack/react-router";
+import { Fragment } from "react";
 
-interface WinnerModelProps {
+interface WinnerToastProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function WinnerModel({ isOpen, onClose }: WinnerModelProps) {
- 
-
-
+export default function WinnerToast({ isOpen, onClose }: WinnerToastProps) {
   return (
-    <Dialog
-      open={isOpen}
-      as="div"
-      className="relative z-50 focus:outline-none bg-black/80"
-      onClose={onClose}
+    <Transition
+      show={isOpen}
+      as={Fragment}
+      enter="transform ease-out duration-300 transition"
+      enterFrom="translate-x-full opacity-0"
+      enterTo="translate-x-0 opacity-100"
+      leave="transition ease-in duration-200"
+      leaveFrom="translate-x-0 opacity-100"
+      leaveTo="translate-x-full opacity-0"
     >
-      <div className="fixed inset-0 z-10 w-screen overflow-y-auto bg-black/80">
-        <div className="flex min-h-full items-center justify-center p-4">
-          <DialogPanel
-            transition
-            className="w-full max-w-[536px] rounded-xl pb-10 bg-black-1300 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0"
-          >
-            <div className="flex items-center justify-between px-[22px] pt-6 pb-2">
+      <div className="fixed top-4 right-4 z-50 w-full max-w-[356px]">
+        <div className="border border-primary-color border-b-4 overflow-hidden rounded-xl bg-black-1300 backdrop-blur-2xl shadow-lg">
+          <div className="w-full bg-primary-color/10">
+            <div className="flex items-center justify-between px-4 pt-3 -mb-4">
               <h4 className="text-lg text-white font-semibold font-inter"></h4>
               <button
                 onClick={onClose}
@@ -33,24 +32,35 @@ export default function WinnerModel({ isOpen, onClose }: WinnerModelProps) {
               </button>
             </div>
 
-            <div className="w-full px-5 flex flex-col items-center justify-center gap-4 ">
-              <img src="/images/winner-img-1.png" className="w-[111px]" alt="" />
-              <p className="text-[22px] text-center text-primary-color py-1 px-5 rounded-full bg-primary-color/20 w-fit">WINNER!</p>
-              <h3 className="text-center text-white text-[42px] font-semibold">Congratulation! 🎉</h3>
-              <h5 className="text-white text-xl text-center ">You won <span className="text-primary-color">reffle #88</span></h5>
-              <Link to="." className="bg-primary-color transition duration-300 hover:bg-primary-color/90 group flex items-center justify-center gap-2 rounded-full text-black-1000 px-6 py-3 font-semibold " >
-                <img src="/icons/gift-line-icon.svg" alt="" />
-              Claim your prize now
-                <img src="/icons/arrow-style-1.svg" className="group-hover:translate-x-1 transition duration-300" alt="" />
-              
-              </Link>
+            <div className="w-full px-5 flex flex-row items-center justify-center gap-5 pb-2">
+              <img src="/images/winner-img-1.png" className="max-w-[60px]" alt="" />
+              <div className="flex-1">
+                <p className="text-[13px] text-primary-color py-1 px-4 rounded-full bg-primary-color/20 w-fit">
+                  WINNER!
+                </p>
+                <h3 className="text-white text-xl my-2 font-semibold">
+                  Congratulation! 🎉
+                </h3>
+                <h5 className="text-white text-base">
+                  You won <span className="text-primary-color">reffle #88</span>
+                </h5>
+                <Link
+                onClick={onClose}
+                  to="."
+                  className="transition duration-300 group flex items-center gap-2 rounded-full text-primary-color py-3 font-semibold"
+                >
+                  Claim your prize now
+                  <img
+                    src="/icons/arrow-style-11.svg"
+                    className="group-hover:translate-x-1 transition duration-300"
+                    alt=""
+                  />
+                </Link>
+              </div>
             </div>
-
-
-
-          </DialogPanel>
+          </div>
         </div>
       </div>
-    </Dialog>
+    </Transition>
   );
 }
