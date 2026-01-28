@@ -8,7 +8,7 @@ function StatsDropdown() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <li>
+    <li className="text-center">
       <Menu as="div" className="relative inline-block text-left">
         <Menu.Button
           className={`transition cursor-pointer duration-500 text-base md:text-base font-normal xl:min-w-24 px-3 font-inter ${location.pathname.startsWith('/stats')

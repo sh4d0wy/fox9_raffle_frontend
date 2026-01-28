@@ -8,12 +8,17 @@ import InfiniteScroll from "react-infinite-scroll-component"
 import FilterModel from "../../components/home/FilterModel"
 import { useRafflesStore } from "../../../store/rafflesStore"
 import { useRaffles } from "../../../hooks/raffle/useRaffles"
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import CryptoCardSkeleton from '@/components/skeleton/RafflesCardSkeleton'
 import { TryToolsSection } from '@/components/home/TryToolsSection'
 import { ToolsSection } from '@/components/home/ToolsSection'
 import { useGlobalStore } from "store/globalStore";
-
+import { useRaffleAnchorProgram } from 'hooks/raffle/useRaffleAnchorProgram';
+import { useBuyRaffleTicketStore } from 'store/buyraffleticketstore';
+import { useFetchUserNfts } from 'hooks/useFetchUserNfts';
+import { useFiltersStore } from 'store/filters-store'
+import { filterRaffles, getActiveFiltersList, hasActiveFilters, sortRaffles } from '@/utils/sortAndFilter'
+import type { RaffleTypeBackend } from 'types/backend/raffleTypes'
 
 
 const sortingOptions = [
@@ -37,19 +42,81 @@ export const Route = createFileRoute('/raffles/')({
 function RafflesPage() {
   const { filter, setFilter } = useRafflesStore();
   const { data, fetchNextPage, hasNextPage, isLoading } = useRaffles(filter);
-  const { sort, setSort } = useGlobalStore();
+  const { sort, setSort, searchQuery, setSearchQuery } = useGlobalStore();
+  const { getAllRaffles} = useRaffleAnchorProgram();
+  const { setTicketQuantityById, getTicketQuantityById } = useBuyRaffleTicketStore();
+  const { userNfts } = useFetchUserNfts();
+  const {
+    raffleType,
+    selectedToken,
+    selectedCollection,
+    floorMin,
+    floorMax,
+    endTimeAfter,
+    endTimeBefore,
+    filtersApplied,
+    clearFilter,
+    resetFilters,
+    setPageType,
+  } = useFiltersStore();
+  useEffect(() => {
+    setPageType("raffles");
+    
+  }, [setPageType]);
 
-  const raffles = data?.pages.flatMap((p) => p.items) || []
-
+  const filterOptions = {
+    raffleType,
+    selectedToken,
+    selectedCollection,
+    floorMin,
+    floorMax,
+    endTimeAfter,
+    endTimeBefore,
+  };
+  const activeFilters = useMemo(() => {
+    return getActiveFiltersList(filterOptions, "raffles");
+  }, [raffleType, selectedToken, selectedCollection, floorMin, floorMax, endTimeAfter, endTimeBefore]);
 
   const [filters, setFilters] = useState<string[]>([]);
 
-  const activeFilters = [
-    { id: "all", label: "All Raffles" },
-    { id: "past", label: "Past Raffles" },
-  ];
-  
+  const showActiveFilters = hasActiveFilters(filterOptions, "raffles");
+  const raffles = useMemo(() => {
+    let allRaffles = data?.pages.map((p) => p.items).flat() as unknown as RaffleTypeBackend[];
+    if (!allRaffles) return [];
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      allRaffles = allRaffles.filter((raffle) => 
+        raffle.prizeData?.name?.toLowerCase().includes(query) ||
+        raffle.prizeData?.symbol?.toLowerCase().includes(query) ||
+        raffle.prizeData?.description?.toLowerCase().includes(query)
+      );
+    }
+    
+    if (filtersApplied && showActiveFilters) {
+      allRaffles = filterRaffles(allRaffles, filterOptions);
+    }
 
+    if (sort && sort !== "Sort") {
+      allRaffles = sortRaffles(allRaffles, sort);
+    }
+    
+    return allRaffles;
+  }, [data, searchQuery, sort, filtersApplied, raffleType, selectedToken, selectedCollection, floorMin, floorMax, endTimeAfter, endTimeBefore]);
+  
+  useEffect(() => {
+    setSearchQuery("");
+  }, []);
+
+  useEffect(()=>{
+    if(raffles){
+      raffles.map((r)=>{
+        if(getTicketQuantityById(r.id || 0) === 0){
+          setTicketQuantityById(r.id || 0,1);
+        }
+      });
+    }
+  }, [raffles]);
   return (
     <main className="flex-1 font-inter bg-black-1100">
       <section className="w-full relative z-20 md:pt-48 pt-36">
@@ -218,7 +285,7 @@ function RafflesPage() {
             >
               <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4">
                 {raffles.map((r) => (
-                  <CryptoCard key={r.id} {...r} />
+                  <CryptoCard key={r.id} raffle={r} soldTickets={r.ticketSold || 0} />
                 ))}
               </div>
             </InfiniteScroll>

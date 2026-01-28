@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { ArrowRightIcon } from "lucide-react";
+import { toast } from "sonner";
 
     const Toast = ({id, claimed, toastId}: {id: number, claimed: boolean, toastId: string}) => {
   return (

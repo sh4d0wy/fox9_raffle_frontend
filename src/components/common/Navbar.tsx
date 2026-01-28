@@ -301,9 +301,7 @@ export const Navbar = () => {
               </li>
             ))}
 
-            <li className="text-center">
-              <StatsDropdown />
-            </li>
+            <StatsDropdown />
 
             <ul className="lg:hidden flex items-center lg:justify-start justify-center lg:pb-0 pb-6 gap-2 mt-4">
               {isAuth && (

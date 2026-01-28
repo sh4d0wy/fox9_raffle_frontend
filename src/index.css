@@ -205,6 +205,20 @@ padding-right: 0 !important;
   border-radius: 9999px !important;
 }
 
+.wallet-btn-full .wallet-adapter-button-trigger {
+  width: 100px !important;
+}
+
+.wallet-btn-auto .wallet-adapter-button-trigger {
+  width: auto !important;
+}
+
+.wallet-btn-icon .wallet-adapter-button-trigger {
+  width: 44px !important;
+  height: 44px !important;
+  padding: 0 !important;
+}
+
 .wallet-adapter-modal-list .wallet-adapter-button {
   background: var(--color-black-1000) !important;
   color: var(--color-white-1000) !important;
