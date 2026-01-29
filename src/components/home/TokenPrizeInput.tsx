@@ -1,0 +1,118 @@
+import { useState, useRef, useEffect, useMemo } from "react";
+import { useCreateRaffleStore } from "../../../store/createRaffleStore";
+import { NATIVE_SOL_MINT, VerifiedTokens, WRAPPED_SOL_MINT } from "../../utils/verifiedTokens";
+import { useFetchUserToken } from "../../../hooks/useFetchUserToken";
+import { useGetTokenPrice } from "hooks/useGetTokenPrice";
+import { ChevronDownIcon } from "lucide-react";
+
+export default function TokenPrizeInput() {
+    const { tokenPrizeAmount, setTokenPrizeAmount ,tokenPrizeMint, setTokenPrizeMint, setUserVerifiedTokens, getComputedVal,setPrizeType } = useCreateRaffleStore();
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const [filteredVerifiedTokens, setFilteredVerifiedTokens] = useState(VerifiedTokens);
+
+    const tokenPriceMint = useMemo(() => {
+      return tokenPrizeMint === NATIVE_SOL_MINT ? WRAPPED_SOL_MINT : tokenPrizeMint;
+    }, [tokenPrizeMint]);
+    
+    const { data: tokenPrice } = useGetTokenPrice(tokenPriceMint);
+    const { data: SolPrice } = useGetTokenPrice(WRAPPED_SOL_MINT);
+    const { userVerifiedTokens } = useFetchUserToken();
+    
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (
+          dropdownRef.current &&
+          !dropdownRef.current.contains(event.target as Node)
+        ) {
+          setIsOpen(false);
+        }
+      };
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+    const isInvalidTokenPrizeAmount = useMemo(() => {
+      if (!tokenPrizeAmount) return false;
+      return parseFloat(tokenPrizeAmount) <= 0;
+    }, [tokenPrizeAmount]);
+  
+  useEffect(() => {
+    if (userVerifiedTokens.length > 0) {
+      setFilteredVerifiedTokens(VerifiedTokens.filter((token) => userVerifiedTokens.some((userToken) => userToken.address === token.address)));
+      setTokenPrizeMint(userVerifiedTokens[0].address);
+      setPrizeType(userVerifiedTokens[0].symbol === "SOL" ? "sol" : "spl");
+      setUserVerifiedTokens(userVerifiedTokens.map((token) => token.address));
+    }
+  }, [userVerifiedTokens]);
+
+  useEffect(() => {
+    if (tokenPrizeAmount && tokenPrice?.price && SolPrice?.price) {
+      getComputedVal(tokenPrice.price, SolPrice.price);
+    }
+  }, [tokenPrizeMint, tokenPrice?.price, SolPrice?.price]);
+  return (
+    <div>
+    <div className="relative bg-black">
+      <input
+        id="amount"
+        type="number"
+        value={tokenPrizeAmount}
+        onChange={(e) => {
+          setTokenPrizeAmount(e.target.value);
+          getComputedVal(tokenPrice?.price || 0, SolPrice?.price || 0);
+        }}
+        className={`text-white focus:outline-0  placeholder:text-gray-1200 text-base w-full font-inter px-5 h-12 border border-solid border-gray-1100 rounded-lg font-medium ${isInvalidTokenPrizeAmount ? "border border-red-500" : ""}`}
+        autoComplete="off"
+        placeholder="Enter Amount"
+        disabled={userVerifiedTokens?.length == 0}
+      />
+      
+      {userVerifiedTokens?.length != 0 && (
+       
+      <div
+        ref={dropdownRef}
+        className={`absolute z-20 top-1/2 right-5 -translate-y-1/2  border-l border-solid border-gray-1100 ${filteredVerifiedTokens.length > 0 ? "block" : "hidden"}`}
+      >
+        <button
+          type="button"
+          className="flex items-center gap-1.5 px-3 cursor-pointer font-inter text-base font-medium text-white py-1 justify-center"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <img src={filteredVerifiedTokens.find((token) => token.address === tokenPrizeMint)?.image || "/icons/solana-sol-logo.svg"} alt={filteredVerifiedTokens.find((token) => token.address === tokenPrizeMint)?.name || "SOL"} className="w-4 h-4" />
+          <p>{filteredVerifiedTokens.find((token) => token.address === tokenPrizeMint)?.symbol}</p>
+          <ChevronDownIcon className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        </button>
+        
+        {isOpen && (
+          <ol className="absolute top-full right-0 w-full bg-black border border-white rounded-md mt-3 z-10">
+            {filteredVerifiedTokens.map((coin) => (
+              <li key={coin.address}>
+                <button
+                  type="button"
+                  className="w-full cursor-pointer flex items-center gap-2 text-left px-3 py-2 text-white hover:bg-white/10"
+                  onClick={() => {
+                    setTokenPrizeMint(coin.address);
+                    setIsOpen(false);
+                    setPrizeType(coin.symbol === "SOL" ? "sol" : "spl");
+                  }}
+                >
+                  <img src={coin.image} alt={coin.name} className="w-4 h-4" />
+                  {coin.name}
+                </button>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+      )}
+     
+
+    </div>
+    {isInvalidTokenPrizeAmount && tokenPrizeAmount.length > 0 && userVerifiedTokens?.length != 0 && (
+      <p className="md:text-sm text-xs font-medium font-inter text-red-500 pt-2.5">
+        Please enter a valid token prize amount
+      </p>
+    )}
+    </div>
+  );
+}

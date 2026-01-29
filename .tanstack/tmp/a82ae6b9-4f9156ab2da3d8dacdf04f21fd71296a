@@ -1,0 +1,9 @@
+import { createFileRoute } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/raffles/create_raffles')({
+  component: RouteComponent,
+})
+
+function RouteComponent() {
+  return <div>Hello "/raffles/create_raffles"!</div>
+}

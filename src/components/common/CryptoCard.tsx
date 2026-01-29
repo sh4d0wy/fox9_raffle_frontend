@@ -96,10 +96,8 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
   const remainingTickets = raffle?.ticketSupply - soldTickets;
 
   const canBuyRaffle = useMemo(()=>{
-    console.log("ticketsBoughtByUser", ticketsBoughtByUser);
     return publicKey && raffle.createdBy !== publicKey.toString() && ticketsBoughtByUser < raffle.maxEntries && remainingTickets > 0 && raffle.state === "Active";
   }, [publicKey, raffle.createdBy, ticketsBoughtByUser, remainingTickets, raffle.state]);
-  console.log("raffle", raffle);
   return (
     <div className={`bg-black-1300 backdrop-blur-[10px] rounded-[10px] p-3 pb-4 ${className}`}>
 
@@ -213,8 +211,11 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
         <div className="w-full flex flex-col mt-4 mb-[13px] items-center justify-between gap-1.5">
           <div className="w-full flex items-center justify-between gap-5">
             {raffle.ticketSupply !== soldTickets ? (
-              <h4 className="md:text-base text-sm text-white font-inter font-semibold">
+              <h4 className="md:text-base text-sm text-white font-inter font-semibold flex items-center gap-2">
                 {remainingTickets}/{raffle.ticketSupply}
+                <span className="text-xs text-primary-color font-inter">
+                  Max Per Person: {MAX}
+                </span>
               </h4>
             ) : (
               <h4 className="text-base text-orange-1100 font-semibold font-inter">
@@ -250,8 +251,10 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
         )}
 
         {canBuyRaffle && (
+          <>
           <div className="w-full flex items-center sm:flex-row flex-col gap-4">
             {/* Quantity */}
+            
             <div className="flex flex-1 items-center justify-between py-2 px-3 border border-gray-1000 rounded-full">
               <button onClick={decrease} className="min-w-8 h-8 cursor-pointer rounded-lg bg-primary-color">
                 −
@@ -285,6 +288,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
               </div>
             </button>
           </div>
+          </>
         )}
 
         {publicKey && publicKey.toString() === raffle.createdBy && (

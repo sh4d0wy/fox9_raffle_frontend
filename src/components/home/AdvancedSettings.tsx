@@ -1,36 +1,42 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import FormInput from "../ui/FormInput";
+import { useCreateRaffleStore } from "store/createRaffleStore";
+import { useRaffleAnchorProgram } from "hooks/raffle/useRaffleAnchorProgram";
+import { ChevronDownIcon } from "lucide-react";
 
 export default function AdvancedSettingsAccordion() {
-  const [isOpen, setIsOpen] = useState(true);
-
+  const [isOpen, setIsOpen] = useState(false);
+  const {numberOfWinners, ticketLimitPerWallet, setNumberOfWinners, setTicketLimitPerWallet, getComputedRent, prizeType, supply} = useCreateRaffleStore();
+  const isNftPrize = true;
+  const {getRaffleConfig} = useRaffleAnchorProgram();
+  const {data:raffleConfig} = getRaffleConfig;
   const toggleAccordion = () => setIsOpen((prev) => !prev);
 
+  const isValidTicketLimitPerWallet = useMemo(() => {
+    const minTickets = (100+(parseInt(supply)-1))/parseInt(supply);
+    return ticketLimitPerWallet && parseInt(ticketLimitPerWallet) > 0  && parseInt(ticketLimitPerWallet) >= minTickets && parseInt(ticketLimitPerWallet) <= (raffleConfig?.maximumWalletPct ?? 100);
+  }, [ticketLimitPerWallet,supply]);
+
+  
   return (
-    <div className="my-10 border border-solid border-gray-1100 bg-black-1300 rounded-[10px] md:pt-[27px] px-4 py-6 md:px-6 md:pb-6">
+    <div className="my-10 border border-solid border-gray-1100 bg-[#1B1B21FA] rounded-[10px] md:pt-[27px] px-4 py-6 md:px-6 md:pb-6">
       <div>
         <button
           type="button"
           onClick={toggleAccordion}
           className="flex items-center justify-between w-full cursor-pointer"
         >
-          <p className="text-gray-1200 text-base font-medium font-inter">
+          <p className="text-white text-base font-medium font-inter">
             Advanced settings
           </p>
-          <span
-            className={`transition-transform duration-300 ${
-              isOpen ? "rotate-180" : "rotate-0"
-            }`}
-          >
-            <img src="/icons/arrow-icon-3.svg" alt="Toggle" />
-          </span>
+          <ChevronDownIcon className={`transition-transform text-white duration-200 ${isOpen ? "rotate-180" : ""}`} />
         </button>
 
         {/* Accordion content */}
         {isOpen && (
           <div className="mt-5">
-            <div className="md:pb-10 pb-5">
+            {/* <div className="md:pb-10 pb-5">
               <div className="pt-6 pb-[18px]">
                 <div className="flex items-center justify-between pb-2.5">
                   <p className="text-gray-1200 font-inter text-sm font-medium md:max-w-full max-w-[159px]">
@@ -45,6 +51,7 @@ export default function AdvancedSettingsAccordion() {
                 id="adv"
                 type="text"
                 placeholder="Enter Collection key or first creator address"
+                className="bg-white"
                 />
             
               </div>
@@ -57,48 +64,52 @@ export default function AdvancedSettingsAccordion() {
                 </span>
                 Add another collection
               </Link>
-            </div>
+            </div> */}
 
             <div className="grid lg:grid-cols-2 gap-[18px] pb-5 lg:pb-11">
               <div>
                 <label
-                  className="text-sm font-medium font-inter text-gray-1200 pb-2.5 block"
+                  className="text-sm font-medium font-inter text-white pb-2.5 block"
                 >
-                  Ticket limit per wallet
+                  Ticket limit per wallet in percentage
                 </label>
-                <FormInput placeholder="No Limit" />
+                <FormInput value={ticketLimitPerWallet} onChange={(e) => {
+                  setTicketLimitPerWallet(e.target.value);
+                  getComputedRent();
+                }} placeholder="0" className={`text-white ${!isValidTicketLimitPerWallet && (supply.length > 0 )? "border border-red-500" : ""}`} />
+                {!isValidTicketLimitPerWallet && (supply.length > 0 ) && (
+                  <p className="md:text-sm text-xs font-medium font-inter text-red-500 pt-2.5">
+                    Please enter a valid ticket limit per wallet (Min: {Math.ceil((100+(parseInt(supply)-1))/parseInt(supply)).toFixed(2)} / Max: {raffleConfig?.maximumWalletPct ?? 100})
+                  </p>
+                )}
                 <p className="md:text-sm text-xs font-medium font-inter text-white pt-2.5">
                   Users can purchase 40% of total tickets as standard
                 </p>
               </div>
-              <div>
-                <div className="flex items-center justify-between">
-                  <label
-                  className="text-sm font-medium font-inter text-gray-1200 pb-2.5 block"
+              <div className={isNftPrize ? "opacity-50" : ""}>
+                <label
+                  className="text-sm font-medium font-inter text-white pb-2.5 block"
                 >
                   Number of winners
                 </label>
-                      <label
-                  className="text-sm font-medium font-inter text-gray-1200 pb-2.5 block"
-                >
-                  Maximum: 250
-                </label>
-                </div>
-               
-                <FormInput type="number" max={250} maxLength={250} placeholder="250" />
-                <p className="md:text-sm text-xs font-medium font-inter text-white pt-2.5">
-                  eg. WL spots
+                <FormInput 
+                  value={numberOfWinners} 
+                  onChange={(e) => {
+                    setNumberOfWinners(e.target.value);
+                    getComputedRent();
+                  }} 
+                  type="number" 
+                  placeholder="250" 
+                  className="text-white" 
+                  disabled={isNftPrize}
+                />
+                <p className="md:text-sm text-xs font-medium font-inter text-black-1000 pt-2.5">
+                  {/* {isNftPrize ? "NFT prizes can only have 1 winner" : "Max 10 Winners"} */}
                 </p>
               </div>
             </div>
 
-            <div className="border border-solid border-primary-color bg-primary-color/5 rounded-[10px] py-[15px] px-3.5 lg:px-[26px]">
-              <p className="text-primary-color text-sm lg:text-lg font-medium font-inter">
-                For raffles with multi-winners - you will need to use a
-                placeholder. This placeholder NFT will not be sent to any
-                winner. Contact us here to verify.
-              </p>
-            </div>
+           
           </div>
         )}
       </div>
