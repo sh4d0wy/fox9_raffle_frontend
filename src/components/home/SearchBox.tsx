@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface SearchBoxProps {
   placeholder?: string;
@@ -10,6 +10,18 @@ export default function SearchBox({
   onSearch,
 }: SearchBoxProps) {
   const [query, setQuery] = useState("");
+
+  const debouncedSearch = useCallback((value: string) => {
+    onSearch(value);
+  }, [onSearch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      debouncedSearch(query);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query, debouncedSearch]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,11 +45,10 @@ export default function SearchBox({
             name="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 w-full  placeholder:text-gray-1200 text-gray-1200 text-sm md:text-base outline-none bg-transparent"
+            className="flex-1 w-full placeholder:text-gray-1200 text-gray-1200 text-sm md:text-base outline-none bg-transparent"
             placeholder={placeholder}
           />
         </label>
-
       </form>
     </div>
   );

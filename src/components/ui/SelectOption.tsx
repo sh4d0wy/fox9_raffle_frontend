@@ -1,6 +1,6 @@
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/react";
 import clsx from "clsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface SelectOptionProps<T extends { id: number | string; name: string }> {
   label?: string;
@@ -20,6 +20,10 @@ export default function SelectOption<T extends { id: number | string; name: stri
   className,
 }: SelectOptionProps<T>) {
   const [selected, setSelected] = useState<T | null>(value);
+
+  useEffect(() => {
+    setSelected(value);
+  }, [value]);
 
   const handleChange = (val: T) => {
     setSelected(val);

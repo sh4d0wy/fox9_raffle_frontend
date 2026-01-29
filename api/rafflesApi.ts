@@ -1,5 +1,6 @@
 import { RafflesData } from "../data/raffles-data";
 import { getRaffleById, getRaffles } from "./routes/raffleRoutes";
+import { useWallet } from "@solana/wallet-adapter-react";
 interface RafflesPage {
   items: typeof RafflesData[number][];
   nextPage: number | null;
@@ -7,18 +8,22 @@ interface RafflesPage {
 
 export const fetchRaffles = async ({
   pageParam = 1,
-  filter = "Featured",
+  filter = "All Raffles",
+  currentWallet = "",
 }: {
   pageParam?: number;
   filter?: string;
+  currentWallet?: string;
 }): Promise<RafflesPage> => {
   const pageSize = 8;
+  console.log("currentFilter",filter);
   let filteredData = await getRaffles(pageParam, pageSize);
   filteredData = filteredData.raffles;
-  if (filter === "Featured") filteredData = filteredData.filter((r: any) => r.isFavorite);
+  console.log("filteredData",filteredData);
+  console.log("check",filter==="All Raffles");
+  if (filter === "My Raffles") filteredData = filteredData.filter((r: any) => r.createdBy === currentWallet);
   if (filter === "All Raffles") filteredData = filteredData.filter((r:any) => r.state.toLowerCase() === "active");
   if (filter === "Past Raffles") filteredData = filteredData.filter((r: any) => r.state.toLowerCase() === "failedended" || r.state.toLowerCase()   === "successended");
-  
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({

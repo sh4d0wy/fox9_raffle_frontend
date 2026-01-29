@@ -117,7 +117,7 @@ const isInvalidTime = useMemo(() => {
           value={inputValue}
           onChange={handleChange}
           {...props}
-          className={`w-full text-base font-medium ${hasValue ? 'text-white' : 'text-gray-500 focus:outline-0'} placeholder:text-gray-1200 outline ${isInvalid ? "outline-red-500" : "outline-gray-1100"} h-12 md:px-5 px-3 md:pr-5 py-3 rounded-lg border-transparent [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden`}
+          className={`w-full text-base font-medium bg-black-1300 ${hasValue ? 'text-white' : 'text-gray-500 focus:outline-0'} placeholder:text-gray-1200 outline ${isInvalid ? "outline-red-500" : "outline-gray-1100"} h-12 md:px-5 px-3 md:pr-5 py-3 rounded-lg border-transparent [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden`}
         />
         <Clock
           onClick={handleIconClick}

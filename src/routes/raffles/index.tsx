@@ -3,23 +3,20 @@ import FeaturedSwiper from "../../components/home/FeaturedSwiper"
 import SortDropdown from "../../components/home/SortDropdown"
 import SearchBox from "../../components/home/SearchBox"
 import { CryptoCard } from "../../components/common/CryptoCard"
-import { NoAuctions } from "../../components/home/NoAuctions"
 import InfiniteScroll from "react-infinite-scroll-component"
 import FilterModel from "../../components/home/FilterModel"
 import { useRafflesStore } from "../../../store/rafflesStore"
 import { useRaffles } from "../../../hooks/raffle/useRaffles"
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import CryptoCardSkeleton from '@/components/skeleton/RafflesCardSkeleton'
 import { TryToolsSection } from '@/components/home/TryToolsSection'
 import { ToolsSection } from '@/components/home/ToolsSection'
 import { useGlobalStore } from "store/globalStore";
-import { useRaffleAnchorProgram } from 'hooks/raffle/useRaffleAnchorProgram';
 import { useBuyRaffleTicketStore } from 'store/buyraffleticketstore';
-import { useFetchUserNfts } from 'hooks/useFetchUserNfts';
 import { useFiltersStore } from 'store/filters-store'
 import { filterRaffles, getActiveFiltersList, hasActiveFilters, sortRaffles } from '@/utils/sortAndFilter'
 import type { RaffleTypeBackend } from 'types/backend/raffleTypes'
-
+import { NoRaffles } from '@/components/home/NoRaffles'
 
 const sortingOptions = [
   { label: "Recently Added", value: "Recently Added" },
@@ -33,19 +30,15 @@ const sortingOptions = [
   { label: "Floor: High to Low", value: "Floor: High to Low" },
 ]
 
-
 export const Route = createFileRoute('/raffles/')({
   component: RafflesPage,
 })
-
 
 function RafflesPage() {
   const { filter, setFilter } = useRafflesStore();
   const { data, fetchNextPage, hasNextPage, isLoading } = useRaffles(filter);
   const { sort, setSort, searchQuery, setSearchQuery } = useGlobalStore();
-  const { getAllRaffles} = useRaffleAnchorProgram();
   const { setTicketQuantityById, getTicketQuantityById } = useBuyRaffleTicketStore();
-  const { userNfts } = useFetchUserNfts();
   const {
     raffleType,
     selectedToken,
@@ -59,9 +52,9 @@ function RafflesPage() {
     resetFilters,
     setPageType,
   } = useFiltersStore();
+
   useEffect(() => {
     setPageType("raffles");
-    
   }, [setPageType]);
 
   const filterOptions = {
@@ -73,13 +66,13 @@ function RafflesPage() {
     endTimeAfter,
     endTimeBefore,
   };
+
   const activeFilters = useMemo(() => {
     return getActiveFiltersList(filterOptions, "raffles");
   }, [raffleType, selectedToken, selectedCollection, floorMin, floorMax, endTimeAfter, endTimeBefore]);
 
-  const [filters, setFilters] = useState<string[]>([]);
+  const showActiveFilters = filtersApplied && hasActiveFilters(filterOptions, "raffles");
 
-  const showActiveFilters = hasActiveFilters(filterOptions, "raffles");
   const raffles = useMemo(() => {
     let allRaffles = data?.pages.map((p) => p.items).flat() as unknown as RaffleTypeBackend[];
     if (!allRaffles) return [];
@@ -93,7 +86,7 @@ function RafflesPage() {
       );
     }
     
-    if (filtersApplied && showActiveFilters) {
+    if (filtersApplied && hasActiveFilters(filterOptions, "raffles")) {
       allRaffles = filterRaffles(allRaffles, filterOptions);
     }
 
@@ -106,17 +99,31 @@ function RafflesPage() {
   
   useEffect(() => {
     setSearchQuery("");
+    setSort("Sort");
   }, []);
 
-  useEffect(()=>{
-    if(raffles){
-      raffles.map((r)=>{
-        if(getTicketQuantityById(r.id || 0) === 0){
-          setTicketQuantityById(r.id || 0,1);
+  useEffect(() => {
+    if (raffles) {
+      raffles.forEach((r) => {
+        if (getTicketQuantityById(r.id || 0) === 0) {
+          setTicketQuantityById(r.id || 0, 1);
         }
       });
     }
   }, [raffles]);
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  };
+
+  const handleClearAllFilters = () => {
+    resetFilters();
+    setSort("Sort");
+  };
+
+  const handleRemoveFilter = (filterId: string) => {
+    clearFilter(filterId);
+  };
   return (
     <main className="flex-1 font-inter bg-black-1100">
       <section className="w-full relative z-20 md:pt-48 pt-36">
@@ -198,26 +205,19 @@ function RafflesPage() {
             </ul>
 
             <div className="flex lg:justify-end flex-1 gap-1.5 xs:gap-3 md:gap-5">
-              <SearchBox
-                onSearch={(value) => {
-                  console.log("Searching for:", value);
-                }} />
+              <SearchBox onSearch={handleSearch} />
               <SortDropdown
                 options={sortingOptions}
                 selected={sort}
-                onChange={(value) => {
-                  setSort(value);
-                  console.log("Selected sort option:", value);
-                }}
+                onChange={(value) => setSort(value)}
               />
-
               <FilterModel />
             </div>
           </div>
 
-          <div className="py-10 overflow-x-auto flex items-center gap-4">
-            <div className=" items-center gap-4">
-              {filters && (
+          {showActiveFilters && activeFilters.length > 0 && (
+            <div className="py-10 overflow-x-auto flex items-center gap-4">
+              <div className="flex items-center gap-4">
                 <div className='flex items-center gap-5'>
                   <p className="md:text-base text-white text-sm whitespace-nowrap font-black-1000 font-semibold font-inter">
                     Filters :
@@ -225,14 +225,14 @@ function RafflesPage() {
 
                   <ul className="flex items-center gap-4">
                     <li>
-                      <div className="border cursor-pointer group hover:border-primary-color transition duration-200 h-12 inline-flex items-center justify-center rounded-full border-gray-1100 px-5 py-3 gap-2">
+                      <div 
+                        onClick={handleClearAllFilters}
+                        className="border cursor-pointer group hover:border-primary-color transition duration-200 h-12 inline-flex items-center justify-center rounded-full border-gray-1100 px-5 py-3 gap-2"
+                      >
                         <p className="md:text-base whitespace-nowrap text-sm font-inter font-medium text-white">
                           Clear All
                         </p>
-                        <button
-                          onClick={() => setFilter("")}
-                          className="cursor-pointer"
-                        >
+                        <button className="cursor-pointer">
                           <img src="/icons/cross-icon.svg" className="min-w-4" alt="cross icon" />
                         </button>
                       </div>
@@ -245,7 +245,7 @@ function RafflesPage() {
                             {filterItem.label}
                           </p>
                           <button
-                            onClick={() => setFilters(filters.filter((f) => f !== filterItem.id))}
+                            onClick={() => handleRemoveFilter(filterItem.id)}
                             className="cursor-pointer"
                           >
                             <img src="/icons/cross-icon.svg" className="min-w-4" alt="remove icon" />
@@ -253,12 +253,11 @@ function RafflesPage() {
                         </div>
                       </li>
                     ))}
-
                   </ul>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
+          )}
 
           {isLoading ? (
             <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4">
@@ -283,14 +282,14 @@ function RafflesPage() {
                 </div>
               }
             >
-              <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4">
+              <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4 mt-12">
                 {raffles.map((r) => (
                   <CryptoCard key={r.id} raffle={r} soldTickets={r.ticketSold || 0} />
                 ))}
               </div>
             </InfiniteScroll>
           ) : (
-            <NoAuctions />
+            <NoRaffles />
           )}
 
         </div>

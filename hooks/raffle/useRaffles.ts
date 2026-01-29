@@ -2,12 +2,14 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
 import { fetchRaffleById, fetchRaffles } from "../../api/rafflesApi"
 import type { RaffleTypeBackend } from "../../types/backend/raffleTypes";
 import { getRaffleWinnersWhoClaimedPrize } from "../../api/routes/raffleRoutes";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 export const useRaffles = (filter: string) => {
+  const {publicKey} = useWallet();
   return useInfiniteQuery({
     queryKey: ["raffles", filter],
     queryFn: async ({ pageParam = 1 }) => {
-      const data = await fetchRaffles({ pageParam, filter });
+      const data = await fetchRaffles({ pageParam, filter, currentWallet: publicKey?.toBase58() });
       return data;
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,

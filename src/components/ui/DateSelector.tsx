@@ -82,7 +82,7 @@ export default function DateSelector({
           min={minValue}
           max={maxValue}
           {...restProps}
-          className={`w-full text-sm md:text-base font-medium ${inputValue ? 'text-white' : 'text-gray-500'} placeholder:text-gray-1200 outline ${className ? 'outline-red-500' : 'outline-gray-1100'} focus:outline-primary-color h-12 md:px-5 px-3 md:pr-5 py-3 rounded-lg border-transparent [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden`}
+          className={`w-full text-sm md:text-base font-medium bg-black-1300 ${inputValue ? 'text-white' : 'text-gray-500'} placeholder:text-gray-1200 outline ${className ? 'outline-red-500' : 'outline-gray-1100'} focus:outline-primary-color h-12 md:px-5 px-3 md:pr-5 py-3 rounded-lg border-transparent [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden`}
         />
         <Calendar onClick={handleIconClick} className="absolute right-3 md:right-5 top-[50%] -translate-y-1/2 cursor-pointer text-white" />
       </div>

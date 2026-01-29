@@ -339,12 +339,13 @@ function RouteComponent() {
                   <ul className="flex md:absolute bottom-[33px] right-0 items-center md:flex-col mx-auto bg-primary-color/20 gap-4 p-2 rounded-full ">
                     <li>
                       <button onClick={() => favouriteRaffle.mutate({ raffleId: Number(raffle?.id) })} className="border bg-gray-1200 cursor-pointer w-12 h-12 md:py-2.5 gap-2.5 rounded-full text-sm md:text-base font-semibold font-inter text-white inline-flex items-center justify-center">
-                       <HeartIcon className={`w-6 h-6 ${isFavourite ? "text-gray-900/40 fill-primary-color" : "text-black"}`} />
+                        <HeartIcon className={`w-6 h-6 ${isFavourite ? "text-gray-900/40 fill-primary-color" : "text-black"}`} />
                       </button>
                     </li>
 
                     <li>
-                      <button onClick={()=>{window.navigator.clipboard.writeText(window.location.href);
+                      <button onClick={() => {
+                        window.navigator.clipboard.writeText(window.location.href);
                         toast.success("Link copied to clipboard");
                       }} className="border bg-gray-1200 cursor-pointer w-12 h-12 md:py-2.5 gap-2.5 rounded-full text-sm md:text-base font-semibold font-inter text-white inline-flex items-center justify-center">
                         <svg
@@ -426,56 +427,56 @@ function RouteComponent() {
                       </div>
                     </div>) : (
                     <>
-                    <div className="w-full rounded-3xl bg-primary-color/10 border border-primary-color border-t-4 p-4 md:p-6">
-                      {/* Header */}
-                      <div className="flex items-center gap-2 mb-4">
-                        <CrownIcon className="w-6 h-6 text-primary-color fill-primary-color" />
-                        <p className="text-white text-lg font-bold font-inter flex items-center gap-2">Raffle Winners</p>
-                      </div>
-                      
-                      {/* Winners Cards - Horizontal Scroll */}
-                      {raffle?.winners?.length! > 1 ? (
-                        <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
-                        {raffle?.winners?.slice(0, 3).map((winner, index) => {
-                          
-                          return (
-                            <div 
-                              key={index} 
-                              className={`shrink-0 flex items-center gap-3 bg-black-1300 rounded-xl px-4 py-3 min-w-[200px] border-2 ${'border-primary-color'}`}
-                            >
-                              <div className="relative">
-                                <img
-                                  src={winner?.profileImage ? API_URL + winner?.profileImage : DEFAULT_AVATAR}
-                                  className={`w-12 h-12 rounded-full object-cover border-2 ${ 'border-primary-color'}`}
-                                  alt="winner"
-                                />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <h3 className="text-sm font-bold text-white truncate">
-                                  {winner?.walletAddress?.slice(0, 4)}...{winner?.walletAddress?.slice(-4)}
-                                </h3>
-                                <p className="text-xs text-gray-400">
-                                  Won with {raffle.raffleEntries?.find(
-                                    (entry) => entry.userAddress === winner?.walletAddress
-                                  )?.quantity || 0} Ticket(s)
-                                </p>
-                              </div>
-                              <div className={`w-8 h-8 rounded-lg ${ 'bg-primary-color'} flex items-center justify-center`}>
-                                <span className="text-sm font-bold text-black-1000">#{index + 1}</span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      ): (  
-                        <div className="w-full rounded-xl px-4 py-3 flex items-center gap-3">
-                          <div className="relative">
-                            <img
-                              src={raffle?.winners?.[0]?.profileImage ? API_URL + raffle?.winners?.[0]?.profileImage : DEFAULT_AVATAR}
-                              className="w-12 h-12 rounded-full object-cover border-2 border-primary-color"
-                              alt="winner"
-                            />
+                      <div className="w-full rounded-3xl bg-primary-color/10 border border-primary-color border-t-4 p-4 md:p-6">
+                        {/* Header */}
+                        <div className="flex items-center gap-2 mb-4">
+                          <CrownIcon className="w-6 h-6 text-primary-color fill-primary-color" />
+                          <p className="text-white text-lg font-bold font-inter flex items-center gap-2">Raffle Winners</p>
+                        </div>
+
+                        {/* Winners Cards - Horizontal Scroll */}
+                        {raffle?.winners?.length! > 1 ? (
+                          <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
+                            {raffle?.winners?.slice(0, 3).map((winner, index) => {
+
+                              return (
+                                <div
+                                  key={index}
+                                  className={`shrink-0 flex items-center gap-3 bg-black-1300 rounded-xl px-4 py-3 min-w-[200px] border-2 ${'border-primary-color'}`}
+                                >
+                                  <div className="relative">
+                                    <img
+                                      src={winner?.profileImage ? API_URL + winner?.profileImage : DEFAULT_AVATAR}
+                                      className={`w-12 h-12 rounded-full object-cover border-2 ${'border-primary-color'}`}
+                                      alt="winner"
+                                    />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h3 className="text-sm font-bold text-white truncate">
+                                      {winner?.walletAddress?.slice(0, 4)}...{winner?.walletAddress?.slice(-4)}
+                                    </h3>
+                                    <p className="text-xs text-gray-400">
+                                      Won with {raffle.raffleEntries?.find(
+                                        (entry) => entry.userAddress === winner?.walletAddress
+                                      )?.quantity || 0} Ticket(s)
+                                    </p>
+                                  </div>
+                                  <div className={`w-8 h-8 rounded-lg ${'bg-primary-color'} flex items-center justify-center`}>
+                                    <span className="text-sm font-bold text-black-1000">#{index + 1}</span>
+                                  </div>
                                 </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="w-full rounded-xl px-4 py-3 flex items-center gap-3">
+                            <div className="relative">
+                              <img
+                                src={raffle?.winners?.[0]?.profileImage ? API_URL + raffle?.winners?.[0]?.profileImage : DEFAULT_AVATAR}
+                                className="w-12 h-12 rounded-full object-cover border-2 border-primary-color"
+                                alt="winner"
+                              />
+                            </div>
                             <div className="flex justify-between items-center w-full">
                               <h3 className="md:text-xl text-base font-bold text-white truncate">
                                 {raffle?.winners?.[0]?.walletAddress?.slice(0, 6)}....{raffle?.winners?.[0]?.walletAddress?.slice(-6)}
@@ -486,99 +487,99 @@ function RouteComponent() {
                                 )?.quantity || 0} Ticket(s)
                               </p>
                             </div>
-                          
-                        </div>
 
-                      )}
-                      
-                      {/* Action Buttons */}
-                      <div className="flex gap-3 mt-2">
-                        {raffle?.winners && raffle.winners.length > 1 && (
-                          <button
-                            className="flex-1 py-3 px-4 bg-primary-color/20  text-primary-color font-semibold rounded-xl border border-primary-color hover:bg-primary-color/30 transition-colors"
-                            onClick={() => setShowWinnersModal(true)}
-                          >
-                            View All Winners ({raffle.winners.length})
-                          </button>
+                          </div>
+
                         )}
-                        {raffle?.winners?.length! > 0 &&
-                          raffle.winners?.some(
-                            (winners) => winners.walletAddress === publicKey?.toBase58()
-                          ) && (
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-3 mt-2">
+                          {raffle?.winners && raffle.winners.length > 1 && (
                             <button
-                              className="flex-1 py-3 px-4 bg-primary-color text-black font-semibold rounded-xl hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                              onClick={() => {
-                                claimPrize.mutate({
-                                  raffleId: Number(raffle?.id) || 0,
-                                });
-                              }}
-                              disabled={((winnersWhoClaimedPrize && winnersWhoClaimedPrize?.some(
-                                (winner) => winner.sender === publicKey?.toBase58()
-                              )) || claimPrize.isPending)}
+                              className="flex-1 py-3 px-4 bg-primary-color/20  text-primary-color font-semibold rounded-xl border border-primary-color hover:bg-primary-color/30 transition-colors"
+                              onClick={() => setShowWinnersModal(true)}
                             >
-                              {claimPrize.isPending ? <Loader className="w-5 h-5 animate-spin" /> : "Claim Your Prize"}
+                              View All Winners ({raffle.winners.length})
                             </button>
                           )}
+                          {raffle?.winners?.length! > 0 &&
+                            raffle.winners?.some(
+                              (winners) => winners.walletAddress === publicKey?.toBase58()
+                            ) && (
+                              <button
+                                className="flex-1 py-3 px-4 bg-primary-color text-black font-semibold rounded-xl hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                onClick={() => {
+                                  claimPrize.mutate({
+                                    raffleId: Number(raffle?.id) || 0,
+                                  });
+                                }}
+                                disabled={((winnersWhoClaimedPrize && winnersWhoClaimedPrize?.some(
+                                  (winner) => winner.sender === publicKey?.toBase58()
+                                )) || claimPrize.isPending)}
+                              >
+                                {claimPrize.isPending ? <Loader className="w-5 h-5 animate-spin" /> : "Claim Your Prize"}
+                              </button>
+                            )}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Winners Modal */}
-                    {showWinnersModal && (
-                      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                        <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-md max-h-[80vh] overflow-hidden">
-                          {/* Modal Header */}
-                          <div className="flex items-center justify-between p-4 border-b border-gray-700">
-                            <div className="flex items-center gap-2">
-                              {/* <img src="/icons/winner-icon.svg" alt="winner" className="w-6 h-6" /> */}
-                              <h2 className="text-white text-lg font-bold">Raffle Winners</h2>
+                      {/* Winners Modal */}
+                      {showWinnersModal && (
+                        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                          <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-md max-h-[80vh] overflow-hidden">
+                            {/* Modal Header */}
+                            <div className="flex items-center justify-between p-4 border-b border-gray-700">
+                              <div className="flex items-center gap-2">
+                                {/* <img src="/icons/winner-icon.svg" alt="winner" className="w-6 h-6" /> */}
+                                <h2 className="text-white text-lg font-bold">Raffle Winners</h2>
+                              </div>
+                              <button
+                                onClick={() => setShowWinnersModal(false)}
+                                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700 hover:bg-gray-600 transition-colors"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                              </button>
                             </div>
-                            <button
-                              onClick={() => setShowWinnersModal(false)}
-                              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700 hover:bg-gray-600 transition-colors"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                              </svg>
-                            </button>
-                          </div>
-                          
-                          {/* Modal Body - Scrollable List */}
-                          <div className="overflow-y-auto max-h-[60vh]">
-                            <div className="border-l-4 border-primary-color">
-                              {raffle?.winners?.map((winner, index) => (
-                                <div 
-                                  key={index}
-                                  className="flex items-center gap-4 px-4 py-3 border-b border-gray-800 last:border-b-0"
-                                >
-                                  {/* Position Number */}
-                                  <span className="text-gray-400 font-semibold w-6 text-center">#{index + 1}</span>
-                                  
-                                  {/* Profile Image */}
-                                  <img
-                                    src={winner?.profileImage ? API_URL + winner?.profileImage : DEFAULT_AVATAR}
-                                    className="w-10 h-10 rounded-full object-cover"
-                                    alt="winner"
-                                  />
-                                  
-                                  {/* Winner Info */}
-                                  <div className="flex-1">
-                                    <h3 className="text-white font-semibold text-sm">
-                                      {winner?.walletAddress?.slice(0, 4)}...{winner?.walletAddress?.slice(-4)}
-                                    </h3>
-                                    <p className="text-gray-400 text-xs">
-                                      Won with {raffle.raffleEntries?.find(
-                                        (entry) => entry.userAddress === winner?.walletAddress
-                                      )?.quantity || 0} Ticket(s)
-                                    </p>
+
+                            {/* Modal Body - Scrollable List */}
+                            <div className="overflow-y-auto max-h-[60vh]">
+                              <div className="border-l-4 border-primary-color">
+                                {raffle?.winners?.map((winner, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-center gap-4 px-4 py-3 border-b border-gray-800 last:border-b-0"
+                                  >
+                                    {/* Position Number */}
+                                    <span className="text-gray-400 font-semibold w-6 text-center">#{index + 1}</span>
+
+                                    {/* Profile Image */}
+                                    <img
+                                      src={winner?.profileImage ? API_URL + winner?.profileImage : DEFAULT_AVATAR}
+                                      className="w-10 h-10 rounded-full object-cover"
+                                      alt="winner"
+                                    />
+
+                                    {/* Winner Info */}
+                                    <div className="flex-1">
+                                      <h3 className="text-white font-semibold text-sm">
+                                        {winner?.walletAddress?.slice(0, 4)}...{winner?.walletAddress?.slice(-4)}
+                                      </h3>
+                                      <p className="text-gray-400 text-xs">
+                                        Won with {raffle.raffleEntries?.find(
+                                          (entry) => entry.userAddress === winner?.walletAddress
+                                        )?.quantity || 0} Ticket(s)
+                                      </p>
+                                    </div>
                                   </div>
-                                </div>
-                              ))}
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                     </>
                   )}
                   {!publicKey && (
@@ -599,11 +600,11 @@ function RouteComponent() {
                               className="w-full py-3 h-full mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
                               disabled={isBuyTicketDisabled || buyTicket.isPending}
                               text={buyTicket.isPending ? <Loader className="w-5 h-5 animate-spin" /> : isBuyTicketDisabled ? maxTicketsBought ? "Max Tickets Bought" : "Sold Out" : `Buy for ${((raffle?.ticketPrice /
-                                  10 **
-                                  (VerifiedTokens.find(
-                                    (token) =>
-                                      token.address === raffle?.ticketTokenAddress
-                                  )?.decimals || 0)) * ticketQuantity).toFixed(6)
+                                10 **
+                                (VerifiedTokens.find(
+                                  (token) =>
+                                    token.address === raffle?.ticketTokenAddress
+                                )?.decimals || 0)) * ticketQuantity).toFixed(6)
                                 } ${VerifiedTokens.find(
                                   (token) =>
                                     token.address === raffle?.ticketTokenAddress
@@ -631,37 +632,37 @@ function RouteComponent() {
                         <div className='w-full flex items-center justify-between gap-3 border-b border-primary-color/20 px-10 py-2 pt-3'>
                           {/* <ShieldIcon className='w-8 h-8 text-white fill-white' /> */}
                           <svg width="18" height="22" viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M9 11H16C15.47 15.11 12.72 18.78 9 19.92V11ZM9 11H2V5.3L9 2.19M9 0L0 4V10C0 15.55 3.84 20.73 9 22C14.16 20.73 18 15.55 18 10V4L9 0Z" fill="white"/>
-</svg>
+                            <path d="M9 11H16C15.47 15.11 12.72 18.78 9 19.92V11ZM9 11H2V5.3L9 2.19M9 0L0 4V10C0 15.55 3.84 20.73 9 22C14.16 20.73 18 15.55 18 10V4L9 0Z" fill="white" />
+                          </svg>
 
-                        <h3 className="text-xl font-bold w-full text-left font-inter text-white">
-                          Administrator
-                        </h3>
+                          <h3 className="text-xl font-bold w-full text-left font-inter text-white">
+                            Administrator
+                          </h3>
                         </div>
                         <div className="w-full md:mb-5 px-10">
                           <div className='w-full flex flex-col items-center justify-center py-2 pb-5 gap-2'>
-                          <div className='w-full flex items-center justify-between gap-3 '>
-                            <p className='text-md font-inter text-white/60 font-medium'>
-                              Current Status
-                            </p>
-                            <p className={ `text-md font-bold font-inter ${raffle?.state?.toLowerCase() === "active" ? "text-green-500" : (raffle?.state?.toLowerCase() === "successended" || raffle?.state?.toLowerCase() === "failedended") ? "text-red-500" : raffle?.state?.toLowerCase() === "cancelled" ? "text-red-500" : "text-gray-1200"} `}>
-                              {raffle?.state?.toLowerCase() === "active" ? "Active" : (raffle?.state?.toLowerCase() === "successended" || raffle?.state?.toLowerCase() === "failedended" ? "Ended" : raffle?.state?.toLowerCase() === "cancelled" ? "Cancelled" : "Active")}
-                            </p>
-                          </div>
-                          <div className='w-full flex items-center justify-between gap-3 '>
-                            <p className='text-md font-inter text-white/60 font-medium'>
-                              Total Earnings
-                            </p>
-                            <p className={ `text-md font-medium font-inter text-white `}>
-                              {raffle?.ticketSold ? (raffle?.ticketSold * raffle?.ticketPrice) / 10 ** (VerifiedTokens.find(
-                                (token) =>
-                                  token.address === raffle?.ticketTokenAddress
-                              )?.decimals || 0) : 0} {VerifiedTokens.find(
-                                (token) =>
-                                  token.address === raffle?.ticketTokenAddress
-                              )?.symbol}
-                            </p>
-                          </div>
+                            <div className='w-full flex items-center justify-between gap-3 '>
+                              <p className='text-md font-inter text-white/60 font-medium'>
+                                Current Status
+                              </p>
+                              <p className={`text-md font-bold font-inter ${raffle?.state?.toLowerCase() === "active" ? "text-green-500" : (raffle?.state?.toLowerCase() === "successended" || raffle?.state?.toLowerCase() === "failedended") ? "text-red-500" : raffle?.state?.toLowerCase() === "cancelled" ? "text-red-500" : "text-gray-1200"} `}>
+                                {raffle?.state?.toLowerCase() === "active" ? "Active" : (raffle?.state?.toLowerCase() === "successended" || raffle?.state?.toLowerCase() === "failedended" ? "Ended" : raffle?.state?.toLowerCase() === "cancelled" ? "Cancelled" : "Active")}
+                              </p>
+                            </div>
+                            <div className='w-full flex items-center justify-between gap-3 '>
+                              <p className='text-md font-inter text-white/60 font-medium'>
+                                Total Earnings
+                              </p>
+                              <p className={`text-md font-medium font-inter text-white `}>
+                                {raffle?.ticketSold ? (raffle?.ticketSold * raffle?.ticketPrice) / 10 ** (VerifiedTokens.find(
+                                  (token) =>
+                                    token.address === raffle?.ticketTokenAddress
+                                )?.decimals || 0) : 0} {VerifiedTokens.find(
+                                  (token) =>
+                                    token.address === raffle?.ticketTokenAddress
+                                )?.symbol}
+                              </p>
+                            </div>
                           </div>
                           {
                             shouldTicketClaimVisible ? (

@@ -55,7 +55,7 @@ export default function AmountInput() {
             setTicketPricePerSol((parseFloat(e.target.value) * (ticketTokenPrice?.price!/solPrice?.price!)).toFixed(9));
             getComputedTTV();
           }}
-          className={`text-white focus:outline-0  placeholder:text-gray-1200 text-base w-full font-inter px-5 h-12 border border-solid border-gray-1100 rounded-lg font-medium ${isInvalidTicketPrice ? "border border-red-500" : ""}`}
+          className={`text-white focus:outline-0 bg-black-1300 placeholder:text-gray-1200 text-base w-full font-inter px-5 h-12 border border-solid border-gray-1100 rounded-lg font-medium ${isInvalidTicketPrice ? "border border-red-500" : ""}`}
           autoComplete="off"
           placeholder="Enter Amount"
         />

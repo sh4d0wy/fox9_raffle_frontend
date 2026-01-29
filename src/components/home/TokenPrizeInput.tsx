@@ -61,7 +61,7 @@ export default function TokenPrizeInput() {
           setTokenPrizeAmount(e.target.value);
           getComputedVal(tokenPrice?.price || 0, SolPrice?.price || 0);
         }}
-        className={`text-white focus:outline-0  placeholder:text-gray-1200 text-base w-full font-inter px-5 h-12 border border-solid border-gray-1100 rounded-lg font-medium ${isInvalidTokenPrizeAmount ? "border border-red-500" : ""}`}
+        className={`text-white focus:outline-0   placeholder:text-gray-1200 text-base w-full font-inter px-5 h-12 border border-solid border-gray-1100 rounded-lg font-medium ${isInvalidTokenPrizeAmount ? "border border-red-500" : ""}`}
         autoComplete="off"
         placeholder="Enter Amount"
         disabled={userVerifiedTokens?.length == 0}

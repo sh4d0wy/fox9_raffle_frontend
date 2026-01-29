@@ -27,11 +27,10 @@ function parseFilterDateTime(date: string, time: string): Date | null {
   if (!date) return null;
   const dateObj = new Date(date);
   if (time) {
-    const [hour, minute, period] = time.split(":");
-    let hours = parseInt(hour, 10);
-    if (period === "PM" && hours < 12) hours += 12;
-    if (period === "AM" && hours === 12) hours = 0;
-    dateObj.setHours(hours, parseInt(minute, 10) || 0, 0, 0);
+    const [hour, minute] = time.split(":");
+    const hours = parseInt(hour, 10) || 0;
+    const minutes = parseInt(minute, 10) || 0;
+    dateObj.setHours(hours, minutes, 0, 0);
   }
   return dateObj;
 }
