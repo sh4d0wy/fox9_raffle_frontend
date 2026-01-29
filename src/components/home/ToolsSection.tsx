@@ -11,6 +11,7 @@ export const ToolsSection = () => {
               key={tool.id}
               imageSrc={tool.imageSrc}
               title={tool.title}
+              url={tool.url}
             />
           ))}
         </div>

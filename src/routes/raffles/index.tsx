@@ -129,12 +129,7 @@ function RafflesPage() {
       <section className="w-full relative z-20 md:pt-48 pt-36">
     
         <div className="w-full max-w-[1440px] md:px-5 px-4 mx-auto">
-          <Link
-            to={"/"}
-            className="md:text-base text-sm md:font-normal font-semibold transition duration-500 hover:opacity-90 bg-primary-color py-2.5 md:py-3 px-8 items-center justify-center text-black-1000 text-center md:hidden inline-flex w-full font-inter rounded-full"
-          >
-            Buy tickets, earn Juice! 🥤
-          </Link>
+          
           <div className="p-10 pb-2 md:pt-10 pt-5 px-0  relative">
        
             <div className="relative">
@@ -142,9 +137,7 @@ function RafflesPage() {
               <img src="/images/hero-pattern.png" className='lg:w-[1000px] w-full' alt="no-img" />
               <div className="bg-yellow-1000 w-[300px] h-[300px] absolute blur-[200px] md:-mr-28 opacity-60"></div>
             </div>
-            <div className="absolute hidden text-base font-semibold text-black-1000 bg-gray-1400 px-[30px] py-3 rounded-full right-14 mt-10 z-20 lg:inline-flex items-center justify-center ">
-              Featured Ending Soon ⚡
-            </div>
+           
             <FeaturedSwiper />
 
             </div>
@@ -192,7 +185,7 @@ function RafflesPage() {
 
       <ToolsSection />
 
-      <section className="w-full relative z-10 pt-10 md:pt-[122px] pb-32 md:pb-[160px]">
+      <section className="w-full relative z-10 pt-10 md:pt-[122px] pb-32 md:pb-[160px]" id="raffles">
         <div className="w-full max-w-[1440px] px-4 md:px-5 mx-auto">
           <div className="w-full flex items-center justify-between gap-5 lg:gap-10 flex-wrap">
             <ul className="flex items-center bg-white/[15%] backdrop-blur-[27px] rounded-[40px] p-1 md:gap-4 gap-1.5">

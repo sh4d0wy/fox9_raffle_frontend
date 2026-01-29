@@ -1,10 +1,14 @@
+import { Link } from "@tanstack/react-router";
+
 interface ToolCardProps {
   imageSrc: string;
   title: string;
+  url: string;
 }
 
-export default function ToolCard({ imageSrc, title }: ToolCardProps) {
+export default function ToolCard({ imageSrc, title, url }: ToolCardProps) {
   return (
+    <Link to={url}>
     <div className="relative group">
       <img
         src={imageSrc}
@@ -25,5 +29,6 @@ export default function ToolCard({ imageSrc, title }: ToolCardProps) {
         </div>
       </div>
     </div>
+    </Link>
   );
 }
