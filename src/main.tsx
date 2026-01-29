@@ -35,10 +35,10 @@ if (!rootElement.innerHTML) {
             newestOnTop={false}
             closeOnClick
             rtl={false}
-            pauseOnFocusLoss
+            pauseOnFocusLoss={false}
             draggable
             pauseOnHover
-            theme="light"
+            theme="dark"
           />
       </QueryClientProvider>
       </SolanaProvider>

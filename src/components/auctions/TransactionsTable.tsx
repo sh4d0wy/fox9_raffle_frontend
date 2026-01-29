@@ -1,52 +1,10 @@
-interface TransactionRow {
-  id: number;
-  tx: string;
-  buyer: string;
-  date: string; 
-  time: string;
-  tickets: number;
-}
-
-const dummyTransactions: TransactionRow[] = [
-  {
-    id: 1,
-    tx: "3gcT...tt3v",
-    buyer: "3Yrq...HVRh",
-    date: "24 Oct '25",
-    time: "06:20",
-    tickets: 1,
-  },
-  {
-    id: 2,
-    tx: "3gcT...tt3v",
-    buyer: "3Yrq...HVRh",
-    date: "24 Oct '25",
-    time: "06:20",
-    tickets: 1,
-  },
-  {
-    id: 3,
-    tx: "3gcT...tt3v",
-    buyer: "3Yrq...HVRh",
-    date: "24 Oct '25",
-    time: "06:20",
-    tickets: 1,
-  },
-  {
-    id: 4,
-    tx: "3gcT...tt3v",
-    buyer: "3Yrq...HVRh",
-    date: "24 Oct '25",
-    time: "06:20",
-    tickets: 1,
-  },
-];
+import type { TransactionTypeBackend } from "types/backend/raffleTypes";
 
 export const TransactionsTable = ({
-  transactions = dummyTransactions,
+  transactions,
   isLoading = false,
 }: {
-  transactions?: TransactionRow[];
+  transactions?: TransactionTypeBackend[];
   isLoading?: boolean;
 }) => {
   return (
@@ -103,7 +61,7 @@ export const TransactionsTable = ({
                   </tr>
                 ))
             : 
-            transactions.map((t) => (
+            transactions?.map((t) => (
               <tr
                 key={t.id}
                 className="border-b border-gray-1100 last:border-b-0"
@@ -111,11 +69,12 @@ export const TransactionsTable = ({
                 <td className="md:px-10 px-4 md:py-6 py-4">
                   <div className="flex items-center gap-2.5">
                     <p className="text-base text-white font-medium font-inter">
-                      {t.tx}
+                      {t.transactionId.slice(0, 4) + "..." + t.transactionId.slice(-4)}
                     </p>
                     <img
                       src="/icons/external-link-icon.svg"
-                      className="w-5 h-5"
+                      onClick={() => window.open(`https://solscan.io/tx/${t.transactionId}`, "_blank")}
+                      className="w-5 h-5 cursor-pointer"
                       alt="link"
                     />
                   </div>
@@ -123,19 +82,29 @@ export const TransactionsTable = ({
 
                 <td className="px-5 md:py-6 py-4">
                   <p className="text-base text-white font-medium font-inter">
-                    {t.buyer}
+                    {t.sender.slice(0, 4) + "..." + t.sender.slice(-4)}
                   </p>
                 </td>
 
                 <td className="px-5 md:py-6 py-4">
-                  <p className="text-base text-white font-medium font-inter">
-                    {t.date} <span className="text-gray-1200">|</span> {t.time}
-                  </p>
+                <p className="text-base text-white font-medium font-inter">
+                        {new Date(t.createdAt)
+                          .toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                          })
+                          .replace(",", "")
+                          .replace(/ (\d{2})$/, "'$1")}
+                      </p>
                 </td>
 
                 <td className="px-5 md:py-6 py-4">
                   <p className="text-base text-white font-medium font-inter">
-                    {t.tickets}
+                    {t.metadata?.quantity || 0}
                   </p>
                 </td>
               </tr>

@@ -22,9 +22,11 @@ export const useToggleFavourite = (publicKey:string)=>{
                 throw new Error("Validation failed");
             }
             await toggleRaffleFavourite(args.raffleId.toString());
+            return args.raffleId;
         },
-        onSuccess:()=>{
+        onSuccess:(raffleId:number)=>{
             queryClient.invalidateQueries({queryKey:["favourite-raffle",publicKey]});
+            queryClient.invalidateQueries({queryKey:["raffle",raffleId.toString()]});
             console.log("Toggle favourite raffle successful");
         },
         onError:(error: Error)=>{

@@ -9,7 +9,6 @@ export const useQueryFavourites = (
     mainFilter: MainFilter = "Rafflers",
     tabFilter: TabFilter = "created"
 ) => {
-    const isFavouriteTab = tabFilter === "favourite";
     
     const getFavouriteRaffle = useQuery({
         queryKey:["favourite-raffle",publicKey],
@@ -17,7 +16,7 @@ export const useQueryFavourites = (
             const response = await getRaffleFavourite(publicKey);
             return response.raffles;
         },
-        enabled: !!publicKey && mainFilter === "Rafflers" && isFavouriteTab,
+        enabled: !!publicKey && mainFilter === "Rafflers" ,
         staleTime: 60000,
     })
     const getFavouriteGumball = useQuery({
@@ -26,7 +25,7 @@ export const useQueryFavourites = (
             const response = await getGumballFavourite(publicKey);
             return response.gumballs;
         },
-        enabled: !!publicKey && mainFilter === "Gumballs" && isFavouriteTab,
+        enabled: !!publicKey && mainFilter === "Gumballs" ,
         staleTime: 60000,
     })
     const getFavouriteAuction = useQuery({
@@ -35,7 +34,7 @@ export const useQueryFavourites = (
             const response = await getAuctionFavourite(publicKey);
             return response.auctions;
         },
-        enabled: !!publicKey && mainFilter === "Auctions" && isFavouriteTab,
+        enabled: !!publicKey && mainFilter === "Auctions" ,
         staleTime: 60000,
     })
     return { getFavouriteRaffle, getFavouriteGumball, getFavouriteAuction };

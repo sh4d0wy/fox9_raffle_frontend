@@ -1,53 +1,26 @@
+import { API_URL } from "@/constants";
+import { DEFAULT_AVATAR } from "store/userStore";
+
 interface Participant {
   id: number;
-  avatar: string;
-  username: string;
-  ticketsBought: number;
-  juiceEarned: number;
-  chance: number; 
+  userAddress:string;
+  raffleId:number;
+  quantity:number;
+  user:{
+    walletAddress:string;
+    twitterId?:string | null;
+    profileImage?:string | null;
+  } 
 }
 
-const dummyParticipants: Participant[] = [
-  {
-    id: 1,
-    avatar: "/images/placeholder-user.png",
-    username: "@watchawill",
-    ticketsBought: 2,
-    juiceEarned: 6,
-    chance: 50,
-  },
-  {
-    id: 2,
-    avatar: "/images/placeholder-user.png",
-    username: "Izumal1",
-    ticketsBought: 2,
-    juiceEarned: 11,
-    chance: 25,
-  },
-  {
-    id: 3,
-    avatar: "/images/placeholder-user.png",
-    username: "supercookiesb",
-    ticketsBought: 2,
-    juiceEarned: 11,
-    chance: 25,
-  },
-    {
-    id: 4,
-    avatar: "/images/placeholder-user.png",
-    username: "supercookiesb",
-    ticketsBought: 2,
-    juiceEarned: 11,
-    chance: 25,
-  },
-];
-
 export const ParticipantsTable = ({
-  participants = dummyParticipants,
+  participants,
   isLoading = false,
+  ticketSupply
 }: {
   participants?: Participant[];
   isLoading?: boolean;
+  ticketSupply: number;
 }) => {
   return (
     <div className="border border-gray-1100 pb-14 rounded-[20px] w-full md:overflow-hidden overflow-x-auto">
@@ -60,11 +33,6 @@ export const ParticipantsTable = ({
             <th className="text-base md:w-1/5 text-start font-inter text-gray-1600 font-medium">
               <div className="px-5 h-6">
                 Tickets bought
-              </div>
-            </th>
-            <th className="text-base md:w-1/5 text-start font-inter text-gray-1600 font-medium">
-              <div className="px-5 h-6">
-                Juice earned
               </div>
             </th>
             <th className="text-base md:w-1/5 text-start font-inter text-gray-1600 font-medium">
@@ -105,17 +73,17 @@ export const ParticipantsTable = ({
                 </tr>
               ))
           ) : (
-            participants.map((p) => (
+            participants?.map((p) => (
               <tr key={p.id} className="flex-1">
                 <td>
                   <div className="md:px-10 px-4 flex items-center gap-2.5 py-4 border-b border-gray-1100">
                     <img
-                      src={p.avatar}
+                      src={p.user.profileImage?API_URL + p.user.profileImage:DEFAULT_AVATAR}
                       className="w-10 h-10 rounded-full object-cover"
                       alt="user"
                     />
                     <p className="text-base text-white font-medium font-inter">
-                      {p.username}
+                      { p.user.walletAddress.slice(0, 4) + "..." + p.user.walletAddress.slice(-4)}
                     </p>
                   </div>
                 </td>
@@ -123,7 +91,7 @@ export const ParticipantsTable = ({
                 <td>
                   <div className="px-5 py-6 border-b border-gray-1100">
                     <p className="text-base text-white font-medium font-inter">
-                      {p.ticketsBought}
+                      {p.quantity}
                     </p>
                   </div>
                 </td>
@@ -131,15 +99,7 @@ export const ParticipantsTable = ({
                 <td>
                   <div className="px-5 py-6 border-b border-gray-1100">
                     <p className="text-base text-white font-medium font-inter">
-                      {p.juiceEarned}
-                    </p>
-                  </div>
-                </td>
-
-                <td>
-                  <div className="px-5 py-6 border-b border-gray-1100">
-                    <p className="text-base text-white font-medium font-inter">
-                      {p.chance.toFixed(2)}%
+                      {((p.quantity / ticketSupply) * 100).toFixed(2)}%
                     </p>
                   </div>
                 </td>

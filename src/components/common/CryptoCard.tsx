@@ -303,6 +303,18 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
             Your Raffle
           </Link>
         )}
+        {raffle.state !== "Active" && (
+          <Link
+            to={`/raffles/$id`}
+            params={{ id: raffle.id?.toString() || "" }}
+            className="w-full transition duration-500
+              border border-gray-1000 rounded-full h-10
+              flex items-center justify-center
+              text-gray-1000 text-sm md:text-base font-semibold font-inter"
+          >
+            Raffle Ended
+          </Link>
+        )}
 
        {(publicKey && publicKey.toString() !== raffle.createdBy && ticketsBoughtByUser >= raffle.maxEntries) && (
         <Link

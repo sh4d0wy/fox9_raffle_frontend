@@ -1,80 +1,68 @@
 import { useState } from "react";
+import { useBuyRaffleTicketStore } from "store/buyraffleticketstore";
 
-export default function QuantityBox() {
+export default function QuantityBox({max}: {max: number}) {
+  const MAX = max;
   const MIN = 1;
-  const MAX = 10;
-  const [qty, setQty] = useState(6);
+  const { ticketQuantity, setTicketQuantity } = useBuyRaffleTicketStore();
+  const inc = () => {
+    setTicketQuantity(ticketQuantity < MAX ? ticketQuantity + 1 : MAX);
+  }
+  const dec = () => {
+    setTicketQuantity(ticketQuantity > MIN ? ticketQuantity - 1 : MIN);
+  }
+  const setMax = () => {
+    setTicketQuantity(MAX);
+  }
 
-  const percentage = ((qty - MIN) / (MAX - MIN)) * 100;
+  const onInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = Number(e.target.value);
+    if (!v) return setTicketQuantity(0);
+    if (v > MAX) return setTicketQuantity(MAX);
+    if (v < MIN) return setTicketQuantity(MIN);
+    setTicketQuantity(v);
+  };
 
   return (
-    <div className="flex-1">
-      <div className="flex items-center justify-between mb-4">
-        <h4 className="text-sm text-gray-300 font-medium">Quantity</h4>
-        <h4 className="text-sm text-white font-medium">Max : {MAX}</h4>
+    <div className="w-full flex gap-2 flex-col">
+      <div className="w-full flex items-center justify-between">
+        <h4 className="text-sm text-gray-1200 font-medium font-inter">
+          Quantity
+        </h4>
+        <h4 className="text-sm text-gray-1200 font-medium font-inter">
+          Max : {MAX}
+        </h4>
       </div>
 
-      <div className="relative">
-        <div className="relative h-3 rounded-full bg-gray-1000">
-          <div
-            className="absolute left-0 top-0 h-3 rounded-full bg-yellow-400"
-            style={{ width: `${percentage}%` }}
-          />
-
-          <div className="absolute inset-0 flex justify-between items-center px-1">
-            {Array.from({ length: MAX }, (_, i) => {
-              const value = i + 1;
-              const active = value <= qty;
-
-              return (
-                <span
-                  key={value}
-                  className={`w-1 h-1 rounded-full ${
-                    active ? "bg-black" : "bg-gray-1200"
-                  }`}
-                />
-              );
-            })}
-          </div>
-        </div>
+      <div className="w-full flex items-center justify-between rounded-[14px] p-[13px] border border-gray-1100">
+        <button
+          onClick={dec}
+          className="w-8 h-8 cursor-pointer rounded bg-primary-color flex items-center justify-center"
+        >
+          <img src="/icons/min-icon.svg" alt="" />
+        </button>
 
         <input
-          type="range"
-          min={MIN}
-          max={MAX}
-          value={qty}
-          onChange={(e) => setQty(Number(e.target.value))}
-          className="absolute top-1/2 left-0 w-full -translate-y-1/2 appearance-none bg-transparent pointer-events-auto
-            [&::-webkit-slider-thumb]:appearance-none
-            [&::-webkit-slider-thumb]:h-6
-            [&::-webkit-slider-thumb]:w-6
-            [&::-webkit-slider-thumb]:rounded-full
-            [&::-webkit-slider-thumb]:bg-[#0f1115]
-            [&::-webkit-slider-thumb]:border-4
-            [&::-webkit-slider-thumb]:border-white
-            [&::-webkit-slider-thumb]:cursor-pointer
-            [&::-moz-range-thumb]:h-6
-            [&::-moz-range-thumb]:w-6
-            [&::-moz-range-thumb]:rounded-full
-            [&::-moz-range-thumb]:bg-[#0f1115]
-            [&::-moz-range-thumb]:border-4
-            [&::-moz-range-thumb]:border-white"
+          type="number"
+          value={ticketQuantity}
+          onChange={onInput}
+          className="rounded-[14px] outline-none font-medium text-base text-white text-center w-16"
         />
+
+        <button
+          onClick={inc}
+          className="w-8 h-8 cursor-pointer rounded bg-primary-color flex items-center justify-center"
+        >
+          <img src="/icons/plus-white-icon.svg" alt="" />
+        </button>
       </div>
 
-      <div className="flex justify-between mt-4 px-2 text-sm">
-        {Array.from({ length: MAX }, (_, i) => {
-          const value = i + 1;
-          return (
-            <span
-              key={value}
-              className={value === qty ? "text-yellow-400" : "text-gray-400"}
-            >
-              {value}
-            </span>
-          );
-        })}
-      </div>
+      {/* <button
+        onClick={setMax}
+        className="bg-gray-1300 rounded-lg px-6 py-2 font-semibold text-center cursor-pointer"
+      >
+        Max
+      </button> */}
     </div>
   );
 }
