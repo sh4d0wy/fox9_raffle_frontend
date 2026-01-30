@@ -4,9 +4,9 @@ import SearchBox from '../../components/home/SearchBox';
 import SortDropdown from '../../components/home/SortDropdown';
 import FilterModel from '../../components/home/FilterModel';
 import { NoAuctions } from '../../components/auctions/NoAuctions';
-import { AucationsCard } from '../../components/auctions/AucationsCard';
+import { AuctionsCard } from '@/components/auctions/AuctionsCard';
 import { useAucationsStore } from 'store/auctions-store';
-import { useAucationsQuery } from 'hooks/useAucationsQuery';
+import { useAuctionsQuery } from 'hooks/auction/useAuctionsQuery';
 import { useGlobalStore } from 'store/globalStore';
 import CryptoCardSkeleton from '@/components/skeleton/RafflesCardSkeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -33,7 +33,7 @@ export const Route = createFileRoute('/auctions/')({
 
 function Auctions() {
       const { filter, setFilter } = useAucationsStore()
-       const { data, fetchNextPage, hasNextPage, isLoading } = useAucationsQuery(filter)
+       const { data, fetchNextPage, hasNextPage, isLoading } = useAuctionsQuery(filter)
        const { sort, setSort } = useGlobalStore();
      
        const aucations = data?.pages.flatMap((p) => p.items) || []
@@ -152,7 +152,7 @@ function Auctions() {
                 >
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {aucations.map((r) => (
-                      <AucationsCard key={r.id} {...r} />
+                      <AuctionsCard key={r.id} {...r} id={r.id ?? 0} currency={r.currency} prizeName={r.prizeName ?? ""} prizeImage={r.prizeImage ?? ""} collectionName={r.collectionName ?? ""} reservePrice={r.reservePrice ?? ""} status={r.status ?? ""} />
                     ))}
                   </div>
                 </InfiniteScroll>

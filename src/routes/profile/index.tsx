@@ -1,4 +1,4 @@
-import { AucationsCard } from '@/components/auctions/AucationsCard';
+import { AucationsCard } from '@/components/auctions/AuctionsCard';
 import { RafflersCard } from '@/components/cards/RafflersCard';
 import { RafflersCardPurchased } from '@/components/cards/RafflersCardPurchased';
 import { GumballsCard } from '@/components/gumballs/GumballsCard';
