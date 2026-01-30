@@ -17,6 +17,7 @@ import { useFiltersStore } from 'store/filters-store'
 import { filterRaffles, getActiveFiltersList, hasActiveFilters, sortRaffles } from '@/utils/sortAndFilter'
 import type { RaffleTypeBackend } from 'types/backend/raffleTypes'
 import { NoRaffles } from '@/components/home/NoRaffles'
+import { motion } from 'motion/react'
 
 const sortingOptions = [
   { label: "Recently Added", value: "Recently Added" },
@@ -125,8 +126,14 @@ function RafflesPage() {
     clearFilter(filterId);
   };
   return (
-    <main className="flex-1 font-inter bg-black-1100">
-      <section className="w-full relative z-20 md:pt-48 pt-36">
+    <motion.main 
+    className="flex-1 font-inter bg-black-1100">
+      <motion.section 
+      initial={{ opacity: 0, y: 100 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 100 }}
+      transition={{ duration: 0.3 }}
+      className="w-full relative z-20 md:pt-48 pt-36">
     
         <div className="w-full max-w-[1440px] md:px-5 px-4 mx-auto">
           
@@ -144,9 +151,14 @@ function RafflesPage() {
 
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className='w-full md:pt-8 pb-12'>
+      <motion.section
+      initial={{ opacity: 0, y: 200 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 200 }}
+      transition={{ duration: 0.5 }}
+      className='w-full md:pt-8 pb-12'>
         <div className="w-full">
           <div className="max-w-[1360px] w-full mx-auto relative xl:pl-12 pl-6 pr-6">
             <div className="flex-1 flex flex-col lg:gap-16 gap-10">
@@ -179,13 +191,18 @@ function RafflesPage() {
             </div>
          </div>
         </div>
-      </section>
+      </motion.section>
 
       <TryToolsSection />
 
       <ToolsSection />
 
-      <section className="w-full relative z-10 pt-10 md:pt-[122px] pb-32 md:pb-[160px]" id="raffles">
+      <motion.section
+      initial={{ opacity: 0, y: 900 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 900 }}
+      transition={{ duration: 1 }}
+      className="w-full relative z-10 pt-10 md:pt-[122px] pb-32 md:pb-[160px]" id="raffles">
         <div className="w-full max-w-[1440px] px-4 md:px-5 mx-auto">
           <div className="w-full flex items-center justify-between gap-5 lg:gap-10 flex-wrap">
             <ul className="flex items-center bg-white/[15%] backdrop-blur-[27px] rounded-[40px] p-1 md:gap-4 gap-1.5">
@@ -286,10 +303,10 @@ function RafflesPage() {
           )}
 
         </div>
-      </section>
+      </motion.section>
 
 
-    </main>
+    </motion.main>
   )
 }
 

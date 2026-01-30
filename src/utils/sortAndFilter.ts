@@ -395,7 +395,7 @@ export function hasActiveFilters(filters: FilterOptions, pageType: PageType = "r
     filters.floorMax
   );
 
-  const hasEndTimeFilter = pageType !== "auctions" && !!(filters.endTimeAfter.date || filters.endTimeBefore.date);
+  const hasEndTimeFilter = !!(filters.endTimeAfter.date || filters.endTimeBefore.date);
 
   return hasCommonFilters || hasEndTimeFilter;
 }
@@ -425,14 +425,12 @@ export function getActiveFiltersList(filters: FilterOptions, pageType: PageType 
     activeFilters.push({ id: "floor", label: `Floor: ${min} - ${max}` });
   }
 
-  if (pageType !== "auctions") {
-    if (filters.endTimeAfter.date) {
-      activeFilters.push({ id: "endTimeAfter", label: `Ends after: ${new Date(filters.endTimeAfter.date).toLocaleDateString()}` });
-    }
+  if (filters.endTimeAfter.date) {
+    activeFilters.push({ id: "endTimeAfter", label: `Ends after: ${new Date(filters.endTimeAfter.date).toLocaleDateString()}` });
+  }
 
-    if (filters.endTimeBefore.date) {
-      activeFilters.push({ id: "endTimeBefore", label: `Ends before: ${new Date(filters.endTimeBefore.date).toLocaleDateString()}` });
-    }
+  if (filters.endTimeBefore.date) {
+    activeFilters.push({ id: "endTimeBefore", label: `Ends before: ${new Date(filters.endTimeBefore.date).toLocaleDateString()}` });
   }
 
   return activeFilters;

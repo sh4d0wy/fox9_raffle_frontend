@@ -661,7 +661,7 @@ All consequences resulting from configuration errors are solely the responsibili
         </div>
       </section>
 
-      {"// Verified Collections Modal"}
+      {/* Verified Collections Modal */}
       <Transition appear show={isVerifiedCollectionsModalOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={closeVerifiedCollectionsModal}>
           <Transition.Child

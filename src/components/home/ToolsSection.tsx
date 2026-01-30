@@ -1,9 +1,14 @@
 import { toolsData } from "../../../data/tools-data";
 import ToolCard from "../../components/home/ToolCard";
-
+import { motion } from "motion/react";
 export const ToolsSection = () => {
   return (
-    <section className="w-full">
+    <motion.section 
+    initial={{ opacity: 0, y: 400 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: 400 }}
+    transition={{ duration: 0.9 }}
+    className="w-full">
       <div className="w-full max-w-[1440px] md:px-[52px] px-4 pt-5 pb-11 md:py-12 mx-auto">
         <div className="w-full grid md:grid-cols-4 lg:gap-10 gap-[32px] md:gap-5">
           {toolsData.map((tool) => (
@@ -30,6 +35,6 @@ export const ToolsSection = () => {
           </defs>
         </svg>
       </div>
-    </section>
+    </motion.section>
   );
 };

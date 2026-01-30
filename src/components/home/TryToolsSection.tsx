@@ -1,8 +1,13 @@
 import GradientText from "../common/GradientText";
-
+import { motion } from "motion/react";
 export const TryToolsSection = () => {
   return (
-    <section className="w-full pb-6 pt-[51px] md:pt-16 relative">
+    <motion.section 
+    initial={{ opacity: 0, y: 300 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: 300 }}
+    transition={{ duration: 0.7 }}
+    className="w-full pb-6 pt-[51px] md:pt-16 relative">
       <div className="w-full max-w-[1440px] px-5 mx-auto">
         <div className="flex flex-col items-center justify-center">
           <GradientText
@@ -16,6 +21,6 @@ export const TryToolsSection = () => {
           </p>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };

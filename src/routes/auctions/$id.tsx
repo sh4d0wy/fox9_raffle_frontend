@@ -1,67 +1,290 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Disclosure } from '@headlessui/react'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ParticipantsTable } from '../../components/auctions/ParticipantsTable'
 import { TransactionsTable } from '../../components/auctions/TransactionsTable'
 import { TermsConditions } from '../../components/auctions/TermsConditions'
 import { AucationsData } from "../../../data/aucations-data";
 import { PrimaryLink2 } from '@/components/ui/PrimaryLink2'
+import { useAuctionById } from 'hooks/auction/useAuctionsQuery'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { useToggleFavourite } from 'hooks/useToggleFavourite'
+import { useQueryFavourites } from 'hooks/profile/useQueryFavourites'
+import { useBidAuction } from "hooks/auction/useBidAuction";
+import {useCancelAuction } from "hooks/auction/useCancelAuction";
+import { VerifiedTokens } from '@/utils/verifiedTokens'
+import { toast } from 'react-toastify'
+import { DEFAULT_AVATAR } from 'store/userStore'
+import { API_URL } from '@/constants'
+import { VerifiedNftCollections } from '@/utils/verifiedNftCollections'
+import { useNftMetadata } from 'hooks/useNftMetadata'
+import type { NftMetadata } from 'hooks/useNftMetadata'
+import { Loader } from 'lucide-react'
+import PageTimer from '@/components/common/PageTimer'
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 
 export const Route = createFileRoute('/auctions/$id')({
   component: AuctionDetails,
 })
 
+const getNftSections = (nftMetadata: NftMetadata | null | undefined, auctionData: any) => {
+  const traits: { label: string; value: string }[] = [];
+  const details: { label: string; value: string }[] = [];
 
- const UserDetails = [
-    {
-      title: 'Traits',
-      items: [
-        { label: 'Background', value: 'Vanilla Ice' },
-        { label: 'Fur', value: 'Hazel' },
-        { label: 'Face', value: 'Smirk' },
-        { label: 'Clothes', value: 'Baseball Hoodie' },
-        { label: 'Head', value: 'Beanie (blackout)' },
-        { label: 'Eyewear', value: 'Melrose Bricks' },
-        { label: '1/1', value: 'None' },
-      ],
-    },
-    {
-      title: 'Details',
-      items: [
-        { label: 'Background', value: 'Vanilla Ice' },
-        { label: 'Fur', value: 'Hazel' },
-        { label: 'Face', value: 'Smirk' },
-        { label: 'Clothes', value: 'Baseball Hoodie' },
-        { label: 'Head', value: 'Beanie (blackout)' },
-        { label: 'Eyewear', value: 'Melrose Bricks' },
-        { label: '1/1', value: 'None' },
-      ],
-    },
-  ]
+  if (nftMetadata?.attributes && Array.isArray(nftMetadata.attributes)) {
+    nftMetadata.attributes.slice(0, 5).forEach((attr) => {
+      if (attr.trait_type && attr.value !== undefined) {
+        traits.push({
+          label: attr.trait_type,
+          value: String(attr.value),
+        });
+      }
+    });
+  }
 
+  if (nftMetadata?.mintAddress) {
+    details.push({
+      label: 'Mint Address',
+      value: `${nftMetadata.mintAddress.slice(0, 6)}...${nftMetadata.mintAddress.slice(-6)}`,
+    });
+  }
+
+  if (nftMetadata?.collection?.name) {
+    details.push({
+      label: 'Collection',
+      value: nftMetadata.collection.name,
+    });
+  } else if (auctionData?.collectionName) {
+    details.push({
+      label: 'Collection',
+      value: auctionData.collectionName,
+    });
+  }
+
+  if (nftMetadata?.creators && nftMetadata.creators.length > 0) {
+    const primaryCreator = nftMetadata.creators[0];
+    details.push({
+      label: 'Creator',
+      value: `${primaryCreator.address.slice(0, 6)}...${primaryCreator.address.slice(-6)}`,
+    });
+  }
+
+  if (nftMetadata?.owner) {
+    details.push({
+      label: 'Owner',
+      value: `${nftMetadata.owner.slice(0, 6)}...${nftMetadata.owner.slice(-6)}`,
+    });
+  }
+
+  if (nftMetadata?.symbol) {
+    details.push({
+      label: 'Symbol',
+      value: nftMetadata.symbol,
+    });
+  }
+
+  if (nftMetadata?.royalty && nftMetadata.royalty > 0) {
+    details.push({
+      label: 'Royalty',
+      value: `${nftMetadata.royalty}%`,
+    });
+  }
+
+  if (nftMetadata?.externalUrl) {
+    details.push({
+      label: 'External URL',
+      value: nftMetadata.externalUrl,
+    });
+  }
+
+  return [
+    { title: 'Traits', items: traits },
+    { title: 'Details', items: details },
+  ].filter(section => section.items.length > 0);
+};
+ 
 function AuctionDetails() {
   const { id } = Route.useParams();
-  const auction = AucationsData.find((item) => item.id === Number(id));
+  const { data: auction, isLoading } = useAuctionById(id || "");
+  const { publicKey } = useWallet();
+  const { favouriteAuction } = useToggleFavourite(publicKey?.toString() || "");
+  const { getFavouriteAuction } = useQueryFavourites(
+    publicKey?.toString() || ""
+  );
+  const { bidAuction } = useBidAuction();
+  const { cancelAuction } = useCancelAuction();
+  const [isBiddingAuction, setIsBiddingAuction] = useState(false);
+  const [bidAmountInput, setBidAmountInput] = useState<string>("");
+  
+  // NFT metadata for traits and details
+  const nftMintAddress = auction?.prizeMint;
+  const { data: nftMetadata, isLoading: isNftMetadataLoading } = useNftMetadata(nftMintAddress);
+  
+  const nftSections = useMemo(() => {
+    if (!auction?.prizeMint) return [];
+    return getNftSections(nftMetadata, auction);
+  }, [nftMetadata, auction]);
 
-        const [tabs, setTabs] = useState([
-            { name: "Participants", active: true },
-            { name: "Transactions", active: false },
-            { name: "Terms & Conditions", active: false },
-          ]);
+  const isCreator = useMemo(() => {
+    return publicKey && auction?.createdBy === publicKey.toString();
+  }, [publicKey, auction?.createdBy]);
+  const [tabs, setTabs] = useState([
+    { name: "Participants", active: true },
+    { name: "Terms & Conditions", active: false },
+  ]);
+  const shortenAddress = (addr: string) =>
+    addr ? `${addr.slice(0, 4)}...${addr.slice(-4)}` : "N/A";
 
-    
-    const [TimeExtension] = useState(true)
+  const currencyDecimals = useMemo(() => {
+    return (
+      VerifiedTokens.find((token) => token.symbol === auction?.currency)
+        ?.decimals ?? 0
+    );
+  }, [auction?.currency]);
 
+  const [computedStatus, setComputedStatus] = useState<
+    "UPCOMING" | "LIVE" | "COMPLETED" | "CANCELLED"
+  >("UPCOMING");
+  const [timeLeft, setTimeLeft] = useState({ h: "00", m: "00", s: "00" });
 
-  if (!auction) {
+  const showBidButton = !isCreator && computedStatus === "LIVE" && publicKey;
+  const showCancelButton =
+    isCreator &&
+    computedStatus !== "COMPLETED" &&
+    auction?.status !== "CANCELLED" &&
+    auction?.bids?.length == 0;
+
+  const endingTransaction = useMemo(() => {
+    if(auction?.status === "COMPLETED_SUCCESSFULLY" || auction?.status === "COMPLETED_FAILED"){
+      return auction?.endingTransaction?.transactionId;
+    }
+    return null;
+  }, [auction?.status]);
+
+  useEffect(() => {
+    if (!auction) return;
+
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const start = new Date(auction.startsAt).getTime();
+      const end = new Date(auction.endsAt).getTime();
+
+      if (auction.status === "CANCELLED") setComputedStatus("CANCELLED");
+      else if (auction.status === "INITIALIZED") setComputedStatus("UPCOMING");
+      else if (
+        auction.status === "COMPLETED_SUCCESSFULLY" ||
+        auction.status === "COMPLETED_FAILED"
+      )
+        setComputedStatus("COMPLETED");
+      else setComputedStatus("LIVE");
+
+      // Calculate countdown for Live/Upcoming
+      const target =
+        now < start ? start : auction.status === "ACTIVE" ? end : 0;
+      const distance = target - now;
+
+      if (distance > 0) {
+        const h = Math.floor(distance / (1000 * 60 * 60))
+          .toString()
+          .padStart(2, "0");
+        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
+          .toString()
+          .padStart(2, "0");
+        const s = Math.floor((distance % (1000 * 60)) / 1000)
+          .toString()
+          .padStart(2, "0");
+        setTimeLeft({ h, m, s });
+      } else {
+        setTimeLeft({ h: "00", m: "00", s: "00" });
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [auction]);
+
+  const isFavorite = useMemo(
+    () => getFavouriteAuction.data?.some((f) => f.id === Number(id)),
+    [getFavouriteAuction.data, id]
+  );
+
+  // Calculate the minimum allowed bid
+  const minBidInSol = useMemo(() => {
+    if (!auction) return 0;
+
+    // Convert base values from lamports to SOL
+    const reserveInSol =
+      Number(auction.reservePrice ?? 0) / Math.pow(10, currencyDecimals);
+    const highestBidInSol =
+      Number(auction.highestBidAmount ?? 0) / Math.pow(10, currencyDecimals);
+
+    if (!auction.hasAnyBid) {
+      return reserveInSol;
+    }
+
+    const incrementFactor = 1 + (auction.bidIncrementPercent ?? 0) / 100;
+    return highestBidInSol * incrementFactor;
+  }, [auction]);
+
+  const isWrongBid = useMemo(() => {
+    if (!bidAmountInput) {
+      return true;
+    } else {
+      if (auction?.hasAnyBid) {
+        return !(parseFloat(bidAmountInput) >= minBidInSol);
+      }
+      return !(parseFloat(bidAmountInput) > minBidInSol);
+    }
+  }, [bidAmountInput]);
+  // Handle Bid Submission
+  const handlePlaceBid = async () => {
+    const amount = Number(bidAmountInput);
+
+    if (isNaN(amount) || amount < minBidInSol) {
+      if(auction?.hasAnyBid) {
+        toast.error(`Your bid must be atleast ${minBidInSol.toFixed(5)} ${auction?.currency}`);
+        return;
+      } else {
+        toast.error(`Your bid must be greater than ${minBidInSol.toFixed(5)} ${auction?.currency}`);
+        return;
+      }
+    }
+
+    try {
+      setIsBiddingAuction(true);
+      await bidAuction.mutateAsync({
+        highestBidder: auction?.highestBidderWallet ?? "",
+        auctionId: Number(id),
+        bidAmount: Math.round(amount * Math.pow(10, currencyDecimals)), // Convert SOL to lamports
+      });
+      setBidAmountInput(""); // Clear input on success
+    } catch (error) {
+      console.error("Bid failed:", error);
+    } finally {
+      setIsBiddingAuction(false);
+    }
+  };
+
+  const handleCancelAuction = async () => {
+    try {
+      setIsBiddingAuction(true);
+      await cancelAuction.mutateAsync({
+        auctionId: Number(id),
+      });
+    } catch (error) {
+      console.error("Cancel failed:", error);
+    } finally {
+      setIsBiddingAuction(false);
+    }
+  };
+
+  if (isLoading)
+    return <div className="py-20 text-center bg-black-1400 text-white">Loading Auction...</div>;
+  if (!auction)
     return (
       <main className="py-20 text-center text-3xl font-bold text-red-500">
         Auction not found!
       </main>
     );
-  }
-
-
 
   return (
   <main className='bg-black-1400'>
@@ -75,36 +298,42 @@ function AuctionDetails() {
     <section className='w-full pb-20'>
         <div className="w-full py-10 max-w-[1440px] px-5 mx-auto">
             <div className="w-full flex gap-6 md:gap-10 xl:flex-row flex-col">
+              {/*Left section*/}
                 <div className="flex-1 max-w-full xl:max-w-[450px]">
                   <div className="bg-black-1300 p-4 rounded-xl">
-                    <img src={auction?.MainImage}
+                    <img src={auction?.prizeImage}
                     className="w-full md:h-[450px] h-[361px] object-cover rounded-[12px]"
                     />
                   </div>
                      
                     <div className="w-full pb-7 pt-6 md:py-10 hidden md:flex items-center justify-between">
                         <div className="flex items-center gap-3 2xl:gap-5">
-                            <img  src={auction?.userAvatar} className='w-12 h-12 rounded-full object-cover' alt="" />
-                            <h3 className='md:text-[28px] text-lg font-bold text-white font-inter'>{auction?.userName}</h3>
+                            <img  src={VerifiedNftCollections.find((item)=>item.name===auction?.collectionName)?.image} className='w-12 h-12 rounded-full object-cover' alt="" />
+                            <h3 className='md:text-2xl text-lg font-bold text-white font-inter'>{auction?.collectionName}</h3>
                         </div>
 
                         <ul className='flex items-center bg-primary-color/20 rounded-full p-2 gap-6'>
                             <li>
-                                <a href='#'><img src="/icons/twitter-icon.svg" className='w-7 invert h-7 object-contain' alt="" /></a>
+                                <a href={VerifiedNftCollections.find((item)=>item.name===auction?.collectionName)?.twitter}><img src="/icons/twitter-icon.svg" className='w-7 invert h-7 object-contain' alt="" /></a>
                             </li>
 
                                 <li>
-                                <a href='#'> <img src="/icons/mcp-server-icon.svg" className='w-7 invert h-7 object-contain' alt="" /></a>
+                                <a href={VerifiedNftCollections.find((item)=>item.name===auction?.collectionName)?.website}> <img src="/icons/mcp-server-icon.svg" className='w-7 invert h-7 object-contain' alt="" /></a>
                             </li>
                         </ul>
 
                     </div>
                  <div className="w-full space-y-5 hidden md:block">
-                    {UserDetails.map((section, index) => (
-                        <Disclosure as="div" key={section.title} defaultOpen={index === 0} className="w-full py-4 md:py-6 px-5 border border-gray-1100 rounded-[20px]">
+                    {nftSections.length > 0 ? (
+                      isNftMetadataLoading ? (
+                        <div className="w-full py-10 flex items-center justify-center">
+                          <Loader className="w-8 h-8 animate-spin text-primary-color" />
+                        </div>
+                      ) : nftSections.map((section, index) => (
+                        <Disclosure as="div" key={section.title} defaultOpen={index === 0} className="w-full py-4 md:py-6 px-5 border border-gray-1100 rounded-[20px] transition duration-300">
                         {({ open }) => (
                             <>
-                            <Disclosure.Button   className={`flex items-center justify-between w-full text-base md:text-xl font-bold font-inter text-white ${
+                            <Disclosure.Button className={`flex items-center justify-between w-full text-base md:text-xl font-bold font-inter text-white ${
                                 open ? 'text-primary-color!' : ''}`}>
                                 <span>{section.title}</span>
                                 <svg
@@ -129,7 +358,7 @@ function AuctionDetails() {
                                 <ul className="space-y-6 pt-6">
                                 {section.items.map((item) => (
                                     <li key={item.label} className="flex items-center justify-between">
-                                    <p className="md:text-base text-sm font-inter font-medium text-gray-1200">{item.label}</p>
+                                    <p className="md:text-base text-sm font-inter font-medium text-gray-1100/40">{item.label}</p>
                                     <p className="md:text-base text-sm font-inter font-medium text-white">{item.value}</p>
                                     </li>
                                 ))}
@@ -138,31 +367,34 @@ function AuctionDetails() {
                             </>
                              )}
                         </Disclosure>
-                        ))}
+                      ))
+                    ) : (
+                      <></>
+                    )}
                      </div>
 
                 </div>
+                {/*Right section*/}
                 <div className="flex-1">
                     <div className="w-full">
-                        <h4 className='text-sm text-primary-color font-inter font-medium'>Raffle prize • 1 winner</h4>
-                        <h1 className='md:text-[28px] text-xl font-inter md:mt-6 my-5 md:mb-5 font-bold text-white'>{auction?.heading}</h1>
+                        <h1 className='md:text-[28px] text-xl font-inter md:mt-6 my-5 md:mb-5 font-bold text-white'>{auction?.prizeName}</h1>
                       
                         <div className="flex relative items-start md:items-end md:flex-row flex-col md:gap-0 gap-5 justify-between pb-6 md:pb-8 border-b border-gray-1000">
 
                           <ul className="flex items-center gap-3 2xl:gap-5 flex-wrap">
                                 <li>
                                 <p className="md:text-sm text-xs inline-block px-2 sm:px-2.5 py-2 md:py-1.5 font-semibold text-center font-inter text-black-1000 bg-primary-color rounded-lg">
-                                    Prize Value: 0.99 SOL
+                                    FP: {(auction?.floorPrice!/(10**9)).toFixed(2)} SOL
                                 </p>
                                 </li>
                                 <li>
                                 <p className="md:text-sm text-xs inline-block px-2 sm:px-2.5 py-2 md:py-1.5 font-semibold text-center font-inter bg-gray-1000 text-white rounded-lg">
-                                    TTV: 1.18 SOL
+                                    Reserve Price: {parseFloat(auction?.reservePrice!)/(10**(VerifiedTokens.find((token)=>token.symbol===auction?.currency)?.decimals || 0))} {auction?.currency}
                                 </p>
                                 </li>
                                 <li>
                                 <p className="md:text-sm text-xs inline-block px-2 sm:px-2.5 py-2 md:py-1.5 font-semibold text-center font-inter bg-gray-1000 text-white rounded-lg">
-                                    +19.19%
+                                    Highest Bid: {auction?.highestBidAmount!/(10**(VerifiedTokens.find((token)=>token.symbol===auction?.currency)?.decimals || 0))} {auction?.currency}
                                 </p>
                                 </li>
                           </ul>
@@ -210,98 +442,52 @@ function AuctionDetails() {
                           <div className="w-full flex items-center justify-between md:pt-7 py-6 md:pb-10">
                                       <div className="inline-flex gap-4">
                                         <img
-                                            src="/images/placeholder-user.png"
+                                            src={auction?.creator?.profileImage? API_URL+auction?.creator?.profileImage:DEFAULT_AVATAR}
                                             className="w-10 h-10 rounded-full object-cover"
                                             alt="no"
                                         />
 
                                         <div className="">
                                             <p className="text-xs md:pb-0 pb-1 font-inter font-normal text-gray-1200">
-                                            Raffler
+                                            Creator
                                             </p>
                                             <h4 className="text-base text-white font-inter font-semibold">
-                                            OzzyyySOL
+                                            {shortenAddress(auction?.createdBy)}
                                             </h4>
                                         </div>
                                         </div>
-                                        <div className="flex items-center gap-5">
-                                        <a href="#" className='px-5 py-2 rounded-full font-semibold border border-primary-color text-primary-color'>
-                                          Follow
-                                        </a>
-                                        <img
-                                            src="/icons/twitter-icon.svg"
-                                            className="md:w-7 invert md:h-7 w-6 h-6 object-contain"
-                                            alt=""
-                                        />
-                                        </div>
                                     </div>
-                          {TimeExtension ? 
+                          {computedStatus === "LIVE" ? 
                           <div className="w-full flex items-center flex-col-reverse md:flex-row justify-between py-4 px-[26px] rounded-[20px] bg-primary-color/10">
                             <div className="inline-flex w-full md:w-fit flex-col gap-2.5">
-                              <div className="flex gap-3.5 items-center justify-center">
-                                <div className="">
-                                <h3 className='text-[11px] mb-2 text-center text-gray-1100 uppercase font-inter'>HOURS</h3>
-                                  <div className="flex flex-row gap-1.5">
-                                  <h4 className="text-xl rounded bg-black-1400 pr-2.5 text-center font-semibold text-white font-inter px-2.5 py-3">
-                                    2
-                                </h4>
-                                   <h4 className="text-xl rounded bg-black-1400 pr-2.5 text-center font-semibold text-white font-inter px-2.5 py-3">
-                                    2
-                                </h4>
-                                </div>
-
-                                  </div>
-
-                                <div className="">
-                                <h3 className='text-[11px] mb-2 text-center text-gray-1100 uppercase font-inter'>HOURS</h3>
-                                  <div className="flex flex-row gap-1.5">
-                                  <h4 className="text-xl rounded bg-black-1400 pr-2.5 text-center font-semibold text-white font-inter px-2.5 py-3">
-                                    2
-                                </h4>
-                                   <h4 className="text-xl rounded bg-black-1400 pr-2.5 text-center font-semibold text-white font-inter px-2.5 py-3">
-                                    2
-                                </h4>
-                                </div>
-                                  </div>
-
-                                <div className="">
-                                <h3 className='text-[11px] mb-2 text-center text-gray-1100 uppercase font-inter'>SECONDS</h3>
-                                  <div className="flex flex-row gap-1.5">
-                                  <h4 className="text-xl rounded bg-black-1400 pr-2.5 text-center font-semibold text-white font-inter px-2.5 py-3">
-                                    2
-                                </h4>
-                                   <h4 className="text-xl rounded bg-black-1400 pr-2.5 text-center font-semibold text-white font-inter px-2.5 py-3">
-                                    2
-                                </h4>
-                                </div>
-                                  </div>
-                            
-                                </div>
+                              <PageTimer targetDate={new Date(auction?.endsAt || "")} />
                                 <p className="text-sm font-inter text-gray-1200 font-normal">
                                 Time Left
                                 </p>
                             </div>
                             <div className="flex-1 md:flex-none md:w-1/2 flex justify-between w-full pb-6 md:pb-0">
                             <div className="inline-flex flex-col gap-2.5">
-                                <h3 className="md:text-xl font-semibold font-inter text-white">
-                                15 / 100
+                                <h3 className="md:text-xl w-full text-center font-semibold font-inter text-white">
+                                {auction?.bidIncrementPercent}%
                                 </h3>
                                 <p className="font-inter text-gray-1200 text-sm font-normal">
-                                Tickets Sold
+                                Min Bid Increment
                                 </p>
                             </div>
 
                             <div className="inline-flex flex-col gap-2.5">
-                                <h3 className="md:text-xl text-base font-semibold font-inter text-white">
-                                0.118 SOL
+                                <h3 className="md:text-xl text-base text-center font-semibold font-inter text-white">
+                                {auction?.timeExtension} mins
                                 </h3>
                                 <p className="font-inter text-gray-1200 text-sm font-normal">
-                                Ticket price
+                                Time Extension
                                 </p>
                             </div>
                             </div>
                             </div>
                             :
+                            <>
+                            {/*TODO: After auction ends*/}
                             <div className="w-full flex flex-col md:gap-10 gap-6 sm:py-[22px] pt-5 pb-4 px-4 sm:px-[26px] rounded-[20px] bg-black-1300">
                       <div className="sm:grid flex sm:gap-0 gap-6 flex-wrap justify-between grid-cols-2 sm:grid-cols-3 w-full">
                         <div className="inline-flex flex-1 flex-col gap-2.5 sm:w-auto w-[44%]">
@@ -396,14 +582,16 @@ function AuctionDetails() {
                         </h4>
                       </div>
                        </div>
+                       </>
                             }
-
+                            {!publicKey && 
                             <div className="w-full mt-6 flex items-center flex-col justify-center py-[18px] md:py-[22px] px-[26px] gap-4 md:gap-[26px] border border-primary-color rounded-[20px] bg-black-1300">
                                 <h3 className="md:text-base text-sm text-gray-1200 font-inter font-medium text-center">
-                                Please connect your wallet first to enter a raffle.
+                                Please connect your wallet first to bid on this auction.
                                 </h3>
-                                <PrimaryLink2 link="" text="Select Wallet" />
+                                <WalletMultiButton />
                             </div>
+                            }
 
                             <div className="w-full">
                                 <div className="w-full overflow-x-auto">
@@ -424,14 +612,11 @@ function AuctionDetails() {
                             </ul>
                             </div>
                             {tabs[0].active &&
-                             <ParticipantsTable/>
+                            <></>
+                            //  <ParticipantsTable/>
                             }
 
                             {tabs[1].active &&
-                             <TransactionsTable/>
-                            }
-
-                            {tabs[2].active &&
                              <TermsConditions/>
                             }
                             
@@ -441,16 +626,17 @@ function AuctionDetails() {
                         </div>
                     </div>
                 </div>
+                {/*Mobile section*/}
                     <div className="md:hidden block border-t border-solid border-gray-1100">
                               <div className="w-full pb-7 pt-6 md:py-10 flex items-center justify-between">
                                 <div className="flex items-center gap-5 md:gap-3 2xl:gap-5">
                                   <img
-                                    src={auction?.userAvatar}
+                                    src={auction?.creator.profileImage?API_URL+auction.creator.profileImage:DEFAULT_AVATAR}
                                     className="w-12 h-12 rounded-full object-cover"
                                     alt=""
                                   />
                                   <h3 className="md:text-[28px] text-lg font-bold text-white font-inter">
-                                    {auction?.userName}
+                                    {shortenAddress(auction?.createdBy)}
                                   </h3>
                                 </div>
                 
@@ -478,17 +664,21 @@ function AuctionDetails() {
                                 </ul>
                               </div>
                               <div className="w-full space-y-5">
-                                {UserDetails.map((section, index) => (
+                                {isNftMetadataLoading ? (
+                                  <div className="w-full py-10 flex items-center justify-center">
+                                    <Loader className="w-8 h-8 animate-spin text-primary-color" />
+                                  </div>
+                                ) : nftSections.map((section, index) => (
                                   <Disclosure
                                     as="div"
                                     key={section.title}
                                     defaultOpen={index === 0}
-                                    className="w-full py-4 md:py-6 px-5 border border-gray-1100 rounded-[20px]"
+                                    className="w-full py-4 md:py-6 px-5 border border-gray-1100 rounded-[20px] transition duration-300"
                                   >
                                     {({ open }) => (
                                       <>
                                         <Disclosure.Button
-                                          className={`flex items-center justify-between w-full text-base md:text-xl font-bold font-inter  ${
+                                          className={`flex items-center justify-between w-full text-base md:text-xl font-bold font-inter transition duration-300 ${
                                             open ? "text-primary-color" : "text-white"
                                           }`}
                                         >
@@ -518,7 +708,7 @@ function AuctionDetails() {
                                                 key={item.label}
                                                 className="flex items-center justify-between"
                                               >
-                                                <p className="md:text-base text-sm font-inter font-medium text-gray-1200">
+                                                <p className="md:text-base text-sm font-inter font-medium text-gray-1100/40">
                                                   {item.label}
                                                 </p>
                                                 <p className="md:text-base text-sm font-inter font-medium text-white">

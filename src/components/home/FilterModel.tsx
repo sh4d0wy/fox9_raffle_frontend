@@ -85,7 +85,10 @@ export default function FilterModal() {
     applyFilters,
     resetFilters,
   } = useFiltersStore();
+  const showRaffleType = pageType === "raffles";
 
+
+  
   const open = () => setFilterOpen(true);
   const close = () => setFilterOpen(false);
 
@@ -164,7 +167,7 @@ export default function FilterModal() {
 
               <div className="grid md:grid-cols-2 px-4 md:px-5 border-b border-gray-1100">
                 <div className="py-[30px] md:border-r border-gray-1100">
-                  {pageType === "raffles" && (
+                  {showRaffleType && (
                     <RadioGroup
                       name="raffles"
                       value={raffleType}
@@ -176,7 +179,7 @@ export default function FilterModal() {
                     />
                   )}
 
-                  <div className="md:space-y-5 space-y-3 pt-10 md:pt-[42px] md:pr-7">
+                  <div className={`md:space-y-5 space-y-3 ${showRaffleType ? "pt-10 md:pt-[42px]" : ""} md:pr-7`}>
                     <SelectOption
                       label="Token"
                       placeholder="Select token"

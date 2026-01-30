@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react';
+import { useMemo, useEffect } from 'react';
 import SearchBox from '../../components/home/SearchBox';
 import SortDropdown from '../../components/home/SortDropdown';
 import FilterModel from '../../components/home/FilterModel';
@@ -10,21 +10,17 @@ import { useAuctionsQuery } from 'hooks/auction/useAuctionsQuery';
 import { useGlobalStore } from 'store/globalStore';
 import CryptoCardSkeleton from '@/components/skeleton/RafflesCardSkeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
-
-
-
-
-   const options =[
-          { label: "Recently Added", value: "Recently Added" },
-          { label: "Expiring Soon", value: "Expiring Soon" },
-          { label: "Selling out soon", value: "Selling out soon" },
-          { label: "Price: Low to High", value: "Price: Low to High" },
-          { label: "Price: High to Low", value: "Price: High to Low" },
-          { label: "TTV/Floor: Low to High", value: "TTV/Floor: Low to High" },
-          { label: "TTV/Floor: High to Low", value: "TTV/Floor: High to Low" },
-          { label: "Floor: Low to High", value: "Floor: Low to High" },
-          { label: "Floor: High to Low", value: "Floor: High to Low" },
-        ]
+import { useFiltersStore } from 'store/filters-store';
+import { filterAuctions, getActiveFiltersList, hasActiveFilters, type AuctionItem, sortAuctions } from '@/utils/sortAndFilter';
+import { motion } from 'motion/react';
+const options = [
+  { label: "Recently Added", value: "Recently Added" },
+  { label: "Expiring Soon", value: "Expiring Soon" },
+  { label: "Price: Low to High", value: "Price: Low to High" },
+  { label: "Price: High to Low", value: "Price: High to Low" },
+  { label: "Floor: Low to High", value: "Floor: Low to High" },
+  { label: "Floor: High to Low", value: "Floor: High to Low" },
+];
 
 
 export const Route = createFileRoute('/auctions/')({
@@ -32,23 +28,99 @@ export const Route = createFileRoute('/auctions/')({
 })
 
 function Auctions() {
-      const { filter, setFilter } = useAucationsStore()
-       const { data, fetchNextPage, hasNextPage, isLoading } = useAuctionsQuery(filter)
-       const { sort, setSort } = useGlobalStore();
-     
-       const aucations = data?.pages.flatMap((p) => p.items) || []
-     
-       const [filters, setFilters] = useState<string[]>([]);
+  const { filter, setFilter } = useAucationsStore();
+  const { data, fetchNextPage, hasNextPage, isLoading } = useAuctionsQuery(filter);
+  const { sort, setSort, searchQuery, setSearchQuery } = useGlobalStore();
 
-       const activeFilters = [
-      { id: "all", label: "All Auctions" },
-      { id: "past", label: "Past Auctions" },
-    ];
+  const {
+    raffleType,
+    selectedToken,
+    selectedCollection,
+    floorMin,
+    floorMax,
+    endTimeAfter,
+    endTimeBefore,
+    filtersApplied,
+    clearFilter,
+    resetFilters,
+    setPageType,
+  } = useFiltersStore();
 
+  useEffect(() => {
+    setPageType("auctions");
+  }, [setPageType]);
 
+  const filterOptions = useMemo(
+    () => ({
+      raffleType,
+      selectedToken,
+      selectedCollection,
+      floorMin,
+      floorMax,
+      endTimeAfter,
+      endTimeBefore,
+    }),
+    [
+      raffleType,
+      selectedToken,
+      selectedCollection,
+      floorMin,
+      floorMax,
+      endTimeAfter,
+      endTimeBefore,
+    ]
+  );
+  const activeFilters = useMemo(() => {
+    return getActiveFiltersList(filterOptions, "auctions");
+  }, [filterOptions]);
+
+  const showActiveFilters = hasActiveFilters(filterOptions, "auctions");
+
+  const aucations = useMemo(() => {
+    let allAuctions = data?.pages.flatMap((p) => p.items) || [];
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      allAuctions = allAuctions.filter((auction) =>
+        auction.prizeName?.toLowerCase().includes(query)
+      );
+    }
+
+    if (filtersApplied && showActiveFilters) {
+      allAuctions = filterAuctions(
+        allAuctions as AuctionItem[],
+        filterOptions
+      ) as typeof allAuctions;
+    }
+
+    if (sort && sort !== "Sort") {
+      allAuctions = sortAuctions(
+        allAuctions as AuctionItem[],
+        sort
+      ) as typeof allAuctions;
+    }
+
+    return allAuctions;
+  }, [
+    data,
+    searchQuery,
+    sort,
+    filtersApplied,
+    showActiveFilters,
+    filterOptions,
+  ]);
+
+  useEffect(() => {
+    setSearchQuery("");
+  }, []);
   return (  
   <main className="main font-inter bg-black-1400">
-    <section className='w-full md:pt-48 pt-36 pb-20 md:pb-[120px]'>
+    <motion.section 
+    initial={{ opacity: 0, y: 100 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: 100 }}
+    transition={{ duration: 0.3 }}
+    className='w-full md:pt-48 pt-36 pb-20 md:pb-[120px]'>
        <div className="w-full max-w-[1440px] px-5 mx-auto">
         <div className="md:pb-16 pb-10">
         <h1 className='lg:text-[60px] text-4xl leading-tight text-white font-semibold font-inter'>Live Auctions Happening Now</h1>
@@ -67,11 +139,12 @@ function Auctions() {
 
                 <div className="flex justify-start lg:justify-end gap-3.5 md:gap-5">
                 
-                  <SearchBox
-                  onSearch={(value) => {
-                    console.log("Searching for:", value);
-                    // You can filter list, call API, etc.
-                  }}
+                <SearchBox
+                placeholder="Search auctions..."
+                value={searchQuery}
+                onSearch={(value) => {
+                  setSearchQuery(value);
+                }}
                 />
                    <SortDropdown
                     options={options}
@@ -87,7 +160,7 @@ function Auctions() {
         
                 {/* Filters List */}
                 <div className="lg:py-7 py-5 overflow-x-auto flex gap-4">
-                   <div className="hidden items-center gap-4">
+                   <div className={`${showActiveFilters && filtersApplied ? 'flex' : 'hidden'} items-center gap-4`}>
                    {activeFilters.length > 0 && (
                   <>
                     <p className="md:text-base text-sm whitespace-nowrap font-black-1000 font-semibold font-inter">
@@ -97,11 +170,11 @@ function Auctions() {
                     <ul className="flex items-center gap-4">
                       <li>
                         <div className="border group hover:border-black-1000 transition duration-200 h-12 inline-flex items-center justify-center rounded-full border-gray-1100 px-5 py-3 gap-2">
-                          <p className="md:text-base whitespace-nowrap text-sm font-inter font-medium text-black-1000">
+                          <p className="md:text-base whitespace-nowrap text-sm font-inter font-medium text-white">
                             Clear All
                           </p>
                           <button
-                            onClick={() => setFilter("")}
+                            onClick={() => resetFilters()}
                             className="cursor-pointer"
                           >
                             <img src="/icons/cross-icon.svg" className='min-w-4' alt="cross icon" />
@@ -112,11 +185,11 @@ function Auctions() {
                     {activeFilters.map((filterItem) => (
                       <li key={filterItem.id}>
                       <div className="border group hover:border-black-1000 transition duration-200 h-12 inline-flex items-center justify-center rounded-full border-gray-1100 px-5 py-3 gap-2">
-                        <p className="md:text-base whitespace-nowrap text-sm font-inter font-medium text-black-1000">
+                        <p className="md:text-base whitespace-nowrap text-sm font-inter font-medium text-white">
                           {filterItem.label}
                         </p>
                         <button
-                          onClick={() => setFilters(filters.filter((f) => f !== filterItem.id))}
+                          onClick={() => clearFilter(filterItem.id)}
                           className="cursor-pointer"
                         >
                           <img src="/icons/cross-icon.svg" className='min-w-4' alt="remove icon" />
@@ -162,7 +235,7 @@ function Auctions() {
 
 
        </div>
-    </section>
+    </motion.section>
   </main>
 
 )}
