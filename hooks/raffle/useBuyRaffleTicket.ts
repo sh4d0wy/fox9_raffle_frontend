@@ -11,7 +11,7 @@ export const useBuyRaffleTicket = () => {
   const queryClient = useQueryClient();
   const { publicKey, sendTransaction } = useWallet();
   const { checkAndInvalidateToken } = useCheckAuth();
-  const { setShowTicketBuyingPopup, setTicketBuyingPopupDismissed } = useCreateRaffleStore();
+  const { setShowTicketBuyingPopup, setTicketBuyingPopupDismissed, setShowBuyTicketPopup } = useCreateRaffleStore();
   const validateForm = async (args: { raffleId: number; ticketsToBuy: number }) => {
     try {
       if (!publicKey) {
@@ -77,8 +77,7 @@ export const useBuyRaffleTicket = () => {
     },
     onSuccess: (raffleId) => {
       queryClient.invalidateQueries({ queryKey: ["raffle", raffleId.toString()] });
-      setShowTicketBuyingPopup(true);
-      setTicketBuyingPopupDismissed(false);
+      setShowBuyTicketPopup(true);
       toast.success("Tickets bought successfully");
     },
     onError: (error: Error) => {

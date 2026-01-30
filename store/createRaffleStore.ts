@@ -16,6 +16,8 @@ interface CreateRaffleState {
   isCreatingRaffle: boolean;  
   showTicketBuyingPopup: boolean;
   ticketBuyingPopupDismissed: boolean;
+  showBuyTicketPopup: boolean;
+  showRaffleEndedPopup: boolean;
   // Date & Time
   endDate: Date | null;
   endTimeHour: string;
@@ -81,6 +83,8 @@ interface CreateRaffleState {
   setIsCreatingRaffle: (isCreating: boolean) => void;
   setShowTicketBuyingPopup: (show: boolean) => void;
   setTicketBuyingPopupDismissed: (dismissed: boolean) => void;
+  setShowBuyTicketPopup: (show: boolean) => void;
+  setShowRaffleEndedPopup: (show: boolean) => void;
   // Actions - Date & Time
   setEndDate: (date: Date | null) => void;
   setEndTimeHour: (hour: string) => void;
@@ -146,6 +150,8 @@ const initialState = {
   isCreatingRaffle: false,
   showTicketBuyingPopup: false,
   ticketBuyingPopupDismissed: false,
+  showBuyTicketPopup: false,
+  showRaffleEndedPopup: false,
   // Date & Time
   endDate: null as Date | null,
   endTimeHour: "12",
@@ -217,6 +223,8 @@ export const useCreateRaffleStore = create<CreateRaffleState>((set, get) => ({
   setAdvancedSettingsOpen: (open) => set({ isAdvancedSettingsOpen: open }),
   setShowTicketBuyingPopup: (show) => set({ showTicketBuyingPopup: show }),
   setTicketBuyingPopupDismissed: (dismissed) => set({ ticketBuyingPopupDismissed: dismissed }),
+  setShowBuyTicketPopup: (show) => set({ showBuyTicketPopup: show }),
+  setShowRaffleEndedPopup: (show) => set({ showRaffleEndedPopup: show }),
   // Actions - Date & Time
   setEndDate: (date) => set({ endDate: date, selectedDuration: null }),
   setEndTimeHour: (hour) => set({ endTimeHour: hour }),

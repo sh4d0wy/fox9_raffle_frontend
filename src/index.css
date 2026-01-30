@@ -196,6 +196,7 @@ input[type="date"] {
 html {
   overflow: auto !important;
 padding-right: 0 !important;
+background-color: black !important;
 }
 
 

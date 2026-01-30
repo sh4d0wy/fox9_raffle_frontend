@@ -165,22 +165,32 @@ export const Navbar = () => {
 
   const { data: notifications } =  useNotificationQuery();
   const { data: endedRafflesNotifications } = useEndedRafflesNotificationQuery();
+
+  // Handle wallet change - reset notification flags when wallet changes
+  useEffect(() => {
+    if (!publicKey) {
+      return;
+    }
+    
+    const currentWallet = publicKey.toBase58();
+    const walletChanged = lastNotifiedWalletRef.current !== currentWallet;
+    
+    if (walletChanged) {
+      console.log("wallet changed, resetting notification flags");
+      hasShownNotificationsRef.current = false;
+      hasShownEndedRafflesNotificationsRef.current = false;
+      lastNotifiedWalletRef.current = currentWallet;
+    }
+  }, [publicKey]);
+
+  // Show winner notifications
   useEffect(() => {
     if (!publicKey || !notifications?.raffles) {
       return;
     }
-    console.log("checking for wallet change")
-    const walletChanged = lastNotifiedWalletRef.current !== publicKey.toBase58();
-    
-    if (walletChanged) {
-      console.log("wallet changed");
-      hasShownNotificationsRef.current = false;
-      hasShownEndedRafflesNotificationsRef.current = false;
-      lastNotifiedWalletRef.current = publicKey.toBase58();
-    }
 
     if (hasShownNotificationsRef.current) {
-      console.log("notifications already shown");
+      console.log("winner notifications already shown");
       return;
     }
 
@@ -189,32 +199,34 @@ export const Navbar = () => {
     );
 
     if (unclaimedWinnings.length > 0) {
-      console.log("showing notifications");
+      console.log("showing winner notifications", unclaimedWinnings.length);
       hasShownNotificationsRef.current = true;
 
-      unclaimedWinnings.length > 0 && unclaimedWinnings.forEach(
+      unclaimedWinnings.forEach(
         (raffle: { id: number; claimed: boolean }, index: number) => {
           setTimeout(() => {
             toast.custom(
               (toastId) => (
-                <WinnerModel isOpen={true} onClose={() => toast.dismiss(toastId as string)} id={raffle.id} toastId={toastId as string} />
+                <WinnerModel id={raffle.id} toastId={toastId as string} />
               ),
               {
-                duration: 3000,
+                duration: 5000,
               }
             );
-          }, index * 400);
+          }, index * 1000);
         }
       );
     }
   }, [publicKey, notifications]);
 
+  // Show creator notifications for ended raffles
   useEffect(() => {
     if (!publicKey || !endedRafflesNotifications?.raffles) {
       return;
     }
 
     if (hasShownEndedRafflesNotificationsRef.current) {
+      console.log("ended raffles notifications already shown");
       return;
     }
 
@@ -223,6 +235,7 @@ export const Navbar = () => {
     );
 
     if (endedRaffles.length > 0) {
+      console.log("showing creator notifications for ended raffles", endedRaffles.length);
       hasShownEndedRafflesNotificationsRef.current = true;
 
       endedRaffles.forEach(
@@ -233,10 +246,10 @@ export const Navbar = () => {
                 <EndedRaffleToast id={raffle.id} totalEntries={raffle.totalEntries} toastId={toastId as string} />
               ),
               {
-                duration: 3000,
+                duration: 5000,
               }
             );
-          }, index * 400);
+          }, index * 500);
         }
       );
     }

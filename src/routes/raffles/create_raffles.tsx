@@ -261,8 +261,8 @@ function CreateRaffles() {
                       <h4 className="font-inter mb-5 lg:mb-6 font-semibold lg:text-2xl text-lg text-white">
                         Add an NFT prize
                       </h4>
-                      <Link
-                        to={"."}
+                      <button
+                        onClick={() => setIsPrizeModalOpen(true)}
                         className="text-black hover:from-primary-color hover:via-primary-color hover:to-primary-color font-semibold text-sm lg:text-base leading-normal font-inter h-10 lg:h-11 rounded-full inline-flex items-center justify-center px-5 lg:px-[26px] transition duration-500 hover:opacity-90 bg-primary-color gap-2"
                       >
                         <span className="w-6 h-6 flex items-center justify-center">
@@ -283,7 +283,7 @@ function CreateRaffles() {
                           </svg>
                         </span>
                         Add
-                      </Link>
+                      </button>
                     </div>
                   ):(
                     <div className="relative border border-solid border-gray-1100 h-[361px] lg:h-[450px] bg-gray-1300 rounded-[20px] flex items-center justify-center flex-col overflow-hidden">
@@ -322,18 +322,14 @@ function CreateRaffles() {
                   </div>
                 </div>
                 <div>
-                  <Link
-                    to={"."}
+                  <button
                     onClick={openVerifiedCollectionsModal}
-                    className="flex items-center justify-between border border-solid border-gray-1100 rounded-[20px] h-[60px] px-5"
+                    className="flex cursor-pointer w-full items-center justify-between border border-solid border-gray-1100 rounded-[20px] h-[60px] px-5"
                   >
                     <p className="text-white xl:text-lg text-base font-medium font-inter">
                       View all verified collections
-                    </p>
-                    <span>
-                      <img src="/icons/right-arw.svg" className='invert' alt="" />
-                    </span>
-                  </Link>
+                    </p> 
+                  </button>
                   {nftPrizeMint && (
                   <div className="flex items-center justify-end gap-3">
                   {nftPrizeMint && (
@@ -367,9 +363,9 @@ function CreateRaffles() {
                     >
                       Raffle tokens
                     </label>
-                    <TokenPrizeInput />
+                    <TokenPrizeInput disabled={prizeType === "nft"}/>
                     {prizeType === "nft" && (
-                      <p className="text-xs text-gray-500 font-inter mt-2">
+                      <p className="text-xs text-red-500 font-inter mt-2">
                         Token prizes are disabled when an NFT prize is selected.
                       </p>
                     )}
@@ -886,18 +882,18 @@ All consequences resulting from configuration errors are solely the responsibili
                 <div className="flex min-h-full items-center justify-center p-4">
                   <DialogPanel
                     transition
-                    className="w-full max-w-[800px] rounded-2xl bg-white border-2 border-primary-color/40 shadow-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0"
+                    className="w-full max-w-[800px] rounded-2xl bg-black-1300 shadow-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0"
                   >
                     {/* Header Close Button */}
                     <div className="flex items-center justify-end px-6 pt-6 pb-2">
                       <button
                         onClick={handleClose}
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-white border-2 border-gray-100 cursor-pointer hover:bg-gray-100 transition duration-300"
+                        className="flex items-center justify-center w-10 h-10 rounded-full  border border-solid border-gray-400/30 cursor-pointer hover:bg-primary-color/40 transition duration-300"
                       >
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                           <path
                             d="M2 2L14 14M2 14L14 2"
-                            stroke="#000"
+                            stroke="#FFFFFF"
                             strokeWidth="2"
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -916,10 +912,11 @@ All consequences resulting from configuration errors are solely the responsibili
                               height="20"
                               viewBox="0 0 20 20"
                               fill="none"
+                              stroke="#FFFFFF"
                             >
                               <path
                                 d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35"
-                                stroke="#000"
+                                stroke="#FFFFFF"
                                 strokeWidth="2"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -931,7 +928,7 @@ All consequences resulting from configuration errors are solely the responsibili
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search NFT name"
-                            className="w-full h-14 pl-12 pr-4 rounded-xl border-2 border-primary-color/50 bg-transparent text-white placeholder:text-white/50 font-medium focus:outline-none focus:border-primary-color transition"
+                            className="w-full h-14 pl-12 pr-4 rounded-xl border border-solid border-gray-400/30 bg-transparent text-white placeholder:text-white/50 font-medium focus:outline-none focus:border-primary-color transition"
                           />
                         </div>
                       </div>
@@ -978,11 +975,11 @@ All consequences resulting from configuration errors are solely the responsibili
                                 className={clsx(
                                   "relative grid grid-cols-[50px_1fr_150px] gap-4 items-center p-4 rounded-xl cursor-pointer transition duration-200",
                                   isSelected
-                                    ? "bg-primary-color/10 border-2 border-primary-color"
-                                    : "bg-white border-2 border-gray-50 hover:bg-gray-50"
+                                    ? "bg-primary-color/60 border-2 border-primary-color"
+                                    : "bg-gray-1300/10 border border-gray-800 hover:bg-primary-color/60"
                                 )}
                               >
-                                <div className="relative w-10 h-10 rounded overflow-hidden bg-gray-100 flex-shrink-0">
+                                <div className="relative w-10 h-10 rounded overflow-hidden bg-gray-800 flex-shrink-0">
                                   <img
                                     src={nft.image}
                                     alt={nft.name}
@@ -994,11 +991,11 @@ All consequences resulting from configuration errors are solely the responsibili
                                   />
                                 </div>
       
-                                <div className="font-medium text-black truncate">
+                                <div className="font-medium text-white truncate">
                                   {nft.name}
                                 </div>
       
-                                <div className="font-semibold text-black">
+                                <div className="font-semibold text-white">
                                   {nft.floorPrice && nft.floorPrice > 0 ? (nft.floorPrice/10**9).toFixed(5) : "0.00"} SOL
                                 </div>
       
@@ -1030,15 +1027,15 @@ All consequences resulting from configuration errors are solely the responsibili
                     </div>
       
                     {/* Footer Action */}
-                    <div className="px-6 py-5 border-t flex items-center justify-between flex-col border-gray-100">
+                    <div className="px-6 py-5 border-t flex items-center justify-between flex-col border-gray-400/30">
                       <button
                         onClick={handleAddPrizes}
                         disabled={!selectedNftId}
                         className={clsx(
                           "w-[50%] h-14 rounded-full font-semibold text-lg transition duration-300",
                           selectedNftId
-                            ? "bg-primary-color text-white hover:shadow-lg cursor-pointer"
-                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            ? "bg-primary-color text-black hover:shadow-lg cursor-pointer"
+                            : "bg-primary-color/40 text-black-1000 cursor-not-allowed"
                         )}
                       >
                         Confirm NFT

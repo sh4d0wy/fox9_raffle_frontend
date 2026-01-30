@@ -59,7 +59,9 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
     return getFavouriteRaffle.data?.some((favourite) => favourite.id === raffle.id);
   }, [getFavouriteRaffle.data, raffle.id]);
   
-  const decrease = () => {
+  const decrease = (e:React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     const previousQuantity = getTicketQuantityById(raffle.id || 0);
     updateTicketQuantityById(raffle.id || 0, Math.max(1, previousQuantity - 1));
     if(previousQuantity === 1){
@@ -67,7 +69,9 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
     }
   };
 
-  const increase = () => {
+  const increase = (e:React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     const previousQuantity = getTicketQuantityById(raffle.id || 0);
     updateTicketQuantityById(raffle.id || 0, Math.min(MAX, previousQuantity + 1));
     if(previousQuantity === MAX){
@@ -99,13 +103,16 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
     return publicKey && raffle.createdBy !== publicKey.toString() && ticketsBoughtByUser < raffle.maxEntries && remainingTickets > 0 && raffle.state === "Active";
   }, [publicKey, raffle.createdBy, ticketsBoughtByUser, remainingTickets, raffle.state]);
   return (
+    <Link to="/raffles/$id"
+      params={{ id: raffle.id?.toString() || "" }}
+    >
     <div className={`bg-black-1300 backdrop-blur-[10px] rounded-[10px] p-3 pb-4 ${className}`}>
 
-      <div className="w-full relative group">
+      <div className="w-full relative group overflow-hidden">
         <img
           src={raffle.prizeData?.image || ""}
           alt="featured-card"
-          className="w-full rounded-[12px] object-contain md:h-[290px] h-[260px]"
+          className={`w-full rounded-[12px] group-hover:scale-105 transition-all duration-300 md:h-[290px] h-[260px] ${raffle.prizeData?.type==="NFT" ? "h-[290px] object-cover" : "h-[260px] object-contain"}`}
         />
         <div className="w-full flex items-center justify-between pt-3">
           <div className="flex items-center gap-2">
@@ -179,7 +186,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
             <div className="w-full flex items-center justify-between">
               <div className="inline-flex items-center justify-center px-[7px] xl:px-2.5 py-1 rounded-lg bg-black/60">
                 <p className="text-xs font-semibold font-inter uppercase text-white">
-                  VAL : <span>{raffle.val || 0}</span>
+                  VAL : <span>{raffle.prizeData.type==="NFT" ? (raffle.prizeData?.floor! / 10**9).toFixed(3) || 0 : raffle.val || 0}</span>
                 </p>
               </div>
 
@@ -203,7 +210,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
       <div className="w-full flex flex-col py-4">
         <div className="w-full flex items-center gap-5 justify-between">
           <h3 className="text-xl text-white font-bold font-inter">
-            <span>{raffle.prizeData.type==="NFT" ? raffle.prizeData?.name || "" : `${totalPriceTokens} ${raffle.prizeData?.symbol || ""}`}</span>
+            <span>{raffle.prizeData.type==="NFT" ? raffle.prizeData?.name.slice(0, 20) + "..." || "" : `${totalPriceTokens} ${raffle.prizeData?.symbol || ""}`}</span>
           </h3>
 
         </div>
@@ -256,7 +263,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
             {/* Quantity */}
             
             <div className="flex flex-1 items-center justify-between py-2 px-3 border border-gray-1000 rounded-full">
-              <button onClick={decrease} className="min-w-8 h-8 cursor-pointer rounded-lg bg-primary-color">
+              <button onClick={(e) => decrease(e)} className="min-w-8 h-8 cursor-pointer rounded-lg bg-primary-color">
                 −
               </button>
 
@@ -269,14 +276,18 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
                 type="number"
               />
 
-              <button onClick={increase} className="min-w-8 h-8 cursor-pointer rounded-lg bg-primary-color">
+              <button onClick={(e) => increase(e)} className="min-w-8 h-8 cursor-pointer rounded-lg bg-primary-color">
                 +
               </button>
             </div>
 
             {/* Buy */}
             <button
-              onClick={() => buyTicket.mutate({ raffleId: raffle.id || 0, ticketsToBuy: getTicketQuantityById(raffle.id || 0) })}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                buyTicket.mutate({ raffleId: raffle.id || 0, ticketsToBuy: getTicketQuantityById(raffle.id || 0) })
+              }}
               className="flex-1 h-11 bg-primary-color rounded-full
                 flex items-center justify-center cursor-pointer
                 text-black-1000 font-semibold px-4 py-2 gap-2"
@@ -330,5 +341,6 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
        )}
       </div>
     </div>
+    </Link>
   );
 };

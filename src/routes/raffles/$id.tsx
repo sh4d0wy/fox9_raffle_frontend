@@ -1,5 +1,4 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { RafflesData } from "../../../data/raffles-data";
 import { useEffect, useMemo, useState } from 'react';
 import { Disclosure } from '@headlessui/react';
 import { ParticipantsTable } from '@/components/auctions/ParticipantsTable';
@@ -17,44 +16,102 @@ import { useClaimRafflePrize } from 'hooks/raffle/useClaimRafflePrize';
 import { useQueryFavourites } from 'hooks/profile/useQueryFavourites';
 import { useToggleFavourite } from 'hooks/useToggleFavourite';
 import { useCreateRaffleStore } from 'store/createRaffleStore';
-import { Crown, CrownIcon, HeartIcon, Loader, ShieldIcon } from 'lucide-react';
+import { CrownIcon, HeartIcon, Loader, Globe2Icon } from 'lucide-react';
 import { VerifiedNftCollections } from '@/utils/verifiedNftCollections';
 import { API_URL } from '@/constants';
 import { VerifiedTokens } from '@/utils/verifiedTokens';
 import PageTimer from '@/components/common/PageTimer';
+import { FaXTwitter } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
+import { useNftMetadata } from 'hooks/useNftMetadata';
+import BuyTicketPopup from '@/components/ui/popups/raffle/BuyTicketPopup';
 
 export const Route = createFileRoute('/raffles/$id')({
   component: RouteComponent,
 })
 
 
-const UserDetails = [
-  {
-    title: 'Traits',
-    items: [
-      { label: 'Background', value: 'Vanilla Ice' },
-      { label: 'Fur', value: 'Hazel' },
-      { label: 'Face', value: 'Smirk' },
-      { label: 'Clothes', value: 'Baseball Hoodie' },
-      { label: 'Head', value: 'Beanie (blackout)' },
-      { label: 'Eyewear', value: 'Melrose Bricks' },
-      { label: '1/1', value: 'None' },
-    ],
-  },
-  {
-    title: 'Details',
-    items: [
-      { label: 'Background', value: 'Vanilla Ice' },
-      { label: 'Fur', value: 'Hazel' },
-      { label: 'Face', value: 'Smirk' },
-      { label: 'Clothes', value: 'Baseball Hoodie' },
-      { label: 'Head', value: 'Beanie (blackout)' },
-      { label: 'Eyewear', value: 'Melrose Bricks' },
-      { label: '1/1', value: 'None' },
-    ],
-  },
-]
+import type { NftMetadata } from 'hooks/useNftMetadata';
+import RaffleEndedPopup from '@/components/ui/popups/raffle/RaffleEndedPopup';
+
+const getNftSections = (nftMetadata: NftMetadata | null | undefined, prizeData: any) => {
+  const traits: { label: string; value: string }[] = [];
+  const details: { label: string; value: string }[] = [];
+
+  if (nftMetadata?.attributes && Array.isArray(nftMetadata.attributes)) {
+    nftMetadata.attributes.slice(0, 5).forEach((attr) => {
+      if (attr.trait_type && attr.value !== undefined) {
+        traits.push({
+          label: attr.trait_type,
+          value: String(attr.value),
+        });
+      }
+    });
+  }
+
+  if (nftMetadata?.mintAddress) {
+    details.push({
+      label: 'Mint Address',
+      value: `${nftMetadata.mintAddress.slice(0, 6)}...${nftMetadata.mintAddress.slice(-6)}`,
+    });
+  }
+
+  if (nftMetadata?.collection?.name) {
+    details.push({
+      label: 'Collection',
+      value: nftMetadata.collection.name,
+    });
+  } else if (prizeData?.collection) {
+    const collectionName = VerifiedNftCollections.find(
+      (c) => c.address === prizeData.collection
+    )?.name;
+    details.push({
+      label: 'Collection',
+      value: collectionName || `${prizeData.collection.slice(0, 6)}...${prizeData.collection.slice(-6)}`,
+    });
+  }
+
+  if (nftMetadata?.creators && nftMetadata.creators.length > 0) {
+    const primaryCreator = nftMetadata.creators[0];
+    details.push({
+      label: 'Creator',
+      value: `${primaryCreator.address.slice(0, 6)}...${primaryCreator.address.slice(-6)}`,
+    });
+  }
+
+  if (nftMetadata?.owner) {
+    details.push({
+      label: 'Owner',
+      value: `${nftMetadata.owner.slice(0, 6)}...${nftMetadata.owner.slice(-6)}`,
+    });
+  }
+
+  if (nftMetadata?.symbol) {
+    details.push({
+      label: 'Symbol',
+      value: nftMetadata.symbol,
+    });
+  }
+
+  if (nftMetadata?.royalty && nftMetadata.royalty > 0) {
+    details.push({
+      label: 'Royalty',
+      value: `${nftMetadata.royalty}%`,
+    });
+  }
+
+  if (nftMetadata?.externalUrl) {
+    details.push({
+      label: 'External URL',
+      value: nftMetadata.externalUrl,
+    });
+  }
+
+  return [
+    { title: 'Traits', items: traits },
+    { title: 'Details', items: details },
+  ].filter(section => section.items.length > 0);
+};
 
 function RouteComponent() {
   const { id } = Route.useParams();
@@ -71,7 +128,14 @@ function RouteComponent() {
   const [showWinnersModal, setShowWinnersModal] = useState(false);
   const [showSoldoutPopup, setShowSoldoutPopup] = useState(false);
   const [soldoutPopupDismissed, setSoldoutPopupDismissed] = useState(false);
-  const { showTicketBuyingPopup, setShowTicketBuyingPopup, ticketBuyingPopupDismissed, setTicketBuyingPopupDismissed } = useCreateRaffleStore();
+  const { showBuyTicketPopup, setShowBuyTicketPopup, showRaffleEndedPopup, setShowRaffleEndedPopup } = useCreateRaffleStore();
+  const nftMintAddress = raffle?.prizeData?.type === "NFT" ? raffle?.prizeData?.mintAddress : undefined;
+  const { data: nftMetadata, isLoading: isNftMetadataLoading } = useNftMetadata(nftMintAddress);
+  
+  const nftSections = useMemo(() => {
+    if (raffle?.prizeData?.type !== "NFT") return [];
+    return getNftSections(nftMetadata, raffle?.prizeData);
+  }, [nftMetadata, raffle?.prizeData]);
 
   const router = useRouter();
   const { favouriteRaffle } = useToggleFavourite(publicKey?.toString() || "");
@@ -149,35 +213,19 @@ function RouteComponent() {
   }, [raffle?.state, raffle?.ticketSold, raffle?.ticketSupply, raffle?.endsAt]);
 
   useEffect(() => {
-    if (isEndingConditionMet && !soldoutPopupDismissed) {
-      setShowSoldoutPopup(true);
-
-      const timer = setTimeout(() => {
-        setShowSoldoutPopup(false);
-        setSoldoutPopupDismissed(true);
-      }, 5000);
-
-      return () => clearTimeout(timer);
+    if (isEndingConditionMet && !showRaffleEndedPopup && raffle?.state?.toLowerCase() === "active") {
+      setShowRaffleEndedPopup(true);
+    }else if(raffle?.state?.toLowerCase() === "successended" || raffle?.state?.toLowerCase() === "failedended"){
+      setShowRaffleEndedPopup(false);
     }
-  }, [isEndingConditionMet, soldoutPopupDismissed]);
-
-  useEffect(() => {
-    if (showTicketBuyingPopup && !ticketBuyingPopupDismissed) {
-      const timer = setTimeout(() => {
-        setShowTicketBuyingPopup(false);
-        setTicketBuyingPopupDismissed(true);
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [showTicketBuyingPopup, ticketBuyingPopupDismissed]);
+  }, [isEndingConditionMet, showRaffleEndedPopup,raffle?.state]);  
 
   const [TimeExtension] = useState(true)
 
 
   if (isLoading) {
     return (
-      <main className="py-20 text-center text-3xl font-bold text-red-500 w-full flex items-center justify-center">
+      <main className="bg-black py-20 text-center text-3xl font-bold text-red-500 w-full flex items-center justify-center">
         <Loader className="w-15 h-15 animate-spin text-primary-color" />
       </main>
     );
@@ -185,7 +233,7 @@ function RouteComponent() {
 
   if (!raffle) {
     return (
-      <main className="py-20 text-center text-3xl font-bold text-red-500">
+      <main className="bg-black py-20 text-center text-3xl font-bold text-red-500">
         Raffle not found!
       </main>
     );
@@ -201,14 +249,15 @@ function RouteComponent() {
           Back
         </button>
       </div>
-
+      <BuyTicketPopup isOpen={showBuyTicketPopup && !isEndingConditionMet && raffle?.state?.toLowerCase() === "active"} onClose={() => setShowBuyTicketPopup(false)} />
+      <RaffleEndedPopup isOpen={showRaffleEndedPopup} shouldEnableAutoClose={false} />
       <section className='w-full pb-20'>
         <div className="w-full py-5 md:py-10 max-w-[1440px] px-5 mx-auto">
           <div className="w-full flex gap-6 md:gap-10 xl:flex-row flex-col">
-            <div className="flex-1 max-w-full xl:max-w-[450px]">
-              <div className="p-4 rounded-xl">
+            <div className="flex-1 max-w-full xl:max-w-[450px] overflow-hidden">
+              <div className="rounded-xl relative overflow-hidden">
                 <img src={raffle?.prizeData?.image}
-                  className="w-full md:h-[450px] h-[361px] object-contain rounded-[12px]"
+                  className={`w-full md:h-[450px] h-[361px] rounded-[12px] hover:scale-105 transition-all duration-300 ${raffle?.prizeData?.type === "NFT" ? "object-cover" : "object-contain"}`}
                 />
               </div>
               {raffle.prizeData.type === "NFT" && (
@@ -216,41 +265,37 @@ function RouteComponent() {
                   <div className="flex items-center gap-3 2xl:gap-5">
                     <img
                       src={VerifiedNftCollections.find((collection) => collection.address === raffle?.prizeData.collection)?.image}
-                      className="w-12 h-12 rounded-full object-cover"
+                      className="w-12 h-12 object-contain rounded-full"
                       alt=""
                     />
-                    <h3 className="md:text-[28px] text-lg font-bold text-black-1000 font-inter">
+                    <h3 className="md:text-[28px] text-lg font-bold text-white font-inter">
                       {VerifiedNftCollections.find((collection) => collection.address === raffle?.prizeData.collection)?.name}
                     </h3>
                   </div>
 
-                  <ul className="flex items-center gap-6">
+                  <ul className="flex items-center gap-2">
                     <li>
                       <a href={VerifiedNftCollections.find((collection) => collection.address === raffle?.prizeData.collection)?.twitter}>
-                        <img
-                          src="/icons/twitter-icon.svg"
-                          className="w-7 h-7 object-contain"
-                          alt=""
-                        />
+                      <FaXTwitter className="w-7 h-7 object-contain text-white" />
                       </a>
                     </li>
 
                     <li>
                       <a href={VerifiedNftCollections.find((collection) => collection.address === raffle?.prizeData.collection)?.website}>
                         {" "}
-                        <img
-                          src="/icons/mcp-server-icon.svg"
-                          className="w-7 h-7 object-contain"
-                          alt=""
-                        />
+                        <Globe2Icon className="w-7 h-7 object-contain text-white" />
                       </a>
                     </li>
                   </ul>
                 </div>
               )}
               <div className="w-full space-y-5 hidden md:block">
-                {raffle.prizeData.type === "NFT" ? (
-                  UserDetails.map((section, index) => (
+                {raffle.prizeData.type === "NFT" && nftSections.length > 0 ? (
+                  isNftMetadataLoading ? (
+                    <div className="w-full py-10 flex items-center justify-center">
+                      <Loader className="w-8 h-8 animate-spin text-primary-color" />
+                    </div>
+                  ) : nftSections.map((section, index) => (
                     <Disclosure
                       as="div"
                       key={section.title}
@@ -260,7 +305,7 @@ function RouteComponent() {
                       {({ open }) => (
                         <>
                           <Disclosure.Button
-                            className={`flex items-center justify-between w-full text-base md:text-xl font-bold font-inter text-black-1000 ${open ? "text-primary-color" : ""
+                            className={`flex items-center justify-between w-full text-base md:text-xl font-bold font-inter text-white ${open ? "text-primary-color" : ""
                               }`}
                           >
                             <span>{section.title}</span>
@@ -290,10 +335,10 @@ function RouteComponent() {
                                   key={item.label}
                                   className="flex items-center justify-between"
                                 >
-                                  <p className="md:text-base text-sm font-inter font-medium text-gray-1200">
+                                  <p className="md:text-base text-sm font-inter font-medium text-gray-1100/40">
                                     {item.label}
                                   </p>
-                                  <p className="md:text-base text-sm font-inter font-medium text-black-1000">
+                                  <p className="md:text-base text-sm font-inter font-medium text-white">
                                     {item.value}
                                   </p>
                                 </li>
@@ -303,8 +348,7 @@ function RouteComponent() {
                         </>
                       )}
                     </Disclosure>
-                  ))
-                ) : (
+                  ))) : (
                   <></>
                 )}
               </div>
@@ -313,15 +357,15 @@ function RouteComponent() {
             <div className="flex-1">
               <div className="w-full">
                 <h4 className='text-sm text-primary-color font-inter font-medium'>Raffle prize • {raffle?.numberOfWinners} winner</h4>
-                <h1 className='md:text-[28px] text-xl font-inter md:mt-6 my-5 md:mb-5 font-bold text-white'>{raffle?.prizeData?.name}</h1>
+                <h1 className='md:text-[28px] text-xl font-inter md:mt-6 my-5 md:mb-5 font-bold text-white'>{raffle?.prizeData?.type === "NFT" ? raffle?.prizeData?.name : `${(raffle?.prizeData?.amount ?? 0) / (10 ** (raffle?.prizeData?.decimals || 0))} ${raffle?.prizeData?.symbol}`}</h1>
                 <div className="flex relative items-start md:items-center md:flex-row flex-col md:gap-0 gap-5 justify-between pb-6 md:pb-8 border-b border-gray-1000">
                   <ul className="flex items-center gap-3 2xl:gap-5 flex-wrap">
                     <li>
                       <p className="md:text-sm text-xs inline-block px-2 sm:px-2.5 py-2 md:py-1.5 font-semibold text-center font-inter text-black-1000 bg-primary-color rounded-lg">
                         {raffle?.prizeData?.type === "NFT" ? "Floor Price: " : "Prize Value: "}
 
-                        {raffle?.prizeData?.type === "NFT" ? raffle?.prizeData?.floor! / 10 ** 9 : (raffle?.prizeData?.amount ?? 0) / (10 ** (raffle?.prizeData?.decimals || 0))} {" "}
-                        {raffle?.prizeData?.type === "NFT" ? <span>SOL</span> : <span>{raffle?.prizeData?.symbol}</span>}
+                        {raffle?.prizeData?.type === "NFT" ? raffle?.prizeData?.floor! / 10 ** 9 : raffle?.val ?? 0} {" "}
+                         <span>SOL</span>
                       </p>
                     </li>
                     <li>
@@ -371,7 +415,7 @@ function RouteComponent() {
                   <div className="w-full flex items-center justify-between md:pt-7 py-6 md:pb-10">
                     <div className="inline-flex gap-4">
                       <img
-                        src={API_URL + raffle?.creator?.profileImage || DEFAULT_AVATAR}
+                        src={raffle?.creator?.profileImage ? API_URL + raffle?.creator?.profileImage : DEFAULT_AVATAR}
                         className="w-10 h-10 rounded-full object-cover"
                         alt="no"
                       />
@@ -598,7 +642,7 @@ function RouteComponent() {
                           <div className="w-full h-full flex items-center ">
                             <PrimaryButton
                               className="w-full py-3 h-full mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
-                              disabled={isBuyTicketDisabled || buyTicket.isPending}
+                              disabled={isBuyTicketDisabled || buyTicket.isPending || showBuyTicketPopup}
                               text={buyTicket.isPending ? <Loader className="w-5 h-5 animate-spin" /> : isBuyTicketDisabled ? maxTicketsBought ? "Max Tickets Bought" : "Sold Out" : `Buy for ${((raffle?.ticketPrice /
                                 10 **
                                 (VerifiedTokens.find(
@@ -744,7 +788,7 @@ function RouteComponent() {
 
                         <ul className="flex items-center gap-6">
                           <li>
-                            <a href="#">
+                            <a href={VerifiedNftCollections.find((collection) => collection.address === raffle?.prizeData.collection)?.twitter}>
                               <img
                                 src="/icons/twitter-icon.svg"
                                 className="md:w-7 md:h-7 w-6 h-6 object-contain"
@@ -754,7 +798,7 @@ function RouteComponent() {
                           </li>
 
                           <li>
-                            <a href="#">
+                            <a href={VerifiedNftCollections.find((collection) => collection.address === raffle?.prizeData.collection)?.website}>
                               {" "}
                               <img
                                 src="/icons/mcp-server-icon.svg"
@@ -766,7 +810,11 @@ function RouteComponent() {
                         </ul>
                       </div>
                       <div className="w-full space-y-5">
-                        {UserDetails.map((section, index) => (
+                        {isNftMetadataLoading ? (
+                          <div className="w-full py-10 flex items-center justify-center">
+                            <Loader className="w-8 h-8 animate-spin text-primary-color" />
+                          </div>
+                        ) : nftSections.map((section, index) => (
                           <Disclosure
                             as="div"
                             key={section.title}
@@ -776,7 +824,7 @@ function RouteComponent() {
                             {({ open }) => (
                               <>
                                 <Disclosure.Button
-                                  className={`flex items-center justify-between w-full text-base md:text-xl font-bold font-inter text-black-1000 ${open ? "text-primary-color" : ""
+                                  className={`flex items-center justify-between w-full text-base md:text-xl font-bold font-inter text-white ${open ? "text-primary-color" : ""
                                     }`}
                                 >
                                   <span>{section.title}</span>
@@ -806,10 +854,10 @@ function RouteComponent() {
                                         key={item.label}
                                         className="flex items-center justify-between"
                                       >
-                                        <p className="md:text-base text-sm font-inter font-medium text-gray-1200">
+                                        <p className="md:text-base text-sm font-inter font-medium text-gray-1100/40">
                                           {item.label}
                                         </p>
-                                        <p className="md:text-base text-sm font-inter font-medium text-black-1000">
+                                        <p className="md:text-base text-sm font-inter font-medium text-white">
                                           {item.value}
                                         </p>
                                       </li>

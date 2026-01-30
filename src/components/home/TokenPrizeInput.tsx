@@ -5,7 +5,7 @@ import { useFetchUserToken } from "../../../hooks/useFetchUserToken";
 import { useGetTokenPrice } from "hooks/useGetTokenPrice";
 import { ChevronDownIcon } from "lucide-react";
 
-export default function TokenPrizeInput() {
+export default function TokenPrizeInput({ disabled }: { disabled: boolean }) {
     const { tokenPrizeAmount, setTokenPrizeAmount ,tokenPrizeMint, setTokenPrizeMint, setUserVerifiedTokens, getComputedVal,setPrizeType } = useCreateRaffleStore();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [isOpen, setIsOpen] = useState(false);
@@ -52,7 +52,7 @@ export default function TokenPrizeInput() {
   }, [tokenPrizeMint, tokenPrice?.price, SolPrice?.price]);
   return (
     <div>
-    <div className="relative bg-black">
+    <div className="relative disabled:bg-gray-1300/10 disabled:text-gray-1200 disabled:border-gray-800 disabled:cursor-not-allowed">
       <input
         id="amount"
         type="number"
@@ -61,10 +61,10 @@ export default function TokenPrizeInput() {
           setTokenPrizeAmount(e.target.value);
           getComputedVal(tokenPrice?.price || 0, SolPrice?.price || 0);
         }}
-        className={`text-white focus:outline-0   placeholder:text-gray-1200 text-base w-full font-inter px-5 h-12 border border-solid border-gray-1100 rounded-lg font-medium ${isInvalidTokenPrizeAmount ? "border border-red-500" : ""}`}
+        className={`text-white focus:outline-0 disabled:bg-gray-1300/10 disabled:text-gray-1200 disabled:border-gray-800 disabled:cursor-not-allowed  placeholder:text-gray-1200 text-base w-full font-inter px-5 h-12 border border-solid border-gray-1100 rounded-lg font-medium ${isInvalidTokenPrizeAmount ? "border border-red-500" : ""}`}
         autoComplete="off"
         placeholder="Enter Amount"
-        disabled={userVerifiedTokens?.length == 0}
+        disabled={userVerifiedTokens?.length == 0 || disabled}
       />
       
       {userVerifiedTokens?.length != 0 && (
@@ -75,7 +75,8 @@ export default function TokenPrizeInput() {
       >
         <button
           type="button"
-          className="flex items-center gap-1.5 px-3 cursor-pointer font-inter text-base font-medium text-white py-1 justify-center"
+          disabled={disabled}
+          className="flex items-center gap-1.5 px-3 cursor-pointer disabled:text-gray-1200 disabled:border-gray-800 disabled:cursor-not-allowed font-inter text-base font-medium text-white py-1 justify-center"
           onClick={() => setIsOpen(!isOpen)}
         >
           <img src={filteredVerifiedTokens.find((token) => token.address === tokenPrizeMint)?.image || "/icons/solana-sol-logo.svg"} alt={filteredVerifiedTokens.find((token) => token.address === tokenPrizeMint)?.name || "SOL"} className="w-4 h-4" />
@@ -89,7 +90,8 @@ export default function TokenPrizeInput() {
               <li key={coin.address}>
                 <button
                   type="button"
-                  className="w-full cursor-pointer flex items-center gap-2 text-left px-3 py-2 text-white hover:bg-white/10"
+                  disabled={disabled}
+                  className="w-full cursor-pointer disabled:bg-gray-1300/10 disabled:text-gray-1200 disabled:border-gray-800 disabled:cursor-not-allowed flex items-center gap-2 text-left px-3 py-2 text-white hover:bg-white/10"
                   onClick={() => {
                     setTokenPrizeMint(coin.address);
                     setIsOpen(false);
