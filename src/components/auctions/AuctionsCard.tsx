@@ -212,7 +212,7 @@ export const AuctionsCard = (props:AuctionsCardProps) => {
               <h4 className="text-base text-red-1000 font-semibold font-inter">No Winner</h4>
             }
             <h4 className="md:text-base text-sm text-green-1100 text-right font-inter font-semibold">
-                {highestBidAmount}
+                {highestBidAmount/(10**currencyDecimals)} {currency}
             </h4>
           </div>
           <div className="w-full flex items-center justify-between gap-5">

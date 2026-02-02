@@ -6,6 +6,7 @@ interface PopupModalProps {
   isOpen: boolean;
   onClose?: () => void | undefined;
   children: ReactNode;
+  className?: string;
   showCloseButton?: boolean;
   closeOnOverlayClick?: boolean;
   shouldEnableAutoClose?: boolean;
@@ -15,6 +16,7 @@ export default function PopupModal({
   isOpen,
   onClose,
   children,
+  className,
   showCloseButton = true,
   closeOnOverlayClick = true,
   shouldEnableAutoClose = true,
@@ -44,7 +46,7 @@ export default function PopupModal({
           exit={{ opacity: 0, y: 100 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
         >
-          <div className="relative w-full max-w-[450px] h-full max-h-[350px] mx-4 bg-black-1300 border-2 border-primary-color shadow-[0_0_40px_rgba(212,175,55,0.4),0_0_80px_rgba(212,175,55,0.2)]  rounded-4xl p-6">
+          <div className={`relative w-full max-w-[450px] h-full max-h-[350px] mx-4 bg-black-1300 border-2 border-primary-color shadow-[0_0_40px_rgba(212,175,55,0.4),0_0_80px_rgba(212,175,55,0.2)]  rounded-4xl p-6 ${className}`}>
             {showCloseButton && (
               <button
                 onClick={() => onClose?.()}

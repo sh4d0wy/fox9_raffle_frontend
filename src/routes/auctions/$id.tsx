@@ -24,6 +24,8 @@ import PageTimer from '@/components/common/PageTimer'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { PrimaryButton } from '@/components/ui/PrimaryButton'
 import { AuctionParticipants } from '@/components/auctions/AuctionParticipants'
+import AuctionEndedPopup from '@/components/ui/popups/auction/AuctionEndedPopup'
+import ConfirmBidPopup from '@/components/ui/popups/auction/ConfirmBidPopup'
 
 export const Route = createFileRoute('/auctions/$id')({
   component: AuctionDetails,
@@ -114,6 +116,7 @@ function AuctionDetails() {
     publicKey?.toString() || "",
     "Auctions"
   );
+  const [showConfirmBidPopup, setShowConfirmBidPopup] = useState(false);
   const { bidAuction } = useBidAuction();
   const { cancelAuction } = useCancelAuction();
   const [isBiddingAuction, setIsBiddingAuction] = useState(false);
@@ -153,6 +156,7 @@ function AuctionDetails() {
     "UPCOMING" | "LIVE" | "COMPLETED" | "CANCELLED"
   >("UPCOMING");
   const [timeLeft, setTimeLeft] = useState({ h: "00", m: "00", s: "00" });
+  const [isEndingAuction, setIsEndingAuction] = useState(false);
 
   const showBidButton = !isCreator && computedStatus === "LIVE" && publicKey;
   const showCancelButton =
@@ -168,11 +172,12 @@ function AuctionDetails() {
     return null;
   }, [auction?.status]);
   console.log("auction",auction)
+
   useEffect(() => {
     if (!auction) return;
-
-    const timer = setInterval(() => {
-      const now = new Date().getTime();
+    
+    const updateTimerState = () => {
+      const now = Date.now();
       const start = new Date(auction.startsAt).getTime();
       const end = new Date(auction.endsAt).getTime();
 
@@ -185,7 +190,6 @@ function AuctionDetails() {
         setComputedStatus("COMPLETED");
       else setComputedStatus("LIVE");
 
-      // Calculate countdown for Live/Upcoming
       const target =
         now < start ? start : auction.status === "ACTIVE" ? end : 0;
       const distance = target - now;
@@ -204,7 +208,18 @@ function AuctionDetails() {
       } else {
         setTimeLeft({ h: "00", m: "00", s: "00" });
       }
-    }, 1000);
+      
+      const timeExtensionMs = (auction.timeExtension ?? 0) * 60 * 1000;
+      const shouldShowEndingPopup = 
+        auction.status === "ACTIVE" && 
+        now > end && 
+        now < end + timeExtensionMs;
+      setIsEndingAuction(shouldShowEndingPopup);
+    };
+
+    updateTimerState();
+    
+    const timer = setInterval(updateTimerState, 1000);
 
     return () => clearInterval(timer);
   }, [auction]);
@@ -267,6 +282,7 @@ function AuctionDetails() {
       console.error("Bid failed:", error);
     } finally {
       setIsBiddingAuction(false);
+      setShowConfirmBidPopup(false);
     }
   };
 
@@ -296,6 +312,20 @@ function AuctionDetails() {
 
   return (
   <main className='bg-black-1400'>
+    <AuctionEndedPopup isOpen={isEndingAuction} shouldEnableAutoClose={false} />
+    <ConfirmBidPopup
+    isOpen={showConfirmBidPopup}
+    shouldEnableAutoClose={false}
+    prizeName={auction?.prizeName || ""}
+    prizeImage={auction?.prizeImage || ""}
+    highestBidAmount={auction?.highestBidAmount || 0}
+    bidAmount={Number(bidAmountInput)}
+    currencyDecimals={currencyDecimals || 9}
+    currency={auction?.currency || "SOL"}
+    isBiddingAuction={isBiddingAuction}
+    onConfirm={handlePlaceBid}
+    onCancel={() => setShowConfirmBidPopup(false)}
+    />
     <div className="w-full md:pb-4 md:pt-44 pt-36 max-w-[1440px] px-5 mx-auto">
         <Link to={"/auctions"} className='px-6 cursor-pointer transition duration-300 hover:opacity-80 inline-flex items-center gap-2 py-2.5 bg-gray-1000 rounded-full text-base font-semibold text-white'>
         <img src="/icons/back-arw.svg" className='invert' alt="" />
@@ -385,7 +415,7 @@ function AuctionDetails() {
                 {/*Right section*/}
                 <div className="flex-1">
                     <div className="w-full">
-                        <h1 className='md:text-[28px] text-xl font-inter md:mt-6 my-5 md:mb-5 font-bold text-white'>{auction?.prizeName}</h1>
+                        <h1 className='md:text-[28px] text-xl font-inter md:mt-6 my-5 md:mb-5 font-bold text-white'>{auction?.prizeName?.length! > 30 ? auction?.prizeName?.slice(0, 30) + "..." : auction?.prizeName}</h1>
                       
                         <div className="flex relative items-start md:items-end md:flex-row flex-col md:gap-0 gap-5 justify-between pb-6 md:pb-8 border-b border-gray-1000">
 
@@ -470,7 +500,7 @@ function AuctionDetails() {
                             <div className="inline-flex flex-col gap-2.5">
                            
                                 <h3 className="md:text-xl w-full px-4 py-2 text-primary-color text-center font-semibold font-inter ">
-                                {auction?.highestBidAmount!/(10**(VerifiedTokens.find((token)=>token.symbol===auction?.currency)?.decimals || 0))} {auction?.currency}
+                                {(auction?.highestBidAmount!/(10**(VerifiedTokens.find((token)=>token.symbol===auction?.currency)?.decimals || 0))).toFixed(6)} {auction?.currency}
                                 </h3>
                                 <p className="font-inter text-center text-gray-1200 text-sm font-normal">
                                 Highest Bid
@@ -525,14 +555,14 @@ function AuctionDetails() {
                         </div>
                         <p className={`text-[10px] text-gray-500 w-full px-5 absolute my-1 ${isWrongBid && bidAmountInput !== "" ? "text-red-500" : ""}`}>
                               {auction.hasAnyBid
-                                ? `Your bid must be atleast ${minBidInSol.toFixed(5)}`
-                                : `Your bid must be greater than ${minBidInSol.toFixed(5)}`}{" "}
+                                ? `Your bid must be atleast ${minBidInSol.toFixed(6)}`
+                                : `Your bid must be greater than ${minBidInSol.toFixed(6)}`}{" "}
                               {auction.currency}
                             </p>
                             </div>
                         <button
                         disabled={isBiddingAuction || isWrongBid}
-                        onClick={handlePlaceBid}
+                        onClick={()=>setShowConfirmBidPopup(true)}
                         className="w-full md:w-1/3 disabled:opacity-50 disabled:cursor-not-allowed bg-primary-color cursor-pointer text-black px-4 py-2 rounded-full text-sm md:text-base font-inter font-medium">
                           {isBiddingAuction ? <Loader className="w-6 h-6 animate-spin text-white text-center mx-auto" /> : <span className="text-center mx-auto">Place Bid</span>}
                         </button>
@@ -545,7 +575,9 @@ function AuctionDetails() {
                       </div>
                     </div> 
                             :
-                            <>
+                            computedStatus === "COMPLETED" &&
+                            (
+                              <>
                             <div className="w-full border border-primary-color flex flex-col md:gap-10 gap-6 sm:py-[22px] pt-5 pb-4 px-4 sm:px-[26px] rounded-[20px] bg-black-1300">
                       <div className=" flex sm:gap-3 justify-between flex-col w-full">
                         <div className="flex items-center justify-between gap-2.5 sm:w-auto w-full">
@@ -574,11 +606,11 @@ function AuctionDetails() {
                       </div>
                       <div className="w-full flex items-center justify-between p-2 rounded-[10px] bg-primary-color">
                         <div className="flex items-center gap-3.5">
-                          <div className="md:w-[68px] w-12 h-12 md:h-[68px] rounded-lg bg-black-1300 flex items-center justify-center">
+                          <div className="md:w-[68px] w-12 h-12 md:h-[68px] rounded-full flex items-center justify-center">
                             <img
                               src={auction?.highestBidder?.profileImage?API_URL+"/"+auction?.highestBidder?.profileImage:DEFAULT_AVATAR}
                               alt="winner"
-                              className="md:h-auto h-7"
+                              className=" rounded-full object-cover"
                             />
                           </div>
                           <h3 className="md:text-2xl sm:text-xl text-base text-black-1000 font-semibold font-inter">
@@ -592,7 +624,7 @@ function AuctionDetails() {
                       </div>
                        </div>
                        </>
-                            }
+                            )}
 
                             <div className="w-full">
                                 <div className="w-full overflow-x-auto">

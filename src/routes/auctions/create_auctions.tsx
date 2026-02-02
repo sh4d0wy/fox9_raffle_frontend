@@ -352,10 +352,18 @@ console.log("startType", startType);
                 <div className="flex items-start gap-10 pb-5">
                   <div className="w-full">
                  <div className="relative border-2 border-dashed border-gray-1000 h-[361px] lg:h-[450px] bg-black-1400 rounded-[20px] flex items-center justify-center flex-col">
-                      <h4 className="font-inter mb-5 lg:mb-6 font-semibold lg:text-2xl text-lg text-white">
+                      {nftData ? (
+                      
+                        <div className="w-full max-h-[361px] lg:max-h-[450px] flex items-center justify-center gap-2">
+                          <img src={nftData.image} alt={nftData.name} className="object-cover w-full h-full" />
+                        </div>
+                      ):
+                      (
+                        <>
+                        <h4 className="font-inter mb-5 lg:mb-6 font-semibold lg:text-2xl text-lg text-white">
                         Add an NFT prize
                       </h4>
-                      <button
+                        <button
                         onClick={()=> setIsPrizeModalOpen(true)}
                         className="cursor-pointer text-black-1300 hover:from-primary-color hover:via-primary-color hover:to-primary-color font-semibold text-sm lg:text-base leading-normal font-inter h-10 lg:h-11 rounded-full inline-flex items-center justify-center px-5 lg:px-[26px] transition duration-500 hover:opacity-90 bg-primary-color gap-2"
                       >
@@ -378,6 +386,10 @@ console.log("startType", startType);
                         </span>
                         Add
                       </button>
+                      </>
+                      )}
+                      
+                      
                     </div>
                   </div>
                 </div>
