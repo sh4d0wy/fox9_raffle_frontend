@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Disclosure } from '@headlessui/react'
 import { useEffect, useMemo, useState } from 'react'
-import { ParticipantsTable } from '../../components/auctions/ParticipantsTable'
+import { ParticipantsTable } from '../../components/home/ParticipantsTable'
 import { TransactionsTable } from '../../components/auctions/TransactionsTable'
 import { TermsConditions } from '../../components/auctions/TermsConditions'
 import { AucationsData } from "../../../data/aucations-data";
@@ -19,9 +19,11 @@ import { API_URL } from '@/constants'
 import { VerifiedNftCollections } from '@/utils/verifiedNftCollections'
 import { useNftMetadata } from 'hooks/useNftMetadata'
 import type { NftMetadata } from 'hooks/useNftMetadata'
-import { Loader } from 'lucide-react'
+import { HeartIcon, Loader } from 'lucide-react'
 import PageTimer from '@/components/common/PageTimer'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
+import { PrimaryButton } from '@/components/ui/PrimaryButton'
+import { AuctionParticipants } from '@/components/auctions/AuctionParticipants'
 
 export const Route = createFileRoute('/auctions/$id')({
   component: AuctionDetails,
@@ -109,13 +111,18 @@ function AuctionDetails() {
   const { publicKey } = useWallet();
   const { favouriteAuction } = useToggleFavourite(publicKey?.toString() || "");
   const { getFavouriteAuction } = useQueryFavourites(
-    publicKey?.toString() || ""
+    publicKey?.toString() || "",
+    "Auctions"
   );
   const { bidAuction } = useBidAuction();
   const { cancelAuction } = useCancelAuction();
   const [isBiddingAuction, setIsBiddingAuction] = useState(false);
   const [bidAmountInput, setBidAmountInput] = useState<string>("");
   
+  const isCancellingAuction = useMemo(() => {
+    return cancelAuction.isPending;
+  }, [cancelAuction]);
+
   // NFT metadata for traits and details
   const nftMintAddress = auction?.prizeMint;
   const { data: nftMetadata, isLoading: isNftMetadataLoading } = useNftMetadata(nftMintAddress);
@@ -160,7 +167,7 @@ function AuctionDetails() {
     }
     return null;
   }, [auction?.status]);
-
+  console.log("auction",auction)
   useEffect(() => {
     if (!auction) return;
 
@@ -202,10 +209,9 @@ function AuctionDetails() {
     return () => clearInterval(timer);
   }, [auction]);
 
-  const isFavorite = useMemo(
-    () => getFavouriteAuction.data?.some((f) => f.id === Number(id)),
-    [getFavouriteAuction.data, id]
-  );
+  const isFavorite = useMemo(() => {
+    return getFavouriteAuction.data?.find((f) => f.id === Number(id)) ? true : false;
+  }, [getFavouriteAuction, id]);
 
   // Calculate the minimum allowed bid
   const minBidInSol = useMemo(() => {
@@ -278,10 +284,12 @@ function AuctionDetails() {
   };
 
   if (isLoading)
-    return <div className="py-20 text-center bg-black-1400 text-white">Loading Auction...</div>;
+    return <div className="py-20 text-center bg-black text-white h-[calc(100vh-300px)] flex items-center justify-center">
+      <Loader className="w-12 h-12 animate-spin text-primary-color mx-auto" />
+    </div>;
   if (!auction)
     return (
-      <main className="py-20 text-center text-3xl font-bold text-red-500">
+      <main className="py-20 text-center text-3xl h-[calc(100vh-300px)]  bg-black flex items-center justify-center font-bold text-red-500">
         Auction not found!
       </main>
     );
@@ -389,52 +397,44 @@ function AuctionDetails() {
                                 </li>
                                 <li>
                                 <p className="md:text-sm text-xs inline-block px-2 sm:px-2.5 py-2 md:py-1.5 font-semibold text-center font-inter bg-gray-1000 text-white rounded-lg">
-                                    Reserve Price: {parseFloat(auction?.reservePrice!)/(10**(VerifiedTokens.find((token)=>token.symbol===auction?.currency)?.decimals || 0))} {auction?.currency}
+                                    INCR: {auction?.bidIncrementPercent}%
                                 </p>
                                 </li>
                                 <li>
                                 <p className="md:text-sm text-xs inline-block px-2 sm:px-2.5 py-2 md:py-1.5 font-semibold text-center font-inter bg-gray-1000 text-white rounded-lg">
-                                    Highest Bid: {auction?.highestBidAmount!/(10**(VerifiedTokens.find((token)=>token.symbol===auction?.currency)?.decimals || 0))} {auction?.currency}
+                                    EXT: {auction?.timeExtension} mins
                                 </p>
                                 </li>
                           </ul>
 
                            <ul className="flex md:absolute right-0 items-center md:flex-col mx-auto bg-primary-color/20 gap-4 p-2 rounded-full ">
-                                <li>
-                                <button className="border bg-gray-1200 cursor-pointer w-12 h-12 md:py-2.5 gap-2.5 rounded-full text-sm md:text-base font-semibold font-inter text-white inline-flex items-center justify-center">
-                                    <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width={24}
-                                    height={24}
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    >
-                                    <path
-                                        d="M12 5.50066L11.4596 6.02076C11.601 6.16766 11.7961 6.25066 12 6.25066C12.2039 6.25066 12.399 6.16766 12.5404 6.02076L12 5.50066ZM9.42605 18.3219C7.91039 17.1271 6.25307 15.9603 4.93829 14.4798C3.64922 13.0282 2.75 11.3345 2.75 9.13713H1.25C1.25 11.8026 2.3605 13.8361 3.81672 15.4758C5.24723 17.0866 7.07077 18.3752 8.49742 19.4999L9.42605 18.3219ZM2.75 9.13713C2.75 6.98626 3.96537 5.18255 5.62436 4.42422C7.23607 3.68751 9.40166 3.88261 11.4596 6.02076L12.5404 4.98056C10.0985 2.44355 7.26409 2.02542 5.00076 3.05999C2.78471 4.07295 1.25 6.42506 1.25 9.13713H2.75ZM8.49742 19.4999C9.00965 19.9037 9.55954 20.3343 10.1168 20.6599C10.6739 20.9854 11.3096 21.25 12 21.25V19.75C11.6904 19.75 11.3261 19.6293 10.8736 19.3648C10.4213 19.1005 9.95208 18.7366 9.42605 18.3219L8.49742 19.4999ZM15.5026 19.4999C16.9292 18.3752 18.7528 17.0866 20.1833 15.4758C21.6395 13.8361 22.75 11.8026 22.75 9.13713H21.25C21.25 11.3345 20.3508 13.0282 19.0617 14.4798C17.7469 15.9603 16.0896 17.1271 14.574 18.3219L15.5026 19.4999ZM22.75 9.13713C22.75 6.42506 21.2153 4.07295 18.9992 3.05999C16.7359 2.02542 13.9015 2.44355 11.4596 4.98056L12.5404 6.02076C14.5983 3.88261 16.7639 3.68751 18.3756 4.42422C20.0346 5.18255 21.25 6.98626 21.25 9.13713H22.75ZM14.574 18.3219C14.0479 18.7366 13.5787 19.1005 13.1264 19.3648C12.6739 19.6293 12.3096 19.75 12 19.75V21.25C12.6904 21.25 13.3261 20.9854 13.8832 20.6599C14.4405 20.3343 14.9903 19.9037 15.5026 19.4999L14.574 18.3219Z"
-                                        fill="#212121"
-                                    />
-                                    </svg>
-                                </button>
-                                </li>
+                           <li>
+                      <button onClick={() => favouriteAuction.mutate({ auctionId: Number(id) })} className="border bg-gray-1200 cursor-pointer w-12 h-12 md:py-2.5 gap-2.5 rounded-full text-sm md:text-base font-semibold font-inter text-white inline-flex items-center justify-center">
+                        <HeartIcon className={`w-6 h-6 ${isFavorite ? "text-black fill-primary-color" : "text-black"}`} />
+                      </button>
+                    </li>
 
-                                <li>
-                                <button className="border bg-gray-1200 cursor-pointer w-12 h-12 md:py-2.5 gap-2.5 rounded-full text-sm md:text-base font-semibold font-inter text-white inline-flex items-center justify-center">
-                                    <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width={24}
-                                    height={24}
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    >
-                                    <path
-                                        fillRule="evenodd"
-                                        clipRule="evenodd"
-                                        d="M13.803 5.33333C13.803 3.49238 15.3022 2 17.1515 2C19.0008 2 20.5 3.49238 20.5 5.33333C20.5 7.17428 19.0008 8.66667 17.1515 8.66667C16.2177 8.66667 15.3738 8.28596 14.7671 7.67347L10.1317 10.8295C10.1745 11.0425 10.197 11.2625 10.197 11.4872C10.197 11.9322 10.109 12.3576 9.94959 12.7464L15.0323 16.0858C15.6092 15.6161 16.3473 15.3333 17.1515 15.3333C19.0008 15.3333 20.5 16.8257 20.5 18.6667C20.5 20.5076 19.0008 22 17.1515 22C15.3022 22 13.803 20.5076 13.803 18.6667C13.803 18.1845 13.9062 17.7255 14.0917 17.3111L9.05007 13.9987C8.46196 14.5098 7.6916 14.8205 6.84848 14.8205C4.99917 14.8205 3.5 13.3281 3.5 11.4872C3.5 9.64623 4.99917 8.15385 6.84848 8.15385C7.9119 8.15385 8.85853 8.64725 9.47145 9.41518L13.9639 6.35642C13.8594 6.03359 13.803 5.6896 13.803 5.33333Z"
-                                        fill="#212121"
-                                    />
-                                    </svg>
-                                </button>
-                                </li>
+                    <li>
+                      <button onClick={() => {
+                        window.navigator.clipboard.writeText(window.location.href);
+                        toast.success("Link copied to clipboard");
+                      }} className="border bg-gray-1200 cursor-pointer w-12 h-12 md:py-2.5 gap-2.5 rounded-full text-sm md:text-base font-semibold font-inter text-white inline-flex items-center justify-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width={24}
+                          height={24}
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M13.803 5.33333C13.803 3.49238 15.3022 2 17.1515 2C19.0008 2 20.5 3.49238 20.5 5.33333C20.5 7.17428 19.0008 8.66667 17.1515 8.66667C16.2177 8.66667 15.3738 8.28596 14.7671 7.67347L10.1317 10.8295C10.1745 11.0425 10.197 11.2625 10.197 11.4872C10.197 11.9322 10.109 12.3576 9.94959 12.7464L15.0323 16.0858C15.6092 15.6161 16.3473 15.3333 17.1515 15.3333C19.0008 15.3333 20.5 16.8257 20.5 18.6667C20.5 20.5076 19.0008 22 17.1515 22C15.3022 22 13.803 20.5076 13.803 18.6667C13.803 18.1845 13.9062 17.7255 14.0917 17.3111L9.05007 13.9987C8.46196 14.5098 7.6916 14.8205 6.84848 14.8205C4.99917 14.8205 3.5 13.3281 3.5 11.4872C3.5 9.64623 4.99917 8.15385 6.84848 8.15385C7.9119 8.15385 8.85853 8.64725 9.47145 9.41518L13.9639 6.35642C13.8594 6.03359 13.803 5.6896 13.803 5.33333Z"
+                            fill="#212121"
+                          />
+                        </svg>
+                      </button>
+                    </li>
                           </ul>
                         </div>
 
@@ -457,7 +457,8 @@ function AuctionDetails() {
                                         </div>
                                         </div>
                                     </div>
-                          {computedStatus === "LIVE" ? 
+                          {computedStatus === "LIVE" ?
+                          <div className="flex flex-col items-center justify-between gap-4">
                           <div className="w-full flex items-center flex-col-reverse md:flex-row justify-between py-4 px-[26px] rounded-[20px] bg-primary-color/10">
                             <div className="inline-flex w-full md:w-fit flex-col gap-2.5">
                               <PageTimer targetDate={new Date(auction?.endsAt || "")} />
@@ -467,113 +468,121 @@ function AuctionDetails() {
                             </div>
                             <div className="flex-1 md:flex-none md:w-1/2 flex justify-between w-full pb-6 md:pb-0">
                             <div className="inline-flex flex-col gap-2.5">
-                                <h3 className="md:text-xl w-full text-center font-semibold font-inter text-white">
-                                {auction?.bidIncrementPercent}%
+                           
+                                <h3 className="md:text-xl w-full px-4 py-2 text-primary-color text-center font-semibold font-inter ">
+                                {auction?.highestBidAmount!/(10**(VerifiedTokens.find((token)=>token.symbol===auction?.currency)?.decimals || 0))} {auction?.currency}
                                 </h3>
-                                <p className="font-inter text-gray-1200 text-sm font-normal">
-                                Min Bid Increment
+                                <p className="font-inter text-center text-gray-1200 text-sm font-normal">
+                                Highest Bid
                                 </p>
                             </div>
 
                             <div className="inline-flex flex-col gap-2.5">
-                                <h3 className="md:text-xl text-base text-center font-semibold font-inter text-white">
-                                {auction?.timeExtension} mins
+                              
+                                <h3 className={`md:text-xl text-base text-center font-semibold rounded-xl px-4 py-2 font-inter ${computedStatus === "LIVE" ? "bg-green-800/40 text-green-500 " : "text-red-500 bg-red-800/40"}`}>
+                                {computedStatus.toUpperCase()}
                                 </h3>
-                                <p className="font-inter text-gray-1200 text-sm font-normal">
-                                Time Extension
+                                <p className="font-inter text-center text-gray-1200 text-sm font-normal">
+                                Status
                                 </p>
+                             
                             </div>
                             </div>
                             </div>
+
+
+                      <div className={`w-full flex flex-col gap-3 justify-between pt-8 pb-10 px-[26px] rounded-[20px] bg-[#1b1b21] border ${publicKey && publicKey.toBase58() === auction?.createdBy ? "border-red-800" : "border-primary-color"}`}>
+                        {!publicKey ?
+                        <div className="w-full flex items-center flex-col justify-center py-[18px] md:py-[22px] px-[26px] gap-4 md:gap-[26px] rounded-[20px] bg-black-1300">
+                                <h3 className="md:text-base text-sm text-gray-1200 font-inter font-medium text-center">
+                                Please connect your wallet first to bid on this auction.
+                                </h3>
+                                <WalletMultiButton />
+                            </div>
+                      
+                      : publicKey.toBase58() === auction?.createdBy ?
+                      <div className="w-full flex items-center justify-center py-4 px-6 gap-4 rounded-[20px] bg-black-1300">
+                            <button onClick={handleCancelAuction} disabled={isCancellingAuction} className={`w-full  bg-red-800 cursor-pointer text-white px-4 py-4 rounded-full text-sm md:text-base font-inter font-medium ${isCancellingAuction ? "opacity-50 cursor-not-allowed" : ""}`}>
+                              {isCancellingAuction ? <Loader className="w-6 h-6 animate-spin text-white text-center mx-auto" /> : <span className="text-center mx-auto">Cancel Auction</span>}
+                              </button>
+                      </div>
+                      :
+                      <div className="flex flex-col items-start gap-2">
+                        <label htmlFor="bid-amount" className="text-sm md:text-base font-inter text-white font-normal">
+                        Enter Bid Amount ({auction?.currency})
+                      </label>
+                      <div className="flex flex-col md:flex-row items-center w-full gap-2">
+                        <div className={`w-full md:w-2/3 relative ${isWrongBid && bidAmountInput !== "" ? "border-red-500" : ""}`}>
+                        <div className={`w-full rounded-full py-1 border  ${isWrongBid && bidAmountInput !== "" ? "border-red-500" : "border-white/20"} flex items-center justify-between px-5`}>
+                        <input 
+                        type="number" 
+                        value={bidAmountInput}
+                        onChange={(e) => setBidAmountInput(e.target.value)}
+                        step="0.0001"
+                        disabled={isBiddingAuction}
+                        className={`w-full h-full outline-none ${isWrongBid && bidAmountInput !== "" ? "border-red-500" : ""} py-2 rounded-full text-white text-base font-inter font-medium`} placeholder="0.00" />
+                        <span className="text-primary-color text-sm font-inter font-medium">{auction?.currency}</span>
+                        </div>
+                        <p className={`text-[10px] text-gray-500 w-full px-5 absolute my-1 ${isWrongBid && bidAmountInput !== "" ? "text-red-500" : ""}`}>
+                              {auction.hasAnyBid
+                                ? `Your bid must be atleast ${minBidInSol.toFixed(5)}`
+                                : `Your bid must be greater than ${minBidInSol.toFixed(5)}`}{" "}
+                              {auction.currency}
+                            </p>
+                            </div>
+                        <button
+                        disabled={isBiddingAuction || isWrongBid}
+                        onClick={handlePlaceBid}
+                        className="w-full md:w-1/3 disabled:opacity-50 disabled:cursor-not-allowed bg-primary-color cursor-pointer text-black px-4 py-2 rounded-full text-sm md:text-base font-inter font-medium">
+                          {isBiddingAuction ? <Loader className="w-6 h-6 animate-spin text-white text-center mx-auto" /> : <span className="text-center mx-auto">Place Bid</span>}
+                        </button>
+                      </div>
+                    </div>
+
+                      }
+                        
+                      
+                      </div>
+                    </div> 
                             :
                             <>
-                            {/*TODO: After auction ends*/}
-                            <div className="w-full flex flex-col md:gap-10 gap-6 sm:py-[22px] pt-5 pb-4 px-4 sm:px-[26px] rounded-[20px] bg-black-1300">
-                      <div className="sm:grid flex sm:gap-0 gap-6 flex-wrap justify-between grid-cols-2 sm:grid-cols-3 w-full">
-                        <div className="inline-flex flex-1 flex-col gap-2.5 sm:w-auto w-[44%]">
-                          <h3 className="md:text-xl text-base font-semibold text-primary-color font-inter">
-                            115,762.5 vBLSH
-                          </h3>
+                            <div className="w-full border border-primary-color flex flex-col md:gap-10 gap-6 sm:py-[22px] pt-5 pb-4 px-4 sm:px-[26px] rounded-[20px] bg-black-1300">
+                      <div className=" flex sm:gap-3 justify-between flex-col w-full">
+                        <div className="flex items-center justify-between gap-2.5 sm:w-auto w-full">
                           <p className="text-sm font-inter text-gray-1200 font-normal">
                             Winning bid
                           </p>
-                        </div>
-                        <div className="flex items-center md:pl-14 sm:w-auto w-[44%]">
-                          <div className="inline-flex flex-col gap-2.5">
-                            <h3 className="md:text-xl text-base font-semibold font-inter text-white">
-                              09 Jan 25{" "}
-                              <span className="text-gray-1200">|</span> 21:50
-                            </h3>
-                            <p className="font-inter text-gray-1200 text-sm font-normal">
-                              Auction ended
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-end sm:w-auto w-[44%]">
-                          <div className="inline-flex flex-col gap-2.5">
-                            <h3 className="md:text-xl text-base font-semibold font-inter text-white">
-                              5%
-                            </h3>
-                            <p className="font-inter text-sm font-normal text-gray-1200">
-                              Min. bid increment
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex sm:hidden items-center justify-end sm:w-auto w-[44%]">
-                          <div className="inline-flex flex-col gap-2.5">
-                            <h3 className="md:text-xl text-base font-semibold font-inter text-white">
-                              10 mins
-                            </h3>
-                            <p className="font-inter text-gray-1200 text-sm font-normal">
-                              Time extension
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex sm:hidden items-center justify-start sm:w-auto w-[44%]">
-                          <div className="inline-flex flex-col gap-2.5">
-                            <h3 className="md:text-xl text-base font-semibold font-inter text-white">
-                              100%
-                            </h3>
-                            <p className="font-inter text-gray-1200 text-sm font-normal">
-                              Royalties
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="sm:grid grid-cols-3 w-full hidden">
-                        <div className="flex flex-col gap-2.5">
-                          <h3 className="md:text-xl text-base font-semibold font-inter text-white">
-                            15 / 100
+                          <h3 className="md:text-xl text-base font-semibold text-primary-color font-inter">
+                            {auction?.highestBidAmount!/(10**(VerifiedTokens.find((token)=>token.symbol===auction?.currency)?.decimals || 0))} {auction?.currency}
                           </h3>
+                          
+                        </div>
+                        <div className="flex items-center justify-between gap-2.5 sm:w-auto w-full">
                           <p className="font-inter text-gray-1200 text-sm font-normal">
-                            Tickets Sold
+                              Auction ended
                           </p>
+                          <h3 className="md:text-xl text-base font-semibold font-inter text-white">
+                            {new Date(auction?.endsAt || "").toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                          </h3>
                         </div>
+                       
 
-                        <div className="flex items-center pl-14">
-                          <div className="flex flex-col gap-2.5">
-                            <h3 className="md:text-xl text-base font-semibold font-inter text-white">
-                              0.118 SOL
-                            </h3>
-                            <p className="font-inter text-gray-1200 text-sm font-normal">
-                              Ticket price
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className=""></div>
                       </div>
                       <div className="w-full flex items-center justify-between p-2 rounded-[10px] bg-primary-color">
                         <div className="flex items-center gap-3.5">
                           <div className="md:w-[68px] w-12 h-12 md:h-[68px] rounded-lg bg-black-1300 flex items-center justify-center">
                             <img
-                              src="/icons/crown_svg.svg"
-                              alt="svg"
+                              src={auction?.highestBidder?.profileImage?API_URL+"/"+auction?.highestBidder?.profileImage:DEFAULT_AVATAR}
+                              alt="winner"
                               className="md:h-auto h-7"
                             />
                           </div>
                           <h3 className="md:text-2xl sm:text-xl text-base text-black-1000 font-semibold font-inter">
-                            GKo6...kEgV
+                            {shortenAddress(auction?.highestBidderWallet || "")}
                           </h3>
                         </div>
 
@@ -583,14 +592,6 @@ function AuctionDetails() {
                       </div>
                        </div>
                        </>
-                            }
-                            {!publicKey && 
-                            <div className="w-full mt-6 flex items-center flex-col justify-center py-[18px] md:py-[22px] px-[26px] gap-4 md:gap-[26px] border border-primary-color rounded-[20px] bg-black-1300">
-                                <h3 className="md:text-base text-sm text-gray-1200 font-inter font-medium text-center">
-                                Please connect your wallet first to bid on this auction.
-                                </h3>
-                                <WalletMultiButton />
-                            </div>
                             }
 
                             <div className="w-full">
@@ -612,8 +613,10 @@ function AuctionDetails() {
                             </ul>
                             </div>
                             {tabs[0].active &&
-                            <></>
-                            //  <ParticipantsTable/>
+                             <AuctionParticipants
+                          bids={auction.bids || []}
+                          currency={auction.currency}
+                        />
                             }
 
                             {tabs[1].active &&
@@ -639,29 +642,6 @@ function AuctionDetails() {
                                     {shortenAddress(auction?.createdBy)}
                                   </h3>
                                 </div>
-                
-                                <ul className="flex items-center gap-6">
-                                  <li>
-                                    <a href="#">
-                                      <img
-                                        src="/icons/twitter-icon.svg"
-                                        className="md:w-7 invert md:h-7 w-6 h-6 object-contain"
-                                        alt=""
-                                      />
-                                    </a>
-                                  </li>
-                
-                                  <li>
-                                    <a href="#">
-                                      {" "}
-                                      <img
-                                        src="/icons/mcp-server-icon.svg"
-                                        className="md:w-7 invert md:h-7 w-6 h-6 object-contain"
-                                        alt=""
-                                      />
-                                    </a>
-                                  </li>
-                                </ul>
                               </div>
                               <div className="w-full space-y-5">
                                 {isNftMetadataLoading ? (

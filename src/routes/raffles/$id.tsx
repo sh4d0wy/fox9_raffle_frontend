@@ -1,7 +1,7 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react';
 import { Disclosure } from '@headlessui/react';
-import { ParticipantsTable } from '@/components/auctions/ParticipantsTable';
+import { ParticipantsTable } from '@/components/home/ParticipantsTable';
 import { TransactionsTable } from '@/components/auctions/TransactionsTable';
 import { TermsConditions } from '@/components/auctions/TermsConditions';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
@@ -738,7 +738,7 @@ function RouteComponent() {
                   <div className="w-full">
                     <div className="w-full overflow-x-auto">
                       <ul className="inline-flex items-center bg-white/15 gap-3 2xl:gap-4 mb-6 mt-10 p-1 rounded-full sm:w-auto">
-                        {tabs.map((tab, index) => (
+                        {tabs.map((tab: { name: string; active: boolean }, index: number) => (
                           <li key={index}>
                             <button onClick={() => {
                               const updatedTabs = tabs.map((t, i) => ({

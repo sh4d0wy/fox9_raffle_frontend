@@ -4,7 +4,7 @@ import { creatorSchema } from "./raffleTypes";
 export const auctionSchema = z.object({
   id: z.number().optional(),
   createdBy: z.string().min(1),
-
+  highestBidder: creatorSchema.optional(),
   // Prize details
   prizeMint: z.string().min(1),
   prizeName: z.string().optional(),

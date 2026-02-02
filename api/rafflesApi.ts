@@ -16,11 +16,8 @@ export const fetchRaffles = async ({
   currentWallet?: string;
 }): Promise<RafflesPage> => {
   const pageSize = 8;
-  console.log("currentFilter",filter);
   let filteredData = await getRaffles(pageParam, pageSize);
   filteredData = filteredData.raffles;
-  console.log("filteredData",filteredData);
-  console.log("check",filter==="All Raffles");
   if (filter === "My Raffles") filteredData = filteredData.filter((r: any) => r.createdBy === currentWallet);
   if (filter === "All Raffles") filteredData = filteredData.filter((r:any) => r.state.toLowerCase() === "active");
   if (filter === "Past Raffles") filteredData = filteredData.filter((r: any) => r.state.toLowerCase() === "failedended" || r.state.toLowerCase()   === "successended");
