@@ -38,7 +38,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
   const { profilePictureVersion } = useUserStore();
   const isCurrentUser = raffle.createdBy === publicKey?.toString();
   const creatorAvatar = raffle.creator?.profileImage 
-  ? `${API_URL}${raffle.creator.profileImage}`
+  ? `${API_URL}${raffle.creator.profileImage}?t=${isCurrentUser ? profilePictureVersion : ''}`
   : DEFAULT_AVATAR;
   const { buyTicket } = useBuyRaffleTicket();
   const {  getTicketQuantityById, updateTicketQuantityById } = useBuyRaffleTicketStore();

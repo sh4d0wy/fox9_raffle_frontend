@@ -46,7 +46,7 @@ export default function Dropdown({
               )}
             >
               {selected ? (
-                <span className="text-white">{selected.value}</span>
+                <span className="text-white">{selected.label}</span>
               ) : (
                 <span className="text-white">{placeholder}</span>
               )}
@@ -93,7 +93,7 @@ export default function Dropdown({
                     "items-center gap-2 text-white px-6 py-3 select-none"
                   )}
                 >
-                  {option.value}
+                  {option.label}
                 </ListboxOption>
               ))}
             </ListboxOptions>
