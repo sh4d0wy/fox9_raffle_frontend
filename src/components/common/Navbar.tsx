@@ -335,14 +335,6 @@ export const Navbar = () => {
                   <img src="/icons/settings-icon.svg" className="w-5" />
                 </button>
               </li>
-              <li>
-                <button
-                  onClick={openNotifications}
-                  className="inline-flex w-11 h-11 transition duration-300 hover:opacity-90 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5"
-                >
-                  <img src="/icons/bell-icon.svg" className="w-5" />
-                </button>
-              </li>
             </ul>
           </ul>
         </div>
@@ -366,18 +358,11 @@ export const Navbar = () => {
           >
             <img src="/icons/settings-icon.svg" className="w-6 rounded-full" />
           </button>
-          <button
-            onClick={openNotifications}
-            className="inline-flex cursor-pointer w-11 h-11 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5 transition duration-300 hover:opacity-90"
-          >
-            <img src="/icons/bell-icon.svg" className="w-6 rounded-full" />
-          </button>
         </div>
       </nav>
 
       {/* MODALS */}
       <SettingsModel isOpen={showSettingsModal} onClose={closeSettings} />
-      <NotificationsModel isOpen={showNotificationModal} onClose={closeNotifications} />
     </header>
   );
 };

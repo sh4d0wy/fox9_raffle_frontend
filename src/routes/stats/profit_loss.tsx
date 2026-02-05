@@ -8,58 +8,54 @@ import {yearsOptions} from '../../../data/years-option'
 import { useFiltersStore } from '../../../store/profit_loss-store';
 import { SummaryCard } from '@/components/stats/SummaryCard';
 import { usePnlStats } from 'hooks/stats/usePnlStats';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export const Route = createFileRoute('/stats/profit_loss')({
   component: ProfitLoss,
 })
 
-const lamportsToSol = (lamports: number) => lamports / 1_000_000_000;
-
+const lamportsToSol = (lamports: number) => lamports;
 
 
 function ProfitLoss() {
-    const timeframe = useFiltersStore((s) => s.timeframe);
-    const setTimeframe = useFiltersStore((s) => s.setTimeframe);
-  
-    const services = useFiltersStore((s) => s.services);
-    const toggleService = useFiltersStore((s) => s.toggleService);
-  
-    const currency = useFiltersStore((s) => s.currency);
-    const setCurrency = useFiltersStore((s) => s.setCurrency);
-  
-    const { boughtPnl, soldPnl } = usePnlStats({timeframe});
-
-    const boughtSummary = boughtPnl.data?.summary 
+  const timeframe = useFiltersStore((s) => s.timeframe);
+  const setTimeframe = useFiltersStore((s) => s.setTimeframe);
+  const year = useFiltersStore((s) => s.year);
+  const setYear = useFiltersStore((s) => s.setYear);
+  console.log("timeframe", timeframe);
+  const { boughtPnl, soldPnl } = usePnlStats({timeframe, year});
+  const { publicKey } = useWallet();
+  const boughtSummary = boughtPnl.data?.summary 
     ? [
-        { label: "Month", value: boughtPnl.data.summary.label || "-" },
-        { label: "Total spent", value: `${boughtPnl.data.summary.totalSpent ?? 0} SOL` },
-        { label: "Total won", value: `${boughtPnl.data.summary.totalWon ?? 0} SOL` },
-        { label: "P&L", value: `${boughtPnl.data.summary.pnl ?? 0} SOL` },
+        { label: timeframe === "daily" ? "Month" : "Year", value: boughtPnl.data.summary.label || "-" },
+        { label: "Spent", value: `${boughtPnl.data.summary.totalSpent ?? 0} USDT ` },
+        { label: "Total won", value: `${boughtPnl.data.summary.totalWon ?? 0} USDT ` },
+        { label: "P&L", value: `${boughtPnl.data.summary.pnl ?? 0} USDT ` },
         { label: "ROI", value: boughtPnl.data.summary.roi || "0%" },
       ]
     : [
-        { label: "Month", value: "-" },
-        { label: "Total spent", value: "0 SOL" },
-        { label: "Total won", value: "0 SOL" },
-        { label: "P&L", value: "0 SOL" },
+        { label: timeframe === "daily" ? "Month" : "Year", value: "-" },
+        { label: "Spent", value: "0 USDT " },
+        { label: "Total won", value: "0 USDT " },
+        { label: "P&L", value: "0 USDT " },
         { label: "ROI", value: "0%" },
       ];
 
-  const soldSummary = soldPnl.data?.summary
-    ? [
-        { label: "Month", value: soldPnl.data.summary.label || "-" },
-        { label: "Total cost", value: `${lamportsToSol(soldPnl.data.summary.totalCost ?? 0).toFixed(2)} SOL` },
-        { label: "Total sold", value: `${lamportsToSol(soldPnl.data.summary.totalSold ?? 0).toFixed(2)} SOL` },
-        { label: "P&L", value: `${lamportsToSol(soldPnl.data.summary.pnl ?? 0).toFixed(2)} SOL` },
-        { label: "ROI", value: soldPnl.data.summary.roi || "0%" },
-      ]
-    : [
-        { label: "Month", value: "-" },
-        { label: "Total cost", value: "0 SOL" },
-        { label: "Total sold", value: "0 SOL" },
-        { label: "P&L", value: "0 SOL" },
-        { label: "ROI", value: "0%" },
-      ];
+      const soldSummary = soldPnl.data?.summary
+      ? [
+          { label: timeframe === "daily" ? "Month" : "Year", value: soldPnl.data.summary.label || "-" },
+          { label: "Cost", value: `${parseFloat(lamportsToSol(soldPnl.data.summary.totalCost ?? 0).toFixed(6))} USDT ` },
+          { label: "Total sold", value: `${parseFloat(lamportsToSol(soldPnl.data.summary.totalSold ?? 0).toFixed(6))} USDT ` },
+          { label: "P&L", value: `${parseFloat(lamportsToSol(soldPnl.data.summary.pnl ?? 0).toFixed(6))} USDT ` },
+          { label: "ROI", value: soldPnl.data.summary.roi || "0%" },
+        ]
+      : [
+          { label: timeframe === "daily" ? "Month" : "Year", value: "-" },
+          { label: "Cost", value: "0 USDT " },
+          { label: "Total Sold", value: "0 USDT " },
+          { label: "P&L", value: "0 USDT " },
+          { label: "ROI", value: "0%" },
+        ];
 
   const boughtTableData = boughtPnl.data?.data?.map((item: any) => ({
     date: item.date,
@@ -109,7 +105,7 @@ function ProfitLoss() {
 
                             <ul className="flex items-center gap-3 bg-black-1000 rounded-full p-1">
                                 {["Daily", "Monthly", "Yearly"].map((t) => (
-                                    <li key={t}>
+                                    <li key={t.toLowerCase()}>
                                         <button
                                         className={`md:text-base text-sm cursor-pointer font-inter font-medium transition duration-300 hover:bg-primary-color hover:text-black-1000 text-white rounded-full py-3.5 px-5 ${
                                             timeframe === t.toLowerCase() ? "bg-primary-color !text-black-1000" : ""
@@ -124,10 +120,10 @@ function ProfitLoss() {
 
                             <Dropdown
                                 options={yearsOptions}
-                                value={{ label: "2025", value: "2025" }}
+                                value={{ label: year.toString(), value: year.toString() }}
                                 onChange={(value) => {
-                                console.log("Selected option:", value);
-                                }}
+                                  setYear(parseInt(value.value));
+                              }}
                                 />
                                 </div>
                             </div>
@@ -135,23 +131,23 @@ function ProfitLoss() {
                         </div>
                    </div>
 
+                   {publicKey && (
+                    <>
                    <div className="w-full pt-10 grid md:grid-cols-2 gap-5 pb-10">
-                    <SummaryCard title="Bought" items={boughtSummary} />
-                    <SummaryCard title="Sold" items={soldSummary} />
+                    <SummaryCard title="Bought" items={boughtSummary}   />
+                    <SummaryCard title="Sold" items={soldSummary}  />
                     </div>
-
                     <div className="w-full grid md:grid-cols-2 gap-5 pb-10">
-                    <BoughtTable
-                    
-                    data={boughtTableData}
-                    isLoading={boughtPnl.isLoading}
-                    />
-                    <SoldTable
-                    data={soldTableData}
-                    isLoading={soldPnl.isLoading}
-                    />
+                    <BoughtTable data={boughtTableData} isLoading={boughtPnl.isLoading} />
+                    <SoldTable data={soldTableData} isLoading={soldPnl.isLoading} />
                     </div>
-
+                    </>
+                    )}
+                    {!publicKey && (
+                    <div className="w-full flex items-center justify-center">
+                    <h4 className="md:text-base text-sm text-white px-5 py-19 w-full text-center rounded-lg border border-gray-1200 font-medium font-inter">Please connect your wallet to view your profit/loss</h4>
+                    </div>
+                    )}
                 </div>
 
         </section>

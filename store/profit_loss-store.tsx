@@ -1,13 +1,14 @@
 import { create } from "zustand";
 
-export type TimeframeFilter = "Daily" | "Monthly" | "Yearly";
+export type TimeframeFilter = "daily" | "monthly" | "yearly";
 export type ServiceFilter = "Raffle" | "Gumball";
 export type CurrencyFilter = "Raffle" | "Gumball";
 
 interface FiltersState {
   timeframe: TimeframeFilter;
   setTimeframe: (value: TimeframeFilter) => void;
-
+  year: number;
+  setYear: (value: number) => void;
   services: { name: ServiceFilter; active: boolean }[];
   toggleService: (name: ServiceFilter, active: boolean) => void;
 
@@ -16,8 +17,11 @@ interface FiltersState {
 }
 
 export const useFiltersStore = create<FiltersState>((set) => ({
-  timeframe: "Daily",
+  timeframe: "daily",
   setTimeframe: (value) => set({ timeframe: value }),
+
+  year: new Date().getFullYear(),
+  setYear: (value) => set({ year: value }),
 
   services: [
     { name: "Raffle", active: true },
