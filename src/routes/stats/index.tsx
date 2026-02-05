@@ -6,6 +6,7 @@ import { useLeaderboardStore, type LeaderboardTab, type SortFilter, type TimeFil
 import { useLeaderboard } from 'hooks/stats/useLeaderboard';
 import { NoRaffles } from '@/components/home/NoRaffles';
 import StatsDropdown from '@/components/stats/StatsDropdown';
+import { motion } from 'motion/react';
 export const Route = createFileRoute('/stats/')({
   component: Leaderboard,
 })
@@ -236,7 +237,12 @@ function Leaderboard() {
 
   return (
     <main className='w-full bg-black-1400'>
-        <section className='w-full md:pt-48 pt-36 pb-20 xl:pb-[100px]'>
+        <motion.section 
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -100 }}
+        transition={{ duration: 0.3 }}
+        className='w-full md:pt-48 pt-36 pb-20 xl:pb-[100px]'>
             <div className="w-full max-w-[1440px] px-5 mx-auto">
                 <div className="w-full flex flex-wrap gap-6 items-center justify-between mb-10">
                   <div className="">
@@ -320,7 +326,7 @@ function Leaderboard() {
 
 
             </div>
-       </section>
+       </motion.section>
 
     </main>
   )}

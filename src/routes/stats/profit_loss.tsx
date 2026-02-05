@@ -9,6 +9,7 @@ import { useFiltersStore } from '../../../store/profit_loss-store';
 import { SummaryCard } from '@/components/stats/SummaryCard';
 import { usePnlStats } from 'hooks/stats/usePnlStats';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { motion } from 'motion/react';
 
 export const Route = createFileRoute('/stats/profit_loss')({
   component: ProfitLoss,
@@ -77,7 +78,12 @@ function ProfitLoss() {
 
   return (
        <main className='w-full bg-black-1400'>
-        <section className='w-full md:pt-48 pt-36 pb-[100px]'>
+        <motion.section 
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -100 }}
+        transition={{ duration: 0.3 }}
+        className='w-full md:pt-48 pt-36 pb-[100px]'>
                 <div className="w-full max-w-[1440px] px-5 mx-auto">
                     <div className="w-full flex md:flex-nowrap flex-wrap md:gap-0 gap-4 items-center justify-between mb-12">
                         <div className="">
@@ -150,7 +156,7 @@ function ProfitLoss() {
                     )}
                 </div>
 
-        </section>
+        </motion.section>
 
         </main>
   )

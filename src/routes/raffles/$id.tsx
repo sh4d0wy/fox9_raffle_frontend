@@ -33,6 +33,7 @@ export const Route = createFileRoute('/raffles/$id')({
 
 import type { NftMetadata } from 'hooks/useNftMetadata';
 import RaffleEndedPopup from '@/components/ui/popups/raffle/RaffleEndedPopup';
+import { motion } from 'motion/react';
 
 const getNftSections = (nftMetadata: NftMetadata | null | undefined, prizeData: any) => {
   const traits: { label: string; value: string }[] = [];
@@ -251,7 +252,13 @@ function RouteComponent() {
       </div>
       <BuyTicketPopup isOpen={showBuyTicketPopup && !isEndingConditionMet && raffle?.state?.toLowerCase() === "active"} onClose={() => setShowBuyTicketPopup(false)} />
       <RaffleEndedPopup isOpen={showRaffleEndedPopup} shouldEnableAutoClose={false} />
-      <section className='w-full pb-20'>
+      <motion.section 
+      initial={{ opacity: 0, y: 100 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -100 }}
+      transition={{ duration: 0.3 }}
+      className='w-full pb-20'>
+        
         <div className="w-full py-5 md:py-10 max-w-[1440px] px-5 mx-auto">
           <div className="w-full flex gap-6 md:gap-10 xl:flex-row flex-col">
             <div className="flex-1 max-w-full xl:max-w-[450px] overflow-hidden">
@@ -880,7 +887,7 @@ function RouteComponent() {
 
           </div>
         </div>
-      </section>
+      </motion.section>
 
     </main>
   )

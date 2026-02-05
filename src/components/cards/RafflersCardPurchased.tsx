@@ -1,63 +1,98 @@
+import { API_URL } from "@/constants";
+import { VerifiedNftCollections } from "@/utils/verifiedNftCollections";
+import { VerifiedTokens } from "@/utils/verifiedTokens";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { useClaimRafflePrize } from "hooks/raffle/useClaimRafflePrize";
+import { Loader } from "lucide-react";
+import { DEFAULT_AVATAR } from "store/userStore";
+import type { RaffleTypeBackend } from "types/backend/raffleTypes";
 
-export interface RafflersCardPurchasedProps {
-  id: number;
-  title: string;
-  userName: string;
-  MainImage: string;
-  TicketBought: number;
-  rafflesType: string;
-  ChancePercent: number;
-  verified?: boolean;
-  totalTickets: number;
-  soldTickets: number;
-  pricePerTicket: number;
+export interface RafflersCardPurchasedProps extends RaffleTypeBackend {
+  ticketsBought:number;
   className?: string;
-  category: string;
-  sol: number;
+  isWinner: boolean;
+  hasClaimed: boolean;
 }
-
-export const RafflersCardPurchased: React.FC<RafflersCardPurchasedProps> = ({
-  id,
-  userName,
-  title,
-  MainImage,
-  TicketBought,
-  ChancePercent,
-  verified = false,
-  totalTickets,
-  soldTickets,
-  pricePerTicket,
-  className,
-  category,
-  sol,
-}) => {
-  const remainingTickets = totalTickets - soldTickets;
-
+export const RafflersCardPurchased: React.FC<RafflersCardPurchasedProps> = (props) => {
+  const {
+    id,
+    raffle,
+    prizeData,
+    createdBy,
+    ticketSupply,
+    ticketSold = 0,
+    ticketPrice,
+    ticketTokenAddress,
+    ticketsBought,
+    raffleEntries,
+    className,
+    isWinner,
+    hasClaimed,
+    creator
+  } = props;
+  const chancePercent = ticketSupply > 0 ? ((ticketsBought / ticketSupply) * 100).toFixed(1) : 0;
+  
+  const totalSpent = ticketsBought * ticketPrice;
+  
+  const remainingTickets = ticketSupply - ticketSold;
+  const { claimPrize } = useClaimRafflePrize();
+  const queryClient = useQueryClient();
+  const { publicKey } = useWallet();
   return (
     <div
       className={`bg-transparent hover:bg-primary-color/10 w-full transition duration-300 border border-gray-1100 rounded-2xl ${className}`}
     >
-      {<p className="hidden">{category}</p>}
       <div className="w-full flex gap-5 p-5 sm:flex-row flex-col">
         <img
-          src={MainImage}
-          alt="featured-card"
+          src={prizeData?.image}
+          alt={prizeData?.name}
           className="object-cover w-[109px] h-[109px] rounded-lg"
         />
 
         <div className="flex-1">
           <div className="flex w-full items-center justify-between">
+            <div className="flex flex-col gap-2">
             <h3 className="xl:text-2xl text-xl text-white font-bold font-inter">
-              {title}
+              {prizeData?.name}
             </h3>
+            {prizeData?.verified && prizeData?.collection && (
+                <div className="inline-flex gap-2.5 items-center">
+                  <p className="text-sm text-white font-semibold font-inter">
+                    {(prizeData?.collection && VerifiedNftCollections.find((collection) => collection.address === prizeData?.collection)?.name)}
+                  </p>
+                  <img
+                    src="/icons/verified-icon.svg"
+                    alt="verified"
+                    className="w-5 h-5"
+                  />
+                </div>
+              )}
+            </div>
             <div className="flex items-center justify-center gap-5">
-              <Link to="/" className="inline-flex items-center gap-3 bg-primary-color py-2.5 px-4 rounded-full">
-              <img src="/icons/gift-line-icon.svg" alt="" />
-               Claim Prize</Link>
+              {isWinner && (
+                <button
+                onClick={() => {
+                  claimPrize.mutate({
+                    raffleId: Number(id) || 0,
+                  }, {
+                    onSuccess: () => {
+                      queryClient.invalidateQueries({ queryKey: ["profile-raffle-purchased", publicKey?.toBase58() || ""] });
+                    }
+                  })
+                }}  
+                disabled={hasClaimed || claimPrize.isPending} 
+                className="inline-flex justify-center  cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed items-center px-3 bg-primary-color py-2.5 rounded-full">
+                <img src="/icons/gift-line-icon.svg" alt="" />
+                {claimPrize.isPending ? <Loader className="w-5 h-5 animate-spin" /> : "Claim Prize"}
+                </button>
+              )}
+              
+              
             <Link
-              to="/auctions/$id"
-              params={{ id: id.toString() }}
+              to="/raffles/$id"
+              params={{ id: id?.toString() || "" }}
               className="w-10 h-10 transition duration-300 hover:opacity-90 flex items-center justify-center text-white font-semibold font-inter bg-primary-color rounded-md"
             >
               <svg
@@ -81,26 +116,17 @@ export const RafflersCardPurchased: React.FC<RafflersCardPurchasedProps> = ({
 
           <div className="w-full gap-6 flex justify-between mt-6 md:flex-row flex-col">
             <div className="flex flex-col gap-1.5">
-              {verified && (
-                <div className="inline-flex gap-2.5 items-center">
-                  <p className="text-sm text-white font-semibold font-inter">
-                    Transdimensional fox federation
-                  </p>
-                  <img
-                    src="/icons/verified-icon.svg"
-                    alt="verified"
-                    className="w-5 h-5"
-                  />
-                </div>
-              )}
-
+              
+              <div className="inline-flex gap-2.5 items-center">
+                <img src={creator?.profileImage? API_URL+creator?.profileImage:DEFAULT_AVATAR} alt={creator?.walletAddress} className="w-6 h-6 rounded-full" />
               <p className="text-sm font-medium text-primary-color font-inter">
-                {userName}
+                {createdBy.slice(0, 6)}...{createdBy.slice(-4)}
               </p>
+              </div>
             </div>
 
             <p className="text-base mt-auto text-primary-color font-medium font-inter">
-              Raffle Ended 1 y 5 mo ago
+              {prizeData?.symbol}
             </p>
           </div>
         </div>
@@ -112,9 +138,9 @@ export const RafflersCardPurchased: React.FC<RafflersCardPurchasedProps> = ({
           <h4 className="text-sm mb-1.5 text-gray-1200 font-inter">
             Tickets remaining
           </h4>
-          {totalTickets !== soldTickets ? (
+          {ticketSupply !== ticketSold ? (
             <h4 className="md:text-base text-sm text-white font-inter font-medium">
-              {remainingTickets}/{totalTickets}
+              {remainingTickets}/{ticketSupply}
             </h4>
           ) : (
             <h4 className="text-base text-red-1000 font-semibold font-inter">
@@ -126,7 +152,7 @@ export const RafflersCardPurchased: React.FC<RafflersCardPurchasedProps> = ({
         <div className="flex-1">
           <h4 className="text-sm mb-1.5 text-gray-1200 font-inter">Price</h4>
           <h4 className="md:text-base text-sm text-white font-inter font-medium">
-            <span>{pricePerTicket}</span> SOL
+          <span>{ticketPrice/10**(VerifiedTokens.find((token) => token.address === ticketTokenAddress)?.decimals || 0)}</span> {VerifiedTokens.find((token) => token.address === ticketTokenAddress)?.symbol || "SOL"}
           </h4>
         </div>
 
@@ -135,21 +161,21 @@ export const RafflersCardPurchased: React.FC<RafflersCardPurchasedProps> = ({
             Tickets Bought
           </h4>
           <h4 className="md:text-base text-sm text-white font-inter font-medium">
-            <span>{TicketBought}</span>
+            <span>{ticketsBought}</span>
           </h4>
         </div>
 
         <div className="flex-1">
           <h4 className="text-sm mb-1.5 text-gray-1200 font-inter">Chance</h4>
           <h4 className="md:text-base text-sm text-white font-inter font-medium">
-            <span>{ChancePercent}</span>%Chance
+            <span>{chancePercent}</span>%Chance
           </h4>
         </div>
 
         <div className="flex-1">
           <h4 className="text-sm mb-1.5 text-gray-1200 font-inter">Spent</h4>
           <h4 className="md:text-base text-sm text-white font-inter font-medium">
-            <span>{sol}</span> SOL Spent
+            <span>{totalSpent/10**(VerifiedTokens.find((token) => token.address === ticketTokenAddress)?.decimals || 0)}</span> {VerifiedTokens.find((token) => token.address === ticketTokenAddress)?.symbol || "SOL"} Spent
           </h4>
         </div>
       </div>

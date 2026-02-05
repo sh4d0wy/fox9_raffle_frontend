@@ -7,6 +7,7 @@ import USDVolumeChart from '@/components/stats/USDVolumeChart'
 import { createFileRoute } from '@tanstack/react-router'
 import { useAnalyticsStats } from 'hooks/stats/useAnalyticsStats'
 import { useState } from 'react'
+import { motion } from 'motion/react';
 
 export const Route = createFileRoute('/stats/analytics')({
   component: RouteComponent,
@@ -18,7 +19,12 @@ function RouteComponent() {
 
   return (
      <main className='w-full bg-black-1400'>
-        <section className='w-full md:pt-48 pt-36 pb-[100px]'>
+        <motion.section 
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -100 }}
+        transition={{ duration: 0.3 }}
+        className='w-full md:pt-48 pt-36 pb-[100px]'>
                 <div className="w-full max-w-[1440px] px-5 mx-auto">
                     <div className="pb-12">
                     <h1 className='text-[28px] font-semibold text-white font-inter'>Analytics</h1>
@@ -74,7 +80,7 @@ function RouteComponent() {
 
 
                 </div>
-        </section>
+        </motion.section>
     </main>
   )
 }

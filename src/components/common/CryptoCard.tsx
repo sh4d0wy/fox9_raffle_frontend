@@ -103,9 +103,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
     return publicKey && raffle.createdBy !== publicKey.toString() && ticketsBoughtByUser < raffle.maxEntries && remainingTickets > 0 && raffle.state === "Active";
   }, [publicKey, raffle.createdBy, ticketsBoughtByUser, remainingTickets, raffle.state]);
   return (
-    <Link to="/raffles/$id"
-      params={{ id: raffle.id?.toString() || "" }}
-    >
+   
     <div className={`bg-black-1300 backdrop-blur-[10px] rounded-[10px] p-3 pb-4 ${className}`}>
 
       <div className="w-full relative group overflow-hidden">
@@ -206,7 +204,9 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
           </div>
         </div>
       </div>
-
+      <Link to="/raffles/$id"
+      params={{ id: raffle.id?.toString() || "" }}
+    >
       <div className="w-full flex flex-col py-4">
         <div className="w-full flex items-center gap-5 justify-between">
           <h3 className="text-xl text-white font-bold font-inter">
@@ -340,7 +340,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
       </Link>
        )}
       </div>
-    </div>
     </Link>
+    </div>
   );
 };
