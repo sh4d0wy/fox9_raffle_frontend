@@ -227,7 +227,8 @@ function Gumballs() {
             >
               <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4">
                 {gumballs.map((r) => (
-                  <GumballsCard key={r.id} {...r} />
+                  <></>
+                  // <GumballsCard key={r.id}  />
                 ))}
               </div>
             </InfiniteScroll>

@@ -1,4 +1,4 @@
-import { AucationsCard } from '@/components/auctions/AuctionsCard';
+import { AuctionsCard } from '@/components/auctions/AuctionsCard';
 import { RafflersCard } from '@/components/cards/RafflersCard';
 import { RafflersCardPurchased } from '@/components/cards/RafflersCardPurchased';
 import { GumballsCard } from '@/components/gumballs/GumballsCard';
@@ -265,7 +265,7 @@ function RouteComponent() {
                       <div className="w-full grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 lg:gap-y-10 lg:gap-x-[26px] gap-4">
                         {createdItems.map(card => (
                           <div key={card.id} className="flex items-center justify-center">
-                            <AucationsCard {...card} />
+                            <AuctionsCard {...card} />
                           </div>
                         ))}
                       </div>
