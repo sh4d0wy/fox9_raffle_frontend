@@ -10,40 +10,18 @@ import {
   Tooltip,
 } from "recharts"
 
-const chartData = {
-  daily: [
-    { time: "00:00", volume: 95 },
-    { time: "04:00", volume: 50 },
-    { time: "08:00", volume: 140 },
-    { time: "12:00", volume: 135 },
-    { time: "16:00", volume: 80 },
-    { time: "20:00", volume: 32 },
-  ],
-  week: [
-    { time: "Mon", volume: 400 },
-    { time: "Tue", volume: 300 },
-    { time: "Wed", volume: 500 },
-    { time: "Thu", volume: 200 },
-    { time: "Fri", volume: 350 },
-    { time: "Sat", volume: 420 },
-    { time: "Sun", volume: 380 },
-  ],
-  monthly: [
-    { time: "Jan", volume: 1200 },
-    { time: "Feb", volume: 1800 },
-    { time: "Mar", volume: 1500 },
-    { time: "Apr", volume: 2000 },
-    { time: "May", volume: 1700 },
-    { time: "Jun", volume: 2100 },
-  ],
-  yearly: [
-    { time: "2020", volume: 12000 },
-    { time: "2021", volume: 18000 },
-    { time: "2022", volume: 15000 },
-    { time: "2023", volume: 20000 },
-    { time: "2024", volume: 17000 },
-  ],
+interface VolumeDataItem {
+  date: string
+  value: number
 }
+
+interface USDVolumeChartProps {
+  data: VolumeDataItem[]
+  timeframe: string
+  isLoading?: boolean
+}
+
+
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -57,7 +35,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null
 }
 
-export default function USDVolumeChart() {
+export default function USDVolumeChart({ data, timeframe, isLoading }: USDVolumeChartProps) {
   const [filter, setFilter] = useState<"daily" | "week" | "monthly" | "yearly">("daily")
 
   const formatYAxis = (value: number) => {
@@ -66,12 +44,32 @@ export default function USDVolumeChart() {
   if (value >= 1_000) return `${value / 1_000}k`;
   return `${value}`;
 };
+ 
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr)
+  if (timeframe === "day") {
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  }
+  return date.toLocaleDateString([], { month: "short", day: "numeric" })
+}
+
+const chartData = data.map((item) => ({
+  time: formatDate(item.date),
+  volume: item.value,
+}))
+
+const totalVolume = data.reduce((sum, item) => sum + item.value, 0)
 
   return (
     <div className=" border border-gray-1100 font-inter font-medium text-white overflow-hidden rounded-[20px] w-full">
       <div className="flex lg:flex-nowrap flex-wrap lg:gap-0 gap-5 bg-black-1300 border-b border-gray-1100 py-6 px-5 items-center justify-between">
-        <h2 className="text-xl font-inter text-white font-semibold">USD volume</h2>
-        <div className="flex lg:flex-nowrap bg-white/15 border border-gray-1000 rounded-full p-1 flex-wrap gap-2">
+        <div className="w-full flex flex-col gap-1 items-start justify-between">
+        <h2 className="text-xl font-inter text-white font-semibold">USDT Volume ({timeframe})</h2>
+          <p className="text-sm text-white/60 font-semibold">
+            Total USDT Volume: {totalVolume.toFixed(5)} USDT
+          </p>
+        </div>
+        {/* <div className="flex lg:flex-nowrap bg-white/15 border border-gray-1000 rounded-full p-1 flex-wrap gap-2">
           {["daily", "week", "monthly", "yearly"].map((f) => (
             <button
               key={f}
@@ -83,13 +81,22 @@ export default function USDVolumeChart() {
               {f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
-        </div>
+        </div> */}
       </div>
 
       <div className="w-full h-[340px] pt-10 pb-6">
+      {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-color"></div>
+          </div>
+        ) : chartData.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            No data available
+          </div>
+        ) : (
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            data={chartData[filter]}
+            data={chartData}
             margin={{ left: 8, right: 14, top: 20, bottom: 0 }} 
           >
             <defs>
@@ -136,6 +143,7 @@ export default function USDVolumeChart() {
             />
           </AreaChart>
         </ResponsiveContainer>
+        )}
       </div>
     </div>
   )

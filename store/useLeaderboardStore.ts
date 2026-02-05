@@ -1,8 +1,14 @@
 import { create } from "zustand";
 
 export type LeaderboardTab = "Top Rafflers" | "Top Buyers";
-export type SortFilter = "Raffles created" | "Tickets Sold" | "Volume";
-export type TimeFilter = "All Time" | "2W" | "1D";
+export type SortFilter = {
+  label: string;
+  value: "raffles" | "tickets" | "volume";
+};
+export type TimeFilter = {
+  label: string;
+  value: "all" | "7d" | "30d" | "90d" | "1y";
+};
 
 interface LeaderboardState {
   activeTab: LeaderboardTab;
@@ -19,9 +25,9 @@ export const useLeaderboardStore = create<LeaderboardState>((set) => ({
   activeTab: "Top Rafflers",
   setActiveTab: (tab) => set({ activeTab: tab }),
 
-  sortFilter: "Raffles created",
-  setSortFilter: (filter) => set({ sortFilter: filter }),
+  sortFilter: { label: "Raffles created", value: "raffles" },
+  setSortFilter: (filter: SortFilter) => set({ sortFilter: filter }),
 
-  timeFilter: "All Time",
+  timeFilter: { label: "All Time", value: "all" },
   setTimeFilter: (filter) => set({ timeFilter: filter }),
 }));

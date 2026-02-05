@@ -7,41 +7,76 @@ import { SoldTable } from '../../components/stats/SoldTable';
 import {yearsOptions} from '../../../data/years-option'
 import { useFiltersStore } from '../../../store/profit_loss-store';
 import { SummaryCard } from '@/components/stats/SummaryCard';
+import { usePnlStats } from 'hooks/stats/usePnlStats';
 
 export const Route = createFileRoute('/stats/profit_loss')({
   component: ProfitLoss,
 })
 
-
-
-const boughtSummary = [
-  { label: "Month", value: "Oct '25" },
-  { label: "Total spent", value: "$120" },
-  { label: "Total won", value: "$300" },
-  { label: "P&L", value: "$180" },
-  { label: "ROI", value: "150%" },
-];
-
-const soldSummary = [
-  { label: "Month", value: "Oct '25" },
-  { label: "Total spent", value: "$200" },
-  { label: "Total won", value: "$250" },
-  { label: "P&L", value: "$50" },
-  { label: "ROI", value: "25%" },
-];
+const lamportsToSol = (lamports: number) => lamports / 1_000_000_000;
 
 
 
 function ProfitLoss() {
-const timeframe = useFiltersStore((s) => s.timeframe);
-  const setTimeframe = useFiltersStore((s) => s.setTimeframe);
+    const timeframe = useFiltersStore((s) => s.timeframe);
+    const setTimeframe = useFiltersStore((s) => s.setTimeframe);
+  
+    const services = useFiltersStore((s) => s.services);
+    const toggleService = useFiltersStore((s) => s.toggleService);
+  
+    const currency = useFiltersStore((s) => s.currency);
+    const setCurrency = useFiltersStore((s) => s.setCurrency);
+  
+    const { boughtPnl, soldPnl } = usePnlStats({timeframe});
 
-  const services = useFiltersStore((s) => s.services);
-  const toggleService = useFiltersStore((s) => s.toggleService);
+    const boughtSummary = boughtPnl.data?.summary 
+    ? [
+        { label: "Month", value: boughtPnl.data.summary.label || "-" },
+        { label: "Total spent", value: `${boughtPnl.data.summary.totalSpent ?? 0} SOL` },
+        { label: "Total won", value: `${boughtPnl.data.summary.totalWon ?? 0} SOL` },
+        { label: "P&L", value: `${boughtPnl.data.summary.pnl ?? 0} SOL` },
+        { label: "ROI", value: boughtPnl.data.summary.roi || "0%" },
+      ]
+    : [
+        { label: "Month", value: "-" },
+        { label: "Total spent", value: "0 SOL" },
+        { label: "Total won", value: "0 SOL" },
+        { label: "P&L", value: "0 SOL" },
+        { label: "ROI", value: "0%" },
+      ];
 
-  const currency = useFiltersStore((s) => s.currency);
-  const setCurrency = useFiltersStore((s) => s.setCurrency);
+  const soldSummary = soldPnl.data?.summary
+    ? [
+        { label: "Month", value: soldPnl.data.summary.label || "-" },
+        { label: "Total cost", value: `${lamportsToSol(soldPnl.data.summary.totalCost ?? 0).toFixed(2)} SOL` },
+        { label: "Total sold", value: `${lamportsToSol(soldPnl.data.summary.totalSold ?? 0).toFixed(2)} SOL` },
+        { label: "P&L", value: `${lamportsToSol(soldPnl.data.summary.pnl ?? 0).toFixed(2)} SOL` },
+        { label: "ROI", value: soldPnl.data.summary.roi || "0%" },
+      ]
+    : [
+        { label: "Month", value: "-" },
+        { label: "Total cost", value: "0 SOL" },
+        { label: "Total sold", value: "0 SOL" },
+        { label: "P&L", value: "0 SOL" },
+        { label: "ROI", value: "0%" },
+      ];
 
+  const boughtTableData = boughtPnl.data?.data?.map((item: any) => ({
+    date: item.date,
+    spent: item.spent,
+    won: item.won,
+    pl: item.pnl,
+    roi: item.roi,
+  })) || [];
+
+  const soldTableData = soldPnl.data?.data?.map((item: any) => ({
+    date: item.date,
+    spent: lamportsToSol(item.cost),
+    sold: lamportsToSol(item.sold),
+    pl: lamportsToSol(item.pnl),
+    roi: item.roi,
+  })) || [];
+  
 
 
   return (
@@ -50,17 +85,16 @@ const timeframe = useFiltersStore((s) => s.timeframe);
                 <div className="w-full max-w-[1440px] px-5 mx-auto">
                     <div className="w-full flex md:flex-nowrap flex-wrap md:gap-0 gap-4 items-center justify-between mb-12">
                         <div className="">
-                        <h1 className='text-[28px] font-semibold text-white font-inter'>Leaderboard</h1>
-                        <p className='text-base text-cream-1000 font-inter'>Track your trading performance</p>
+                        <h1 className='text-[28px] font-semibold text-white font-inter'>Raffle Profit/Loss</h1>
                         </div>
 
-                        <label htmlFor="file" className='border group transition hover:bg-white hover:text-black-1300 cursor-pointer md:text-base text-sm text-white text-center font-semibold font-inter border-white rounded-full px-6 py-3'>
+                        {/* <label htmlFor="file" className='border group transition hover:bg-white hover:text-black-1300 cursor-pointer md:text-base text-sm text-white text-center font-semibold font-inter border-white rounded-full px-6 py-3'>
                         <input type="file" hidden name="file" id="file" />
                         <div className="flex items-center gap-2.5">
                             <img src="/icons/export-icon.svg" className='invert group-hover:invert-0' alt="" />
                             <span>Export as CSV</span>
                         </div>
-                        </label>
+                        </label> */}
 
 
 
@@ -78,9 +112,9 @@ const timeframe = useFiltersStore((s) => s.timeframe);
                                     <li key={t}>
                                         <button
                                         className={`md:text-base text-sm cursor-pointer font-inter font-medium transition duration-300 hover:bg-primary-color hover:text-black-1000 text-white rounded-full py-3.5 px-5 ${
-                                            timeframe === t ? "bg-primary-color !text-black-1000" : ""
+                                            timeframe === t.toLowerCase() ? "bg-primary-color !text-black-1000" : ""
                                         }`}
-                                        onClick={() => setTimeframe(t as any)}
+                                        onClick={() => setTimeframe(t.toLowerCase() as any)}
                                         >
                                         {t}
                                         </button>
@@ -97,52 +131,8 @@ const timeframe = useFiltersStore((s) => s.timeframe);
                                 />
                                 </div>
                             </div>
+                            </div>
                         </div>
-
-                        <div className="h-[76px] md:block hidden md:border-r border-primary-color mx-14"></div>
-
-                        <div className="w-full">
-                        <p className='text-sm text-gray-1200 font-medium font-inter mb-6'>Currency</p>
-                                <ul className="inline-flex items-center gap-2 bg-black-1000 rounded-full p-1">
-                               {["Raffle", "Gumball"].map((c) => (
-                                    <li key={c}>
-                                        <button
-                                        className={`md:text-base text-sm cursor-pointer font-inter font-medium transition duration-300 hover:bg-primary-color hover:text-black-1000 text-white rounded-full py-3.5 px-5 ${
-                                            currency === c ? "bg-primary-color text-black-1000!" : ""
-                                        }`}
-                                        onClick={() => setCurrency(c as any)}
-                                        >
-                                        {c}
-                                        </button>
-                                    </li>
-                                    ))}
-                            
-                            </ul>
-                        
-
-                        </div>
-
-                        <div className="h-[76px]  md:block hidden md:border-r border-primary-color mx-14"></div>
-
-                     <div className="flex flex-col h-full mb-auto">
-                        <p className='text-sm text-gray-1200 font-medium font-inter mb-10'>Service</p>
-                        <ul className="flex items-center gap-5 ">
-
-                             {services.map((s) => (
-                                <li key={s.name}>
-                                    <InputCheckbox
-                                    label={s.name}
-                                    checked={s.active}
-                                    onChange={(val) => toggleService(s.name, val)}
-                                    />
-                                </li>
-                                ))}
-                            </ul>
-                            
-                        </div>
-
-                    </div>
-
                    </div>
 
                    <div className="w-full pt-10 grid md:grid-cols-2 gap-5 pb-10">
@@ -151,8 +141,15 @@ const timeframe = useFiltersStore((s) => s.timeframe);
                     </div>
 
                     <div className="w-full grid md:grid-cols-2 gap-5 pb-10">
-                    <BoughtTable/>
-                    <SoldTable/>
+                    <BoughtTable
+                    
+                    data={boughtTableData}
+                    isLoading={boughtPnl.isLoading}
+                    />
+                    <SoldTable
+                    data={soldTableData}
+                    isLoading={soldPnl.isLoading}
+                    />
                     </div>
 
                 </div>

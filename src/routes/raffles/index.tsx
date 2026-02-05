@@ -132,7 +132,7 @@ function RafflesPage() {
       initial={{ opacity: 0, y: 100 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 100 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.5 }}
       className="w-full relative z-20 md:pt-48 pt-36">
     
         <div className="w-full max-w-[1440px] md:px-5 px-4 mx-auto">
@@ -157,7 +157,7 @@ function RafflesPage() {
       initial={{ opacity: 0, y: 200 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 200 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.7 }}
       className='w-full md:pt-8 pb-12'>
         <div className="w-full">
           <div className="max-w-[1360px] w-full mx-auto relative xl:pl-12 pl-6 pr-6">
@@ -201,7 +201,7 @@ function RafflesPage() {
       initial={{ opacity: 0, y: 900 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 900 }}
-      transition={{ duration: 1 }}
+      transition={{ duration: 0.9 }}
       className="w-full relative z-10 pt-10 md:pt-[122px] pb-32 md:pb-[160px]" id="raffles">
         <div className="w-full max-w-[1440px] px-4 md:px-5 mx-auto">
           <div className="w-full flex items-center justify-between gap-5 lg:gap-10 flex-wrap">
@@ -270,7 +270,7 @@ function RafflesPage() {
           )}
 
           {isLoading ? (
-            <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4">
+            <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4 mt-5">
               {Array(4)
                 .fill(0)
                 .map((_, i) => (

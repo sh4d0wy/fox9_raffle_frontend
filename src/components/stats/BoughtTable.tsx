@@ -1,23 +1,23 @@
 
-interface BoughtRow {
+export interface BoughtRow {
   date: string; 
   spent: number;
   won: number;
   pl: number;
-  roi: number;
+  roi: string | number;
 }
 
-const dummyBoughtData: BoughtRow[] = [
-  { date: "24 Oct '25 | 06:20", spent: 25, won: 90, pl: 65, roi: 500 },
-  { date: "24 Oct '25 | 07:15", spent: 25, won: 90, pl: -65, roi: 0 },
-  { date: "24 Oct '25 | 08:00", spent: 25, won: 90, pl: -65, roi: 0 },
-  { date: "24 Oct '25 | 09:30", spent: 25, won: 90, pl: -65, roi: 0 },
-];
+interface BoughtTableProps {
+  data: BoughtRow[];
+  isLoading?: boolean;
+}
 
-export const BoughtTable = () => {
+
+
+export const BoughtTable = ({ data, isLoading }: BoughtTableProps) => {
   return (
     <div className="border relative border-gray-1100 rounded-[20px] w-full overflow-hidden">
-      {dummyBoughtData.length === 0 && (
+      {data.length === 0 && (
         <div className="absolute w-full h-full flex items-center justify-center py-20">
           <p className="md:text-base text-sm font-medium text-center font-inter text-white">
             No data found
@@ -46,8 +46,16 @@ export const BoughtTable = () => {
           </tr>
         </thead>
         <tbody>
-          {dummyBoughtData.map((row, idx) => {
-            const [datePart, timePart] = row.date.split("|").map((s) => s.trim());
+          {data.map((row, idx) => {
+            const hasTime = row.date.includes("|");
+            const [datePart, timePart] = hasTime 
+              ? row.date.split("|").map((s) => s.trim())
+              : [row.date, ""];
+            
+            // Parse ROI value (remove % if string)
+            const roiValue = typeof row.roi === 'string' 
+              ? parseFloat(row.roi.replace('%', '')) 
+              : row.roi;
             return (
               <tr key={idx} className="w-full">
                 <td>
@@ -82,10 +90,10 @@ export const BoughtTable = () => {
                   <div className="px-5 flex items-center gap-2.5 py-6 border-b border-gray-1100">
                     <p
                       className={`md:text-base text-sm font-medium font-inter ${
-                        row.roi > 0 ? "text-green-1100" : "text-white"
+                        roiValue > 0 ? "text-green-1100" : "text-white"
                       }`}
                     >
-                      {row.roi}%
+                      {roiValue}%
                     </p>
                   </div>
                 </td>

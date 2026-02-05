@@ -8,14 +8,16 @@ import {
   Tooltip,
 } from "recharts"
 
-const chartData = [
-  { value: 0, volume: 95 },
-  { value: 4, volume: 50 },
-  { value: 8, volume: 140 },
-  { value: 12, volume: 135 },
-  { value: 16, volume: 80 },
-  { value: 20, volume: 32 },
-];
+interface DailyRafflesDataItem {
+  date: string
+  value: number
+}
+
+interface DailyRafflesChartProps {
+  data: DailyRafflesDataItem[]
+  isLoading?: boolean
+}
+
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -23,7 +25,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <div className="bg-white shadow-lg rounded-md p-2">
         <p className="text-sm font-inter font-semibold">{label}</p>
-        <p className="text-black-1000 text-sm font-inter font-semibold">${payload[0].value}</p>
+        <p className="text-black-1000 text-sm font-inter font-semibold">Raffles: ${payload[0].value}</p>
       </div>
     )
   }
@@ -37,14 +39,36 @@ const formatYAxis = (value: number) => {
   return `${value}`;
 };
 
-export default function DailyRafflesChart() {
+export default function DailyRafflesChart({ data, isLoading }: DailyRafflesChartProps) {
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr)
+    return date.toLocaleDateString([], { month: "short", day: "numeric" })
+  }
+
+  const chartData = data.map((item) => ({
+    date: formatDate(item.date),
+    value: item.value,
+  }))
+
+  const totalRaffles = data.reduce((sum, item) => sum + item.value, 0)
+
   return (
     <div className=" border border-gray-1100 font-inter font-medium text-black-1000 overflow-hidden rounded-[20px] h-full w-full">
       <div className="flex bg-black-1300 border-b border-gray-1100 py-7 h-[89px] px-5 items-center justify-between">
         <h2 className="text-xl font-inter text-white font-semibold">Daily raffles</h2>
+        <p className="text-sm text-white font-semibold">Total: {totalRaffles} raffles</p>
       </div>
 
       <div className="w-full h-[340px] pt-10 pb-3">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-color"></div>
+          </div>
+        ) : chartData.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            No data available
+          </div>
+        ) : (
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}
@@ -60,7 +84,7 @@ export default function DailyRafflesChart() {
             <CartesianGrid stroke="#212121" vertical={false} strokeDasharray="10 10" />
 
             <XAxis
-              dataKey="value"
+              dataKey="date"
               axisLine={false}
               tickLine={false}
               tickMargin={12}
@@ -82,7 +106,7 @@ export default function DailyRafflesChart() {
 
             <Area
               type="monotone"
-              dataKey="volume"
+              dataKey="value"
               stroke="#FFD400"
               fill="url(#areaGradient)"
               strokeWidth={2}
@@ -95,6 +119,7 @@ export default function DailyRafflesChart() {
             />
           </AreaChart>
         </ResponsiveContainer>
+        )}
       </div>
     </div>
   )

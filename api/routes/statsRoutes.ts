@@ -1,8 +1,8 @@
 import { api } from "..";
 
-export const getRafflerLeaderboard = async()=>{
+export const getRafflerLeaderboard = async({timeframe, sortFilter}:{timeframe:string, sortFilter:string})=>{
     try {
-        const response = await api.get(`/stats/leaderboard/rafflers`);
+        const response = await api.get(`/stats/leaderboard/rafflers?timeFilter=${timeframe}&sortBy=${sortFilter}`);
         return response.data;
     } catch (error) {
         console.error(error);
@@ -10,9 +10,9 @@ export const getRafflerLeaderboard = async()=>{
     }
 }
 
-export const getRaffleBuyerLeaderboard = async()=>{
+export const getRaffleBuyerLeaderboard = async({timeframe, sortFilter}:{timeframe:string, sortFilter:string})=>{
     try {
-        const response = await api.get(`/stats/leaderboard/buyers`);
+        const response = await api.get(`/stats/leaderboard/buyers?timeFilter=${timeframe}&sortBy=${sortFilter}`);
         return response.data;
     } catch (error) {
         console.error(error);
@@ -20,9 +20,11 @@ export const getRaffleBuyerLeaderboard = async()=>{
     }
 }
 
-export const getBoughtPnl = async(timeframe:string="daily")=>{
+export const getBoughtPnl = async({timeframe, month=new Date().getMonth()+1, year=new Date().getFullYear()}:{timeframe:string, month:number, year:number})=>{
+    console.log("month", month);
+    console.log("year", year);
     try {
-        const response = await api.get(`/stats/pnl/bought?timeframe=${timeframe}`,{
+        const response = await api.get(`/stats/pnl/bought?timeframe=${timeframe}&month=${month}&year=${year}`,{
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             }
@@ -34,9 +36,11 @@ export const getBoughtPnl = async(timeframe:string="daily")=>{
     }
 }
 
-export const getSoldPnl = async(timeframe:string="daily")=>{
+export const getSoldPnl = async({timeframe, month=new Date().getMonth()+1, year=new Date().getFullYear()}:{timeframe:string, month:number, year:number})=>{
+    console.log("month", month);
+    console.log("year", year);
     try {
-        const response = await api.get(`/stats/pnl/sold?timeframe=${timeframe}`,{
+        const response = await api.get(`/stats/pnl/sold?timeframe=${timeframe}&month=${month}&year=${year}`,{
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             }
