@@ -1,11 +1,13 @@
+import { VerifiedTokens } from "@/utils/verifiedTokens";
 import { useState, useRef, useEffect } from "react";
+import { useGumballStore } from "store/useGumballStore";
 
 export default function GumballPriceInput() {
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("SOL");
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+  const { ticketCurrency,ticketPrice, setTicketCurrency, setTicketPrice,setIsTicketSol } = useGumballStore();
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -16,8 +18,6 @@ export default function GumballPriceInput() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const currencies = ["SOL", "BTC", "DODGE", "BNB"];
-
   return (
     <div className="w-full">
       <div className="flex items-center justify-between pb-2.5">
@@ -25,12 +25,19 @@ export default function GumballPriceInput() {
       </div>
 
       <div className="relative">
-        <input
+      <input
           id="amount"
           type="number"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="text-black-1000 outline outline-gray-1100 rounded-lg focus:outline-primary-color placeholder:text-gray-1200 text-base w-full font-inter px-5 h-12 font-medium"
+          onChange={(e) => {
+            setAmount(e.target.value);
+            console.log("e.target.value",e.target.value);
+            console.log("ticketCurrency.address",ticketCurrency.address);
+            console.log("VerifiedTokens.find((token) => token.address === ticketCurrency.address)?.decimals",VerifiedTokens.find((token) => token.address === ticketCurrency.address)?.decimals);
+            console.log("(parseFloat(e.target.value) * (10 ** (VerifiedTokens.find((token) => token.address === ticketCurrency.address)?.decimals || 0)))",(parseFloat(e.target.value) * (10 ** (VerifiedTokens.find((token) => token.address === ticketCurrency.address)?.decimals || 0))));
+            setTicketPrice((parseFloat(e.target.value) * (10 ** (VerifiedTokens.find((token) => token.address === ticketCurrency.address)?.decimals || 0))).toString());
+          }}
+          className="text-white bg-black-1300 outline outline-gray-1100 rounded-lg focus:outline-primary-color placeholder:text-gray-1200 text-base w-full font-inter px-5 h-12 font-medium"
           placeholder="Enter Amount"
         />
 
@@ -46,17 +53,24 @@ export default function GumballPriceInput() {
 
           {open && (
             <ol className="absolute right-0 mt-1 bg-black-1300 shadow-lg rounded-md overflow-hidden z-10 w-20">
-              {currencies.map((cur) => (
-                <li key={cur}>
+              {VerifiedTokens.map((cur) => (
+                <li key={cur.address}>
                   <button
                     type="button"
                     className="w-full text-left px-4 py-2 hover:bg-primary-color/20 font-inter text-sm text-white"
                     onClick={() => {
-                      setCurrency(cur);
+                      setCurrency(cur.symbol);
+                      setIsTicketSol(cur.symbol === "SOL");
+                      setTicketCurrency({
+                        symbol: cur.symbol,
+                        address: cur.address,
+                      });
+                      setAmount("0");
+                      setTicketPrice("0");
                       setOpen(false);
                     }}
                   >
-                    {cur}
+                    {cur.symbol}
                   </button>
                 </li>
               ))}

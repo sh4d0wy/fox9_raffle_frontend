@@ -129,6 +129,7 @@ export const gumballBackendDataSchema = z.object({
   buyBackEscrow: z.string().nullable(),
   buyBackPercentage: z.number().nullable(),
   buyBackProfit: z.string(),
+  ticketAmountClaimedByCreator: z.boolean().optional(),
   
   // Stats
   uniqueBuyers: z.number().int(),

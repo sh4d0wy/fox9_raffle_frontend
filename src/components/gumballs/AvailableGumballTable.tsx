@@ -1,24 +1,35 @@
+import { useGumballById } from "hooks/gumball/useGumballsQuery";
+import { useMemo } from "react";
+import type { GumballBackendDataType, PrizeDataBackend } from "types/backend/gumballTypes";
 
-interface BoughtRow {
-  img: string; 
-  prize: number;
-  quantity: number;
-  floorPrice: number;
+interface AvailablePrize extends PrizeDataBackend {
+  remainingQuantity: number;
 }
 
-const SoldGumball: BoughtRow[] = [
-  { img: "/images/prize-image.png", prize: 25, quantity: 90, floorPrice: 0 },
-  { img: "/images/prize-image.png", prize: 25, quantity: 90, floorPrice: 0 },
-  { img: "/images/prize-image.png", prize: 25, quantity: 90, floorPrice: 0 },
-  { img: "/images/prize-image.png", prize: 25, quantity: 90, floorPrice: 0 },
-];
-
-export const AvailableGumballTable = () => {
+export const AvailableGumballTable = ({gumballId}: {gumballId: string}) => {
+  const { data: gumball } = useGumballById(gumballId) as { data: GumballBackendDataType };
+  
+  const availableGumballs = useMemo(() => {
+    if (!gumball?.prizes) return [];
+    
+    const spinCountByPrizeIndex: Record<number, number> = {};
+    gumball.spins?.forEach((spin) => {
+      if (spin.prize?.prizeIndex === undefined || spin.prize?.prizeIndex === null) return;
+      const prizeIndex = spin.prize?.prizeIndex;
+      spinCountByPrizeIndex[prizeIndex] = (spinCountByPrizeIndex[prizeIndex] || 0) + 1;
+    });
+    return gumball.prizes
+      .map((prize): AvailablePrize => ({
+        ...prize,
+        remainingQuantity: prize.quantity - (spinCountByPrizeIndex[prize.prizeIndex] || 0),
+      }))
+      .filter((prize) => prize.remainingQuantity > 0);
+  }, [gumball?.prizes, gumball?.spins]);
   return (
-    <div className="mt-5 border relative border-gray-1100 rounded-[20px] w-full overflow-hidden">
-      {SoldGumball.length === 0 && (
+    <div className="mt-5 border relative border-gray-1100 min-h-[494px] rounded-[20px] w-full overflow-hidden">
+      {(availableGumballs?.length === 0 || gumball?.status === "CANCELLED") && (
         <div className="absolute w-full h-full flex items-center justify-center py-20">
-          <p className="md:text-base text-sm font-medium text-center font-inter text-black-1000">
+          <p className="md:text-base text-sm font-medium text-center font-inter text-white">
             No data found
           </p>
         </div>
@@ -38,26 +49,39 @@ export const AvailableGumballTable = () => {
             </th>
           </tr>
         </thead>
+        {gumball?.status !== "CANCELLED" && availableGumballs?.length > 0 && (
         <tbody>
-          {SoldGumball.map((row, idx) => {
+          {availableGumballs?.map((row, idx) => {
+            const displayQuantity = row.isNft 
+            ? row.remainingQuantity 
+            : `${(parseFloat(row.prizeAmount) / 10 ** (row.decimals || 0)) * row.remainingQuantity} ${row.symbol || ''}`;
+          
+          const displayFloorPrice = row.isNft 
+            ? (row.floorPrice ? `${parseFloat(row.floorPrice) / 10 ** 9} SOL` : "N/A")
+            : "N/A";
             return (
               <tr key={idx} className="w-full">
                 <td>
                   <div className="px-6 flex items-center gap-2.5 py-6 h-24 border-b border-gray-1100">
-                    <img src={row.img} className="w-[60px] h-[60px] rounded-full" alt="no-img" />
-                    <p className="md:text-base text-sm text-white font-medium font-inter">
-                      {row.prize}
-                    </p>
+                    <img src={row.image} className={`w-[60px] h-[60px] ${row.isNft ? 'rounded-lg' : 'rounded-full'}`} alt="no-img" />
+                    <div className="flex flex-col">
+                      <p className="md:text-base text-sm text-white font-medium font-inter">
+                        {row.name && row.name.length > 15 ? row.name.slice(0,15)+"..." : row.name || "Prize"}
+                      </p>
+                      <span className={`text-xs font-inter ${row.isNft ? 'text-purple-600' : 'text-green-600'}`}>
+                        {row.isNft ? 'NFT' : 'Token'}
+                      </span>
+                    </div>
                   </div>
                 </td>
                 <td>
                   <div className="px-5 flex items-center gap-2.5 py-6 h-24 border-b border-gray-1100">
-                    <p className="md:text-base text-sm text-white font-medium font-inter">{row.quantity}</p>
+                    <p className="md:text-base text-sm text-white font-medium font-inter">{displayQuantity}</p>
                   </div>
                 </td>
                 <td>
                   <div className="px-5 flex items-center gap-2.5 py-6 h-24 border-b border-gray-1100">
-                    <p className="md:text-base text-sm text-white font-medium font-inter">{row.floorPrice}</p>
+                    <p className="md:text-base text-sm text-white font-medium font-inter">{displayFloorPrice}</p>
                   </div>
                 </td>
       
@@ -66,6 +90,7 @@ export const AvailableGumballTable = () => {
             );
           })}
         </tbody>
+        )}
       </table>
     </div>
     </div>

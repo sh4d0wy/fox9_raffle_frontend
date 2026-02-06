@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import DateSelector from '../ui/DateSelector';
 import TimeSelector from '../ui/TimeSelector';
 import DaysSelector from './DaysSelector';
@@ -6,20 +6,88 @@ import GumballPriceInput from './GumballPriceInput';
 import { AdvancedSettings } from './AdvancedSettings';
 import { AgreeCheckbox } from '../common/AgreeCheckbox';
 import CreateTokenModel from './CreateTokenModel';
+import { useCreateGumball } from 'hooks/gumball/useCreateGumball';
+import { useGumballStore } from 'store/useGumballStore';
+import { toast } from 'react-toastify';
+import { NATIVE_SOL_MINT, WRAPPED_SOL_MINT } from '@/utils/verifiedTokens';
+import { PublicKey } from '@solana/web3.js';
 
 export const GumballSetup = () => {
+  const { createGumball } = useCreateGumball();
+    const { 
+        name, 
+        startType, 
+        prizeCount, 
+        ticketPrice, 
+        isTicketSol, 
+        ticketCurrency, 
+        rent, 
+        agreedToTerms,
+        isCreatingGumball,
+        isCreateTokenModalOpen,
+        getStartTimestamp,
+        getEndTimestamp,
+    } = useGumballStore();
+
+    const { 
+      setName, 
+      setStartType, 
+      setPrizeCount,
+      openCreateTokenModal,
+      closeCreateTokenModal,
+      setIsCreatingGumball,
+      setAgreedToTerms,
+      setStartDate,
+      setStartTimeHour,
+      setStartTimeMinute,
+      setStartTimePeriod,
+  } = useGumballStore();
+  const {
+    startDate,
+    startTimeHour,
+    startTimeMinute,
+    startTimePeriod,
+} = useGumballStore();
 
     const [showModel, setShowModel] = useState(false)
 
-         const [tabs, setTabs] = useState([
-        { name: "Manual start", active: true },
-        { name: "Schedule", active: false },
-      ])
+    const tabs = [
+      { name: "Start Immediately", type: "manual" as const },
+      { name: "Schedule Start", type: "schedule" as const },
+  ];
 
+  const [isNameTouched, setIsNameTouched] = useState(false);
+    const [isPriceCountTouched, setIsPriceCountTouched] = useState(false);
+    const isNameValid = useMemo(() => {
+        return name.length>0 && name.length<=100;
+    }, [name]);
 
+    const showNameError = isNameTouched && !isNameValid;
+
+    const isStartTimeInPast = useMemo(() => {
+        if (startType !== "schedule") return false;
+        if (!startDate) return false;
+        
+        const startTimestamp = getStartTimestamp();
+        if (!startTimestamp) return false;
+        
+        const nowSeconds = Math.floor(Date.now() / 1000);
+        return startTimestamp < nowSeconds;
+    }, [startType, startDate, startTimeHour, startTimeMinute, startTimePeriod, getStartTimestamp]);
+
+    const isPriceCountValid = useMemo(() => {
+        return parseInt(prizeCount) >= 3 && parseInt(prizeCount) <= 10;
+    }, [prizeCount]);
+
+    const showPriceCountError = isPriceCountTouched && !isPriceCountValid;
+
+    const handlePriceCountChange = (value: string) => {
+        setIsPriceCountTouched(true);
+        setPrizeCount(value);
+    };
   return (
     <div className='w-full'>
-           <div className="flex items-center gap-5 border border-solid border-primary-color rounded-[10px] bg-primary-color/5 py-4 px-5">
+           {/* <div className="flex items-center gap-5 border border-solid border-primary-color rounded-[10px] bg-primary-color/5 py-4 px-5">
             <span>
               <img src="/icons/icon1.png" className='min-w-[56px]' alt="" />
             </span>
@@ -35,7 +103,7 @@ export const GumballSetup = () => {
           <p className="text-base font-medium md:py-10 py-7 font-inter text-primary-color">
             Please link your twitter and discord in your profile or your raffles
             won't be shown.
-          </p>
+          </p> */}
           <div className='w-full'>
             <form className='w-full'>
               <div className="pb-10">
@@ -48,9 +116,16 @@ export const GumballSetup = () => {
                 <input
                   id="name"
                   type="text"
-                  className="text-white outline outline-gray-1100 focus:outline-primary-color  placeholder:text-gray-1200 md:text-base text-sm w-full font-inter px-5 h-12 rounded-lg font-medium"
+                  className="text-white outline bg-black-1300 outline-gray-1100 focus:outline-primary-color  placeholder:text-gray-1200 md:text-base text-sm w-full font-inter px-5 h-12 rounded-lg font-medium"
                   placeholder="Name your Gumball"
+                  value={name}
+                  onChange={(e) => {
+                    setIsNameTouched(true);
+                    setName(e.target.value);
+                  }}
+                  disabled={isCreatingGumball}
                 />
+                <p className="text-sm font-medium text-red-1000 pt-2.5 font-inter">{showNameError ? "Name must be between 1 and 100 characters" : ""}</p>
               </div>
               <div className="pb-10">
                 <p className="md:text-base text-sm text-white font-inter font-medium pb-5">
@@ -61,15 +136,10 @@ export const GumballSetup = () => {
                     <li key={index}>
                       <button
                         type="button"
-                        onClick={() => {
-                          const updatedTabs = tabs.map((t, i) => ({
-                            ...t,
-                            active: i === index,
-                          }));
-                          setTabs(updatedTabs);
-                        }}
-                        className={`border cursor-pointer border-solid w-full border-primary-color flex items-center justify-center rounded-lg px-5 h-12 md:text-base text-sm font-medium text-white font-inter ${tab.active ? "border-primary-color bg-primary-color/5" : "bg-black-1000 border-gray-1100!"
-                          }`}
+                        onClick={() => setStartType(tab.type)}
+                        disabled={isCreatingGumball}
+                        className={`cursor-pointer border-solid w-full flex items-center justify-center rounded-lg px-5 h-12 md:text-base text-sm font-medium font-inter ${startType === tab.type ? " bg-primary-color text-black-1000" : "bg-black-1300 text-white"
+                          } disabled:opacity-50 disabled:cursor-not-allowed`}
                       >
                         {tab.name}
                       </button>
@@ -78,14 +148,39 @@ export const GumballSetup = () => {
                 </ul>
 
                <div className="w-full mt-10">
-                {!tabs[0].active &&
+                {startType === "schedule" &&
                     <div className='pb-10 grid grid-cols-2 md:gap-5 gap-3'>
                       <div className="">
-                        <DateSelector label='Raffle end date' /> 
+                      <DateSelector 
+                            label='Start Date' 
+                            value={startDate}
+                            onChange={setStartDate}
+                            minDate={new Date()}
+                            disabled={isCreatingGumball}
+                            className={isStartTimeInPast ? "outline-red-500" : ""}
+                          />  
                       </div>
                        <div className="">
-                        <TimeSelector label='End Time' />
+                       <TimeSelector 
+                            label='Start Time'
+                            hour={startTimeHour}
+                            minute={startTimeMinute}
+                            period={startTimePeriod}
+                            onTimeChange={(hour, minute, period) => {
+                              setStartTimeHour(hour);
+                              setStartTimeMinute(minute);
+                              setStartTimePeriod(period);
+                            }}
+                            disabled={isCreatingGumball}
+                            hasValue={!!startDate}
+                            isInvalid={isStartTimeInPast}
+                          />
                       </div>
+                      {isStartTimeInPast && (
+                        <p className="text-sm font-medium text-red-500 pt-2.5 font-inter">
+                          Start time cannot be in the past
+                        </p>
+                      )}
                     </div>}
 
                     <DaysSelector/>
@@ -98,17 +193,27 @@ export const GumballSetup = () => {
                               Prize count
                             </p>
                             <p className="text-gray-1200 font-inter text-sm font-medium">
-                              Min: 2 / Max: 1,000
+                              Min: 3 / Max: 10
                             </p>
                           </div>
                           <input
                             id="count"
                             type="text"
-                            className="text-white outline outline-gray-1100 focus:outline-primary-color placeholder:text-gray-1200 md:text-base text-sm w-full font-inter md:px-5 px-[14px] h-12 rounded-lg font-medium"
+                            className={`text-white bg-black-1300 outline outline-gray-1100 ${showPriceCountError ? "outline-red-500" : ""} placeholder:text-gray-1200 md:text-base text-sm w-full font-inter md:px-5 px-[14px] h-12 rounded-lg font-medium`}
                             placeholder="Enter Count"
+                            value={prizeCount}
+                            onChange={(e) => handlePriceCountChange(e.target.value)}
+                            disabled={isCreatingGumball}
+                            min={3}
+                            max={10}
                           />
+                          {showPriceCountError && (
+                            <p className="text-sm font-medium text-red-500 pt-2.5 font-inter">
+                              Prize count must be between 3 and 10
+                            </p>
+                          )}
                           <p className="text-sm font-medium text-white pt-2.5 font-inter">
-                            Rent: 0 SOL
+                            Rent: {rent.toFixed(4)} SOL
                           </p>
                         </div>
                         <GumballPriceInput/>
@@ -116,16 +221,61 @@ export const GumballSetup = () => {
                     </div>
                     </div>
 
-                    <AdvancedSettings/>
+                    {/* <AdvancedSettings/> */}
 
 
                     <div className="flex-1">
                       <div className="md:mb-10 mb-5 grid md:grid-cols-2 gap-4">
-                        <AgreeCheckbox/>
-                        <button onClick={(e)=> {e.preventDefault(); setShowModel(true)}}
-                          className="cursor-pointer text-black-1000 font-semibold md:text-base text-sm leading-normal font-inter h-14 rounded-full inline-flex items-center justify-center w-full transition duration-500 hover:opacity-90 bg-primary-color "
+                      <AgreeCheckbox checked={agreedToTerms} onChange={setAgreedToTerms} />
+                        <button 
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            const endTime = getEndTimestamp();
+                            
+                            // For scheduled start, validate start date is selected
+                            if (startType === "schedule") {
+                              const startTime = getStartTimestamp();
+                              if (!startTime) {
+                                toast.error("Please select a start date and time");
+                                return;
+                              }
+                            }
+                            
+                            if (!endTime) {
+                              toast.error("Please select an end date and time");
+                              return;
+                            }
+                            
+                            // For immediate start, use current timestamp
+                            const startTime = startType === "manual" 
+                              ? Math.floor(Date.now() / 1000) 
+                              : getStartTimestamp()!;
+                            console.log("startTime", startTime);
+                            console.log("endTime", endTime);
+                            setIsCreatingGumball(true);
+                            try {
+                              await createGumball.mutateAsync({
+                                name,
+                                startTime,
+                                endTime,
+                                totalTickets: parseInt(prizeCount) || 0,
+                                ticketPrice: parseFloat(ticketPrice) || 0,
+                                isTicketSol:ticketCurrency.address===NATIVE_SOL_MINT,
+                                startGumball: startType === "manual",
+                                ticketMint: ticketCurrency.address === NATIVE_SOL_MINT ? new PublicKey(WRAPPED_SOL_MINT) : new PublicKey(ticketCurrency.address),
+                              });
+                            } catch (error) {
+                              toast.error("Failed to create gumball");
+                              console.error(error);
+                            } finally {
+                              setIsCreatingGumball(false);
+                            }
+                            
+                          }}
+                          disabled={isCreatingGumball || !agreedToTerms}
+                          className="cursor-pointer text-black-1000 font-semibold md:text-base text-sm leading-normal font-inter h-14 rounded-full inline-flex items-center justify-center w-full transition duration-500 hover:opacity-90 bg-primary-color disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Create Gumball
+                          {isCreatingGumball ? "Creating..." : "Create Gumball"}
                         </button>
                       </div>
                       <div className="bg-black-1300 rounded-[20px] md:p-6 p-4 overflow-hidden">
@@ -133,11 +283,12 @@ export const GumballSetup = () => {
                         <ul className='space-y-2'>
                           <li className="flex items-start gap-1.5">
                             <span className="flex items-start justify-end text-white font-medium font-inter text-base leading-[160%]  w-6">1.</span>
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">When you add prizes to a Gumball, the prizes will be transferred from your wallet into an escrow wallet.
+                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">You will be charged an up-front rent fee, in SOL, which will be taken in proportion to the number of prizes you choose to add to the Gumball, with a maximum rent fee of 0.72 SOL. The rent fee will be automatically refunded after the Gumball has been closed.
                             </p>
                           </li>
                           <li className="flex items-start gap-1.5">
                             <span className="flex items-start justify-end text-white font-medium font-inter md:text-base text-sm leading-[160%]  w-6">2.</span>
+                            {/* <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">You will be charged an up-front rent fee, in SOL, which will be taken in proportion to the number of prizes you choose to add to the Gumball, with a maximum rent fee of 0.72 SOL. The rent fee will be automatically refunded after the Gumball has been closed. */}
                             <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">You will be charged an up-front rent fee, in SOL, which will be taken in proportion to the number of prizes you choose to add to the Gumball, with a maximum rent fee of 0.72 SOL. The rent fee will be automatically refunded after the Gumball has been closed.
                             </p>
                           </li>
