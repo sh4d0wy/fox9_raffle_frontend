@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 
 interface ToolCardProps {
   imageSrc: string;
@@ -7,15 +7,16 @@ interface ToolCardProps {
 }
 
 export default function ToolCard({ imageSrc, title, url }: ToolCardProps) {
+  const navigate = useNavigate();
   return (
-    <Link to={url}>
-    <div className="relative group">
+    <div>
+    <div className="relative z-10">
       <img
         src={imageSrc}
         alt={title}
         className="w-full md:h-full object-cover transition-transform duration-500 rounded-[20px]"
       />
-      <div className="flex items-center w-full mt-3">
+      <button onClick={()=>navigate({ to: url })} className="flex cursor-pointer items-center w-full mt-3">
         <div>
           <img src="/icons/left-angle.svg" alt="" />
         </div>
@@ -27,8 +28,8 @@ export default function ToolCard({ imageSrc, title, url }: ToolCardProps) {
         <div>
           <img src="/icons/right-angle.svg" alt="" />
         </div>
-      </div>
+      </button>
     </div>
-    </Link>
+    </div>
   );
 }

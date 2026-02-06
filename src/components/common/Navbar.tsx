@@ -257,7 +257,7 @@ export const Navbar = () => {
 
 
   const navLinks = [
-    { label: "Raffles", path: "/" },
+    { label: "Raffles", path: "/raffles" },
     { label: "Auctions", path: "/auctions" },
     { label: "Gumballs", path: "/gumballs" },
   ];
@@ -265,7 +265,7 @@ export const Navbar = () => {
 
   const isActive = (linkPath: string) => {
     if (linkPath === '/') {
-      return location.pathname === '/' || location.pathname.startsWith('/raffles');
+      return false;
     }
     return location.pathname.startsWith(linkPath);
   };

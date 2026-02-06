@@ -314,7 +314,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
             Your Raffle
           </Link>
         )}
-        {raffle.state !== "Active" && (
+        {publicKey && raffle.state !== "Active" && (
           <Link
             to={`/raffles/$id`}
             params={{ id: raffle.id?.toString() || "" }}
