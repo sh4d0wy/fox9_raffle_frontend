@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
@@ -43,6 +43,8 @@ export const Navbar = () => {
   const hasShownNotificationsRef = useRef(false);
   const hasShownEndedRafflesNotificationsRef = useRef(false);
   const queryClient = useQueryClient();
+  const currentWalletKey = useMemo(() => publicKey?.toBase58() ?? "", [publicKey]);
+  console.log("currentWalletKey", currentWalletKey);
 
   const signAndVerifyMessage = async (message: string) => {
     if (!publicKey || !signMessage) {
@@ -55,7 +57,7 @@ export const Navbar = () => {
       
       if(!data.error && data.token){
         setToken(data.token.toString());
-        invalidateQueries(queryClient, publicKey?.toBase58() ?? "");
+        invalidateQueries(queryClient, currentWalletKey);
 
         return { data, success: true };
       }
@@ -127,7 +129,7 @@ export const Navbar = () => {
       }
     };
     fetchMessage();
-  }, [connected, publicKey]);
+  }, [connected, publicKey, currentWalletKey]);
 
   useEffect(() => {
     if (!connected || !publicKey || !hasInitializedRef.current) {
@@ -148,7 +150,7 @@ export const Navbar = () => {
       
       if (isTokenExpired(authToken) && publicKey) {
         console.log("Token check: Token expired, renewing...");
-        authenticateWallet(publicKey.toBase58(), "token renewal");
+        authenticateWallet(currentWalletKey, "token renewal");
       }
     }, 60 * 1000);
 
@@ -158,7 +160,7 @@ export const Navbar = () => {
         tokenCheckIntervalRef.current = null;
       }
     };
-  }, [connected, publicKey, isAuth]);
+  }, [connected, publicKey, isAuth, currentWalletKey]);
 
   const shortAddress =
     walletAddress && `${walletAddress.slice(0, 4)}..${walletAddress.slice(-4)}`;
@@ -172,16 +174,15 @@ export const Navbar = () => {
       return;
     }
     
-    const currentWallet = publicKey.toBase58();
-    const walletChanged = lastNotifiedWalletRef.current !== currentWallet;
+    const walletChanged = lastNotifiedWalletRef.current !== currentWalletKey;
     
     if (walletChanged) {
       console.log("wallet changed, resetting notification flags");
       hasShownNotificationsRef.current = false;
       hasShownEndedRafflesNotificationsRef.current = false;
-      lastNotifiedWalletRef.current = currentWallet;
+      lastNotifiedWalletRef.current = currentWalletKey;
     }
-  }, [publicKey]);
+  }, [publicKey, currentWalletKey]);
 
   // Show winner notifications
   useEffect(() => {
@@ -217,7 +218,7 @@ export const Navbar = () => {
         }
       );
     }
-  }, [publicKey, notifications]);
+  }, [publicKey, notifications, currentWalletKey]);
 
   // Show creator notifications for ended raffles
   useEffect(() => {
@@ -253,7 +254,7 @@ export const Navbar = () => {
         }
       );
     }
-  }, [publicKey, endedRafflesNotifications]);
+  }, [publicKey, endedRafflesNotifications, currentWalletKey]);
 
 
   const navLinks = [
