@@ -103,11 +103,11 @@ function PreviewGumballs() {
                         <div className="md:grid md:grid-cols-2 items-start gap-5 pt-10">
                             <div className="w-full">
                             <h2 className='text-xl pb-8 text-white font-bold font-inter'>Gumball Prizes</h2>
-                            <GumballPrizesTable/>
+                            {/* <GumballPrizesTable/> */}
                             </div>
                             <div className="flex-1">
                             <h2 className='text-xl pb-8 text-white font-bold font-inter'>Last Spins</h2>
-                            <LastSpinsTable/>
+                            {/* <LastSpinsTable/> */}
                             </div>
                       </div>
                  </div>
