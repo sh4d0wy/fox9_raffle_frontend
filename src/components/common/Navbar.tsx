@@ -11,7 +11,7 @@ import NotificationsModel from "./NotificationsModel";
 import DynamicNewLink from "./DynamicNewLink";
 import StatsDropdown from "./StatsDropdown";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
-import { isTokenExpired, setToken, removeToken } from "../../utils/auth";
+import { isTokenExpired, setToken, removeToken, isTokenValidForWallet } from "../../utils/auth";
 import { toast } from "sonner";
 import EndedRaffleToast from "./EndedRaffleToast";
 import { invalidateQueries } from "../../utils/invalidateQueries";
@@ -31,20 +31,17 @@ export const Navbar = () => {
     closeSettings,
     openNotifications,
     closeNotifications,
-    setAuth
+    setAuth,
   } = useNavbarStore();
 
   const { publicKey, connected, signMessage } = useWallet();
   const location = useLocation();
-  const tokenCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const tokenCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isAuthenticatingRef = useRef(false);
   const hasInitializedRef = useRef(false);
   const lastNotifiedWalletRef = useRef<string | null>(null);
   const hasShownNotificationsRef = useRef(false);
   const hasShownEndedRafflesNotificationsRef = useRef(false);
-  const queryClient = useQueryClient();
-  const currentWalletKey = useMemo(() => publicKey?.toBase58() ?? "", [publicKey]);
-  console.log("currentWalletKey", currentWalletKey);
 
   const signAndVerifyMessage = async (message: string) => {
     if (!publicKey || !signMessage) {
@@ -54,10 +51,10 @@ export const Navbar = () => {
       const encodedMessage = new TextEncoder().encode(message);
       const signature = await signMessage(encodedMessage);
       const data = await verifyMessage(publicKey.toBase58(), message, bs58.encode(signature));
-      
+
       if(!data.error && data.token){
         setToken(data.token.toString());
-        invalidateQueries(queryClient, currentWalletKey);
+        invalidateQueries(queryClient, publicKey?.toBase58() ?? "");
 
         return { data, success: true };
       }
@@ -70,15 +67,21 @@ export const Navbar = () => {
 
   const authenticateWallet = async (currentWalletKey: string, reason: string) => {
     if (isAuthenticatingRef.current) {
+
       return;
     }
 
     try {
       isAuthenticatingRef.current = true;
-      
+
       const message = await requestMessage(currentWalletKey);
       const result = await signAndVerifyMessage(message.message);
-      
+
+
+
+
+
+
       if (result.success && result.data?.token) {
         setToken(result.data.token.toString());
         setAuth(true, currentWalletKey);
@@ -101,15 +104,14 @@ export const Navbar = () => {
     const fetchMessage = async () => {
       if (connected && publicKey) {
         const currentWalletKey = publicKey.toBase58();
-        
-        // Check if wallet address changed - reset refs and re-authenticate
+
+        // Check if wallet changed - reset initialization state
         if (walletAddress && walletAddress !== currentWalletKey) {
-          console.log("Wallet changed from", walletAddress, "to", currentWalletKey);
           hasInitializedRef.current = false;
-          isAuthenticatingRef.current = false;
+          isAuthenticatingRef.current = false;   // Remove old token when wallet changes
           removeToken();
         }
-        
+
         if (hasInitializedRef.current && isAuth && walletAddress === currentWalletKey) {
           return;
         }
@@ -120,11 +122,16 @@ export const Navbar = () => {
         }
 
         const authToken = localStorage.getItem('authToken');
-        
-        if (authToken && !isTokenExpired(authToken) && walletAddress === currentWalletKey) {
+
+        // Check if token is valid AND belongs to the current wallet
+        if (isTokenValidForWallet(authToken, currentWalletKey)) {
           setAuth(true, currentWalletKey);
           hasInitializedRef.current = true;
         } else {
+          // Remove invalid/mismatched token before authentication
+          if (authToken) {
+            removeToken();
+          }
           await authenticateWallet(currentWalletKey, "initial connection");
         }
       } else if (!connected) {
@@ -137,7 +144,7 @@ export const Navbar = () => {
       }
     };
     fetchMessage();
-  }, [connected, publicKey, currentWalletKey]);
+  }, [connected, publicKey]);
 
   useEffect(() => {
     if (!connected || !publicKey || !hasInitializedRef.current) {
@@ -154,10 +161,17 @@ export const Navbar = () => {
     }
 
     tokenCheckIntervalRef.current = setInterval(() => {
+      // Don't prompt for re-auth if the page is not visible (user is on different window/tab)
+      if (document.hidden) {
+        return;
+      }
+
       const authToken = localStorage.getItem('authToken');
-      
-      if (isTokenExpired(authToken) && publicKey) {
-        console.log("Token check: Token expired, renewing...");
+      const currentWalletKey = publicKey.toBase58();
+
+      // Only re-authenticate if token is expired or doesn't belong to current wallet
+      if (!isTokenValidForWallet(authToken, currentWalletKey)) {
+        console.log("Token check: Token expired or invalid, renewing...");
         authenticateWallet(currentWalletKey, "token renewal");
       }
     }, 60 * 1000);
@@ -168,38 +182,46 @@ export const Navbar = () => {
         tokenCheckIntervalRef.current = null;
       }
     };
-  }, [connected, publicKey, isAuth, currentWalletKey]);
+  }, [connected, publicKey, isAuth]);
+
+
+  const navLinks = [
+    { label: "Raffles", path: "/raffles" },
+    { label: "Auctions", path: "/auctions" },
+    { label: "Gumballs", path: "/gumballs" },
+  ];
+
+  const isActive = (linkPath: string) => {
+    if (linkPath === "/") {
+      return (
+        location.pathname === "/" || location.pathname.startsWith("/raffles")
+      );
+    }
+    return location.pathname.startsWith(linkPath);
+  };
 
   const shortAddress =
     walletAddress && `${walletAddress.slice(0, 4)}..${walletAddress.slice(-4)}`;
 
   const { data: notifications } =  useNotificationQuery();
   const { data: endedRafflesNotifications } = useEndedRafflesNotificationQuery();
-
-  // Handle wallet change - reset notification flags when wallet changes
-  useEffect(() => {
-    if (!publicKey) {
-      return;
-    }
-    
-    const walletChanged = lastNotifiedWalletRef.current !== currentWalletKey;
-    
-    if (walletChanged) {
-      console.log("wallet changed, resetting notification flags");
-      hasShownNotificationsRef.current = false;
-      hasShownEndedRafflesNotificationsRef.current = false;
-      lastNotifiedWalletRef.current = currentWalletKey;
-    }
-  }, [publicKey, currentWalletKey]);
-
-  // Show winner notifications
+  const queryClient = useQueryClient();
   useEffect(() => {
     if (!publicKey || !notifications?.raffles) {
       return;
     }
+    console.log("checking for wallet change")
+    const walletChanged = lastNotifiedWalletRef.current !== publicKey.toBase58();
+
+    if (walletChanged) {
+      console.log("wallet changed");
+      hasShownNotificationsRef.current = false;
+      hasShownEndedRafflesNotificationsRef.current = false;
+      lastNotifiedWalletRef.current = publicKey.toBase58();
+    }
 
     if (hasShownNotificationsRef.current) {
-      console.log("winner notifications already shown");
+      console.log("notifications already shown");
       return;
     }
 
@@ -208,34 +230,32 @@ export const Navbar = () => {
     );
 
     if (unclaimedWinnings.length > 0) {
-      console.log("showing winner notifications", unclaimedWinnings.length);
+      console.log("showing notifications");
       hasShownNotificationsRef.current = true;
 
       unclaimedWinnings.forEach(
-        (raffle: { id: number; claimed: boolean }, index: number) => {
+        (raffle: { id: number; }, index: number) => {
           setTimeout(() => {
             toast.custom(
               (toastId) => (
                 <WinnerModel id={raffle.id} toastId={toastId as string} />
               ),
               {
-                duration: 5000,
+                duration: 3000,
               }
             );
-          }, index * 1000);
+          }, index * 400);
         }
       );
     }
-  }, [publicKey, notifications, currentWalletKey]);
+  }, [publicKey, notifications]);
 
-  // Show creator notifications for ended raffles
   useEffect(() => {
     if (!publicKey || !endedRafflesNotifications?.raffles) {
       return;
     }
 
     if (hasShownEndedRafflesNotificationsRef.current) {
-      console.log("ended raffles notifications already shown");
       return;
     }
 
@@ -244,7 +264,6 @@ export const Navbar = () => {
     );
 
     if (endedRaffles.length > 0) {
-      console.log("showing creator notifications for ended raffles", endedRaffles.length);
       hasShownEndedRafflesNotificationsRef.current = true;
 
       endedRaffles.forEach(
@@ -255,30 +274,14 @@ export const Navbar = () => {
                 <EndedRaffleToast id={raffle.id} totalEntries={raffle.totalEntries} toastId={toastId as string} />
               ),
               {
-                duration: 5000,
+                duration: 3000,
               }
             );
-          }, index * 500);
+          }, index * 400);
         }
       );
     }
-  }, [publicKey, endedRafflesNotifications, currentWalletKey]);
-
-
-  const navLinks = [
-    { label: "Raffles", path: "/raffles" },
-    { label: "Auctions", path: "/auctions" },
-    { label: "Gumballs", path: "/gumballs" },
-  ];
-
-
-  const isActive = (linkPath: string) => {
-    if (linkPath === '/') {
-      return false;
-    }
-    return location.pathname.startsWith(linkPath);
-  };
-
+  }, [publicKey, endedRafflesNotifications]);
 
 
   return (

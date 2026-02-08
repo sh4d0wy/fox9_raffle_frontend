@@ -21,6 +21,24 @@ export const isTokenExpired = (token: string | null): boolean => {
     }
 };
 
+export const isTokenValidForWallet = (token: string | null, walletAddress: string): boolean => {
+    if (!token || !walletAddress) return false;
+    
+    try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        // Check if token belongs to this wallet
+        if (decoded.publicKey !== walletAddress) {
+            return false;
+        }
+        // 5 minute buffer before actual expiration
+        const bufferTime = 5 * 60;
+        const isExpired = decoded.exp < (Date.now() / 1000) + bufferTime;
+        return !isExpired;
+    } catch (error) {
+        return false;
+    }
+};
+
 export const getToken = (): string | null => {
     return localStorage.getItem('authToken');
 };

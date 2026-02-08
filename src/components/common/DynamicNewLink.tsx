@@ -5,7 +5,7 @@ function DynamicNewLink({ isAuth }: { isAuth: boolean }) {
   let linkTo = '';
   let enabled = false;
 
-  if (location.pathname === '/') {
+  if (location.pathname === '/raffles') {
     linkTo = '/raffles/create_raffles';
     enabled = true;
   } else if (location.pathname.startsWith('/auctions')) {
