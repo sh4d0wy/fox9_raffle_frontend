@@ -46,9 +46,11 @@ export const useToggleFavourite = (publicKey:string)=>{
                 throw new Error("Validation failed");
             }
             await toggleGumballFavourite(args.gumballId.toString());
+            return args.gumballId;
         },
-        onSuccess:()=>{
+        onSuccess:(gumballId:number)=>{
             queryClient.invalidateQueries({queryKey:["favourite-gumball",publicKey]});
+            queryClient.invalidateQueries({queryKey:["gumball",gumballId.toString()]});
             console.log("Toggle favourite gumball successful");
         },
         onError:(error: Error)=>{

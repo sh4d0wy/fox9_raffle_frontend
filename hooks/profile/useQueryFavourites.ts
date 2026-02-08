@@ -23,6 +23,7 @@ export const useQueryFavourites = (
         queryKey:["favourite-gumball",publicKey],
         queryFn:async ()=>{
             const response = await getGumballFavourite(publicKey);
+            console.log("response from backend",response)
             return response.gumballs;
         },
         enabled: !!publicKey && mainFilter === "Gumballs" ,

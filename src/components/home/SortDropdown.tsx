@@ -64,8 +64,8 @@ export default function SortDropdown({ options, selected, onChange }: SortDropdo
                   {({ active }) => (
                     <button
                       onClick={() => onChange(option.value)}
-                      className={`${active ? "bg-primary-color/10 dark:bg-black-1000" : "text-white"
-                        } w-full text-left px-4 py-3 text-sm transition flex items-center justify-between ${selected === option.value ? "bg-primary-color/40 text-black-1000!" : "text-white!"}`} >
+                      className={`${active ? "bg-primary-color text-black-1000" : "text-white"
+                        } w-full text-left px-4 py-3 text-sm transition flex items-center justify-between ${selected === option.value ? "bg-primary-color text-black-1000!" : "text-white!"}`} >
                       <span className="flex items-center justify-between w-full">
                         {option.label}
                         {selected !== option.value ? (
@@ -93,7 +93,7 @@ export default function SortDropdown({ options, selected, onChange }: SortDropdo
                           width={24}
                           height={24}
                           viewBox="0 0 24 24"
-                          fill="none"
+                          fill="white"
                           xmlns="http://www.w3.org/2000/svg"
                         >
                           <g clipPath="url(#clip0_298_6257)">

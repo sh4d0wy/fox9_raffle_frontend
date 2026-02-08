@@ -11,8 +11,11 @@ import { useGumballsQuery } from "../../../hooks/gumball/useGumballsQuery"
 import { useGlobalStore } from "../../../store/globalStore";
 import CryptoCardSkeleton from '@/components/skeleton/RafflesCardSkeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { NoGumballs } from '@/components/gumballs/NoGumballs';
+import { useFiltersStore } from 'store/filters-store';
+import { filterGumballs, getActiveFiltersList, hasActiveFilters, sortGumballs } from '@/utils/sortAndFilter';
+import type { GumballBackendDataType } from 'types/backend/gumballTypes';
 
 
 
@@ -28,8 +31,6 @@ const options = [
   { label: "Selling out soon", value: "Selling out soon" },
   { label: "Price: Low to High", value: "Price: Low to High" },
   { label: "Price: High to Low", value: "Price: High to Low" },
-  { label: "TTV/Floor: Low to High", value: "TTV/Floor: Low to High" },
-  { label: "TTV/Floor: High to Low", value: "TTV/Floor: High to Low" },
   { label: "Floor: Low to High", value: "Floor: Low to High" },
   { label: "Floor: High to Low", value: "Floor: High to Low" },
 ]
@@ -41,18 +42,72 @@ function Gumballs() {
 
   const { filter, setFilter } = useRafflesStore()
   const { data, fetchNextPage, hasNextPage, isLoading } = useGumballsQuery(filter)
-  const { sort, setSort } = useGlobalStore();
-
-  const gumballs = data?.pages.flatMap((p) => p.items) || []
-
-  const [filters, setFilters] = useState<string[]>([]);
+  const { sort, setSort ,searchQuery,setSearchQuery} = useGlobalStore();
 
 
-  const activeFilters = [
-    { id: "all", label: "All Gumballs" },
-    { id: "past", label: "Past Gumballs" },
-  ];
 
+  const {
+    raffleType,
+    selectedToken,
+    selectedCollection,
+    floorMin,
+    floorMax,
+    endTimeAfter,
+    endTimeBefore,
+    filtersApplied,
+    clearFilter,
+    resetFilters,
+    setPageType,
+  } = useFiltersStore();
+
+  useEffect(() => {
+    setPageType("gumballs");
+  }, [setPageType]);
+
+  const filterOptions = {
+    raffleType,
+    selectedToken,
+    selectedCollection,
+    floorMin,
+    floorMax,
+    endTimeAfter,
+    endTimeBefore,
+  };
+  const activeFilters = useMemo(() => {
+    return getActiveFiltersList(filterOptions, "gumballs");
+  }, [raffleType, selectedToken, selectedCollection, floorMin, floorMax, endTimeAfter, endTimeBefore]);
+
+  const showActiveFilters = hasActiveFilters(filterOptions, "gumballs");
+
+  const gumballs = useMemo(() => {
+    let allGumballs = (data?.pages.flatMap((p) => p.items) || []) as GumballBackendDataType[];
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      allGumballs = allGumballs.filter((gumball) =>
+        gumball.name?.toLowerCase().includes(query)
+      );
+    }
+
+    if (filtersApplied && showActiveFilters) {
+      allGumballs = filterGumballs(allGumballs, filterOptions);
+    }
+
+    if (sort && sort !== "Sort") {
+      allGumballs = sortGumballs(allGumballs, sort);
+    }
+
+    return allGumballs;
+  }, [data, searchQuery, sort, filtersApplied, raffleType, selectedToken, selectedCollection, floorMin, floorMax, endTimeAfter, endTimeBefore]);
+  useEffect(() => {
+    setSearchQuery("");
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && gumballs.length === 0 && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [isLoading, gumballs.length, hasNextPage, fetchNextPage]);
 
   return (
 
@@ -63,7 +118,7 @@ function Gumballs() {
           <div className="flex-1 flex items-center justify-between lg:gap-10 gap-5 flex-col lg:flex-row">
             <div className="overflow-x-auto md:overflow-hidden lg:w-1/2 w-full">
               <ul className="inline-flex items-center bg-white/[15%] backdrop-blur-[27px] rounded-[40px] p-1 md:gap-3 gap-1.5">
-                {["Featured", "All Gumballs", "Past Gumballs"].map((f, index) => (
+                {["All Gumballs", "My Gumballs", "Past Gumballs"].map((f, index) => (
                   <li key={index}>
                   <button onClick={() => setFilter(f)} className={`md:text-base text-sm cursor-pointer  font-inter font-normal md:min-w-[115px] transition duration-300 hover:bg-primary-color hover:text-black-1000 text-black-1000 rounded-full py-3 px-3 leading-[19px]
                  ${filter === f ? 'bg-primary-color font-semibold text-black-1000' : 'bg-transparent text-gray-1200'}`}> {f}</button>
@@ -72,10 +127,11 @@ function Gumballs() {
               </ul>
             </div>
             <div className="flex justify-end md:gap-5 gap-3">
-              <SearchBox
+            <SearchBox
+                placeholder="Search gumballs..."
+                value={searchQuery}
                 onSearch={(value) => {
-                  console.log("Searching for:", value);
-                  // You can filter list, call API, etc.
+                  setSearchQuery(value);
                 }}
               />
               <SortDropdown
@@ -93,7 +149,7 @@ function Gumballs() {
           {/* Filters List */}
        <div className="py-10 overflow-x-auto flex items-center gap-4">
             <div className=" items-center gap-4">
-              {filters && (
+              {activeFilters.length > 0 && (
                 <div className='flex items-center gap-5'>
                   <p className="md:text-base text-white text-sm whitespace-nowrap font-black-1000 font-semibold font-inter">
                     Filters :
@@ -106,7 +162,7 @@ function Gumballs() {
                           Clear All
                         </p>
                         <button
-                          onClick={() => setFilter("")}
+                          onClick={() => resetFilters()}
                           className="cursor-pointer"
                         >
                           <img src="/icons/cross-icon.svg" className="min-w-4" alt="cross icon" />
@@ -121,7 +177,7 @@ function Gumballs() {
                             {filterItem.label}
                           </p>
                           <button
-                            onClick={() => setFilters(filters.filter((f) => f !== filterItem.id))}
+                            onClick={() => clearFilter(filterItem.id)}
                             className="cursor-pointer"
                           >
                             <img src="/icons/cross-icon.svg" className="min-w-4" alt="remove icon" />
@@ -162,8 +218,7 @@ function Gumballs() {
             >
               <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4">
                 {gumballs.map((r) => (
-                  <></>
-                  // <GumballsCard key={r.id}  />
+                  <GumballsCard key={r.id} gumball={r} />
                 ))}
               </div>
             </InfiniteScroll>
