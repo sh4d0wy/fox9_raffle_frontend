@@ -102,6 +102,14 @@ export const Navbar = () => {
       if (connected && publicKey) {
         const currentWalletKey = publicKey.toBase58();
         
+        // Check if wallet address changed - reset refs and re-authenticate
+        if (walletAddress && walletAddress !== currentWalletKey) {
+          console.log("Wallet changed from", walletAddress, "to", currentWalletKey);
+          hasInitializedRef.current = false;
+          isAuthenticatingRef.current = false;
+          removeToken();
+        }
+        
         if (hasInitializedRef.current && isAuth && walletAddress === currentWalletKey) {
           return;
         }
@@ -113,7 +121,7 @@ export const Navbar = () => {
 
         const authToken = localStorage.getItem('authToken');
         
-        if (authToken && !isTokenExpired(authToken)) {
+        if (authToken && !isTokenExpired(authToken) && walletAddress === currentWalletKey) {
           setAuth(true, currentWalletKey);
           hasInitializedRef.current = true;
         } else {
