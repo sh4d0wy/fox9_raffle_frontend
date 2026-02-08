@@ -1,25 +1,24 @@
+import { VerifiedTokens } from "@/utils/verifiedTokens";
+import type { PrizeDataBackend } from "types/backend/gumballTypes";
 
-interface BoughtRow {
-  img: string; 
-  prize: number;
-  quantity: number;
-  floorPrice: number;
+interface AvailablePrize extends PrizeDataBackend {
+  remainingQuantity: number;
 }
 
-const SoldGumball: BoughtRow[] = [
-  { img: "/images/prize-image.png", prize: 25, quantity: 90, floorPrice: 0 },
-  { img: "/images/prize-image.png", prize: 25, quantity: 90, floorPrice: 0 },
-  { img: "/images/prize-image.png", prize: 25, quantity: 90, floorPrice: 0 },
-  { img: "/images/prize-image.png", prize: 25, quantity: 90, floorPrice: 0 },
-];
-
-export const GumballPrizesTable = () => {
+interface GumballPrizesTableProps {
+    prizes: AvailablePrize[];
+}
+export const GumballPrizesTable = ({prizes}:GumballPrizesTableProps) => {
+  const formatPrice = (price: string, mint: string) => {
+    const numPrice = parseFloat(price)/ 10**(VerifiedTokens.find((token: typeof VerifiedTokens[0]) => token.address === mint)?.decimals || 0);
+    return `${numPrice}`;
+  }
   return (
     <div className="border relative border-gray-1100  min-h-[494px] rounded-[20px] w-full overflow-hidden">
-      {SoldGumball.length === 0 && (
+      {prizes.length === 0 && (
         <div className="absolute w-full h-full flex items-center justify-center py-10">
           <p className="md:text-base text-sm font-medium text-center font-inter text-white">
-            No Gumball Yet
+            No prizes available
           </p>
         </div>
       )}
@@ -39,7 +38,7 @@ export const GumballPrizesTable = () => {
           </tr>
         </thead>
         <tbody>
-        {SoldGumball.map((row, idx) => (
+        {prizes.map((prize, idx) => (
   <tr
     key={idx}
     className="border-b border-gray-1100 last:border-b-0"
@@ -47,25 +46,32 @@ export const GumballPrizesTable = () => {
     <td className="px-6 py-5 h-24">
       <div className="flex items-center gap-2.5">
         <img
-          src={row.img}
+          src={prize.image || "/images/prize-image.png"}
           className="w-[60px] h-[60px] rounded-full"
           alt="no-img"
         />
         <p className="md:text-base text-sm text-white font-medium font-inter">
-          {row.prize}
+        {prize.isNft ? (
+                      <p className="md:text-base text-sm text-black-1000 font-medium font-inter">
+                        {prize.name?.slice(0, 10) + "..." || prize.symbol || "Prize"}
+                      </p>) : (
+                        <p className="text-md text-black-1000 font-medium font-inter">
+                          {formatPrice(prize.prizeAmount, prize.mint)}
+                        </p>
+                      )}
         </p>
       </div>
     </td>
 
     <td className="px-5 py-6 h-24">
       <p className="md:text-base text-sm text-white font-medium font-inter">
-        {row.quantity}
+        {prize.remainingQuantity}
       </p>
     </td>
 
     <td className="px-5 py-6 h-24">
       <p className="md:text-base text-sm text-white font-medium font-inter">
-        {row.floorPrice}
+      {(prize.floorPrice ? parseFloat((parseFloat(prize.floorPrice)/1e9).toFixed(6)) +" SOL": "N/A")}
       </p>
     </td>
   </tr>

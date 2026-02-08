@@ -8,6 +8,7 @@ import { useClaimRafflePrize } from "hooks/raffle/useClaimRafflePrize";
 import { Loader } from "lucide-react";
 import { DEFAULT_AVATAR } from "store/userStore";
 import type { RaffleTypeBackend } from "types/backend/raffleTypes";
+import { motion } from "motion/react";
 
 export interface RafflersCardPurchasedProps extends RaffleTypeBackend {
   ticketsBought:number;
@@ -41,7 +42,11 @@ export const RafflersCardPurchased: React.FC<RafflersCardPurchasedProps> = (prop
   const queryClient = useQueryClient();
   const { publicKey } = useWallet();
   return (
-    <div
+    <motion.div
+    initial={{ opacity: 0.5, y: 100 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: 100 }}
+    transition={{ duration: 0.3, ease: "easeInOut" }}
       className={`bg-transparent hover:bg-primary-color/10 w-full transition duration-300 border border-gray-1100 rounded-2xl ${className}`}
     >
       <div className="w-full flex gap-5 p-5 sm:flex-row flex-col">
@@ -179,6 +184,6 @@ export const RafflersCardPurchased: React.FC<RafflersCardPurchasedProps> = (prop
           </h4>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

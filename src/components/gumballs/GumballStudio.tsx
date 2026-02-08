@@ -81,7 +81,7 @@ const showClaimButton = useMemo(()=>{
               prizeIndexes: availablePrizeIndexes,
             })}
             disabled={cancelGumball.isPending || gumball?.status === "CANCELLED" || gumball?.status === "COMPLETED_SUCCESSFULLY" || gumball?.status === "COMPLETED_FAILED" || hasSoldTicket}
-            className="inline-flex cursor-pointer items-center gap-2.5 md:text-base text-sm font-medium border border-orange-1100 px-4 py-2.5 rounded-[10px] text-orange-1100 font-inter">
+            className="inline-flex disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer items-center gap-2.5 md:text-base text-sm font-medium border border-orange-1100 px-4 py-2.5 rounded-[10px] text-orange-1100 font-inter">
                 <Trash className="w-6 h-6" />
                 <span>Cancel Gumball</span>
             </button>
@@ -94,34 +94,35 @@ const showClaimButton = useMemo(()=>{
         </div>
 
         <div className="w-full pb-16">
-        <div className="w-full grid md:grid-cols-2 grid-cols-1 bg-black-1300 border-2 border-gray-1000 md:p-6 p-4 md:gap-10 gap-5 rounded-[10px]">
-            <div className="flex gap-5">
-            <div className="px-2 flex-1 max-w-[190px] py-2 border border-gray-1000 rounded-[10px]">
-                <h3 className='md:text-base text-center text-sm text-white font-medium font-inter mb-4'>Sale Start</h3>
+        <div className="w-full grid md:grid-cols-3 grid-cols-1 bg-black-1300 border-2 border-gray-1000 md:p-6 p-4 md:gap-10 gap-5 rounded-[10px]">
+            <div className="px-2 flex-1 items-center justify-center flex flex-col max-w-[190px] py-2 border border-gray-1000 rounded-[10px]">
+                <h3 className='md:text-base text-center text-sm text-white font-medium font-inter mb-4'>Tickets Sold</h3>
                 <h4 className='text-2xl font-bold font-inter text-center text-white'>{gumball?.ticketsSold}/{gumball?.totalTickets}</h4>
             </div>
 
-               <div className="px-6 py-2 border border-gray-1000 rounded-[10px]">
-                <h3 className='md:text-base text-sm text-center text-white font-medium font-inter mb-4'>Profit from buy backs</h3>
+              <div className="px-6 py-2 border border-gray-1000 rounded-[10px]">
+                <h3 className='md:text-base text-sm text-center text-white font-medium font-inter mb-4'>Profit from sales (SOL)</h3>
                 <div className="flex items-center justify-center text-center gap-4">
                 <h4 className='text-2xl font-bold font-inter text-white'>{parseFloat((totalProceedsInSol/1e9).toFixed(6))} SOL</h4>
                 <h4 className="text-base font-medium font-inter text-primary-color">{gumball?.uniqueBuyers} Unique Buyers</h4>
                 </div>
-            </div>
-            </div>
-            {showClaimButton && (
+              </div>
+              {showClaimButton && (
+                <div className="flex-1 flex items-center justify-center">
               <button
                 onClick={() => creatorClaimPrizeBackMutation.mutate({
                   gumballId: parseInt(gumballId),
                   prizeIndexes: availablePrizeIndexes,
                 })}
                 disabled={creatorClaimPrizeBackMutation.isPending}
-                className="h-12 px-10 cursor-pointer hover:opacity-90 max-w-[260px] flex-1 w-full rounded-full font-medium text-black-1000 text-center bg-primary-color"
+                className="h-12 px-8 cursor-pointer flex items-center justify-center hover:opacity-90 max-w-[260px] flex-1 w-full rounded-full font-medium text-black-1000 text-center bg-primary-color"
               >
-                {creatorClaimPrizeBackMutation.isPending ? <Loader className="w-5 h-5 animate-spin" /> : "Claim Prize Back"}
+                {creatorClaimPrizeBackMutation.isPending ? <Loader className="w-5 h-5 animate-spin" /> : "Claim Profits or Prize"}
               </button>
+              </div>
             )}
-          </div>
+            </div>
+
 
         <ul className="inline-flex p-1 rounded-full items-center bg-black-1300 gap-3 md:w-auto w-full mt-16">
            {tabNames.map((tab) => (

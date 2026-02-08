@@ -28,9 +28,9 @@ export const useCreatorClaimPrizeBack = () => {
             if (!args.gumballId) {
                 throw new Error("Gumball ID is required");
             }
-            if (!args.prizeIndexes || args.prizeIndexes.length === 0) {
-                throw new Error("At least one prize index must be selected");
-            }
+            // if (!args.prizeIndexes || args.prizeIndexes.length === 0) {
+            //     throw new Error("At least one prize index must be selected");
+            // }
             return true;
         } catch (error: unknown) {
             if (error instanceof Error) {

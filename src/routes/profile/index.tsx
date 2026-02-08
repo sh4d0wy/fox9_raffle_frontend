@@ -23,6 +23,7 @@ import { DEFAULT_AVATAR } from 'store/userStore';
 import { Pencil } from 'lucide-react';
 import { API_URL } from '@/constants';
 import { motion } from 'motion/react';
+import { GumballsCardPurchased } from '@/components/gumballs/GumballsCardPurchased';
 
 export const Route = createFileRoute('/profile/')({
   component: CreateProfile,
@@ -591,7 +592,7 @@ function CreateProfile() {
                   </>
                 )}
 
-                {/* {mainFilter === "Gumballs" && (
+                {mainFilter === "Gumballs" && (
                   <>
                     {getGumballCreatedCards.isLoading ||
                     getGumballPurchasedCards.isLoading ? (
@@ -638,7 +639,7 @@ function CreateProfile() {
                       </div>
                     )}
                   </>
-                )} */}
+                )}
               </div>
             </div>
 

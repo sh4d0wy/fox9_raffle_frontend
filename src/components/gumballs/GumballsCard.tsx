@@ -119,6 +119,11 @@ export const GumballsCard: React.FC<GumballsCardProps> = ({
                 Cancelled
               </p>
             )}
+            {(gumball.status === "COMPLETED_SUCCESSFULLY" || gumball.status === "COMPLETED_FAILED") && (
+              <p className="text-xs font-semibold font-inter text-yellow-500 border border-gray-300 rounded-lg px-4 py-1  absolute z-10">
+                Ended
+              </p>
+            )}
           </div>
       </div>
 
