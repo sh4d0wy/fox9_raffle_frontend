@@ -13,6 +13,7 @@ import { useCancelRaffle } from "hooks/raffle/useCancelRaffle";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { VerifiedTokens } from "@/utils/verifiedTokens";
 import { DynamicCounter } from "./DynamicCounter";
+import { motion } from "motion/react";
 
 export interface CryptoCardProps {
   raffle: RaffleTypeBackend;
@@ -104,7 +105,12 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
   }, [publicKey, raffle.createdBy, ticketsBoughtByUser, remainingTickets, raffle.state]);
   return (
    
-    <div className={`bg-black-1300 backdrop-blur-[10px] rounded-[10px] p-3 pb-4 ${className}`}>
+    <motion.div 
+    initial={{ opacity: 0, y: 100 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: 100 }}
+    transition={{ duration: 0.1 }}
+    className={`bg-black-1300 backdrop-blur-[10px] rounded-[10px] p-3 pb-4 ${className}`}>
 
       <div className="w-full relative group overflow-hidden">
         <img
@@ -341,6 +347,6 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
        )}
       </div>
     </Link>
-    </div>
+    </motion.div>
   );
 };

@@ -8,9 +8,9 @@ interface State {
   setFilter: (filter: string) => void
 }
 
-export const useRafflesStore = create<State>((set) => ({
+export const useGumballsStore = create<State>((set) => ({
   gumballs: GumballsData, 
   setGumballs: (data) => set({ gumballs: data }),
-  filter: "Featured",
+  filter: "All Gumballs",
   setFilter: (filter) => set({ filter }),   
 }))

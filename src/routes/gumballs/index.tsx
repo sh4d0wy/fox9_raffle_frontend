@@ -6,7 +6,6 @@ import FeaturedSwiper from '../../components/gumballs/FeaturedSwiper';
 import { GumballsCard } from '../../components/gumballs/GumballsCard';
 import { ToolsSection } from '@/components/home/ToolsSection';
 import { TryToolsSection } from '@/components/home/TryToolsSection';
-import { useRafflesStore } from "../../../store/gumballs-store"
 import { useGumballsQuery } from "../../../hooks/gumball/useGumballsQuery"
 import { useGlobalStore } from "../../../store/globalStore";
 import CryptoCardSkeleton from '@/components/skeleton/RafflesCardSkeleton';
@@ -16,6 +15,8 @@ import { NoGumballs } from '@/components/gumballs/NoGumballs';
 import { useFiltersStore } from 'store/filters-store';
 import { filterGumballs, getActiveFiltersList, hasActiveFilters, sortGumballs } from '@/utils/sortAndFilter';
 import type { GumballBackendDataType } from 'types/backend/gumballTypes';
+import { motion } from 'motion/react';
+import { useGumballsStore } from 'store/gumballs-store';
 
 
 
@@ -40,7 +41,7 @@ const options = [
 function Gumballs() {
 
 
-  const { filter, setFilter } = useRafflesStore()
+  const { filter, setFilter } = useGumballsStore()
   const { data, fetchNextPage, hasNextPage, isLoading } = useGumballsQuery(filter)
   const { sort, setSort ,searchQuery,setSearchQuery} = useGlobalStore();
 
@@ -113,8 +114,17 @@ function Gumballs() {
 
     <main className="main font-inter bg-black-1100">
 
-      <section className='w-full pt-10 md:pt-[122px] pb-24 md:pb-[90px] z-10 relative'>
+      <motion.section 
+      initial={{ opacity: 0, y: 100 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 100 }}
+      transition={{ duration: 0.3 }}
+      className='w-full pt-10 md:pt-[122px] pb-24 md:pb-[90px] z-10 relative'>
         <div className="w-full max-w-[1440px] px-4 mx-auto">
+        <div className="w-full md:pb-12 pb-10 mt-10">
+        <h1 className='lg:text-[60px] text-4xl leading-tight text-white font-semibold font-inter'>Gumball Spins & Rewards</h1>
+        <p className='lg:text-xl text-base font-inter text-cream-1000'>Spin the gumball and win exciting prizes</p>
+        </div>
           <div className="flex-1 flex items-center justify-between lg:gap-10 gap-5 flex-col lg:flex-row">
             <div className="overflow-x-auto md:overflow-hidden lg:w-1/2 w-full">
               <ul className="inline-flex items-center bg-white/[15%] backdrop-blur-[27px] rounded-[40px] p-1 md:gap-3 gap-1.5">
@@ -206,6 +216,7 @@ function Gumballs() {
               dataLength={gumballs.length}
               next={fetchNextPage}
               hasMore={!!hasNextPage}
+              style={{ overflow: 'visible' }}
               loader={
                 <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4 mt-5">
                   {Array(4)
@@ -228,7 +239,7 @@ function Gumballs() {
 
 
         </div>
-      </section>
+      </motion.section>
     </main>
   )
 }

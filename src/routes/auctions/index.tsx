@@ -213,6 +213,7 @@ function Auctions() {
                   dataLength={aucations.length}
                   next={fetchNextPage}
                   hasMore={!!hasNextPage}
+                  style={{ overflow: 'visible' }}
                   loader={
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
                       {Array(4)

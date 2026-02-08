@@ -234,8 +234,6 @@ function RafflesPage() {
                 {raffles.map((r) => (
                   <>
                   <CryptoCard key={r.id} raffle={r} soldTickets={r.ticketSold || 0} />
-                  <CryptoCard key={r.id} raffle={r} soldTickets={r.ticketSold || 0} />
-                  <CryptoCard key={r.id} raffle={r} soldTickets={r.ticketSold || 0} />
                   </>
                 ))}
               </div>

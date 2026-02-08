@@ -13,6 +13,7 @@ import { API_URL } from "@/constants";
 import { HeartIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
+import { motion } from "motion/react";
 
 export interface GumballsCardProps {
   gumball: GumballBackendDataType;
@@ -89,7 +90,12 @@ export const GumballsCard: React.FC<GumballsCardProps> = ({
    
  
   return (
-    <div className={`bg-black-1300 w-full border border-transparent transition duration-300 hover:border-primary-color  backdrop-blur-[10px] rounded-[10px] p-3 pt-0 pb-2 ${className}`}>
+    <motion.div 
+    initial={{ opacity: 0, y: 100 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: 100 }}
+    transition={{ duration: 0.1 }}
+    className={`bg-black-1300 w-full border border-transparent transition duration-300 hover:border-primary-color  backdrop-blur-[10px] rounded-[10px] p-3 pt-0 pb-2 ${className}`}>
       <div className="w-full flex items-center justify-between py-3">
         <div className="flex items-center gap-4">
           <img
@@ -119,7 +125,7 @@ export const GumballsCard: React.FC<GumballsCardProps> = ({
       <div className="w-full relative group rounded-lg overflow-hidden">
             <PrizeCollage
               prizes={prizes}
-              className="w-full border-y border-black-1100 h-[300px] group-hover:scale-105 transition duration-300"
+              className="w-full h-[300px] group-hover:scale-105 transition duration-300"
               rotation={-35}
               gridSize={3}
             />
@@ -228,6 +234,6 @@ export const GumballsCard: React.FC<GumballsCardProps> = ({
         </div>
 
       </div>
-    </div>
+    </motion.div>
   );
 };

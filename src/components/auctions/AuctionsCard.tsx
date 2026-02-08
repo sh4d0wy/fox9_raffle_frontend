@@ -6,6 +6,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { DEFAULT_AVATAR, useUserStore } from "store/userStore";
 import { useToggleFavourite } from "hooks/useToggleFavourite";
 import { VerifiedTokens } from "@/utils/verifiedTokens";
+import { motion } from "motion/react";
 
 export interface AuctionsCardProps {
   id: number;
@@ -101,7 +102,12 @@ export const AuctionsCard = (props:AuctionsCardProps) => {
 
   return (
     <Link to="/auctions/$id" params={{id:id.toString()}}>
-    <div className={`bg-black-1300 hover:border-primary-color rounded-2xl w-full border border-transparent ${className} ${favorite ? 'border-yellow-1000' : 'border-transparent'}`}>
+    <motion.div 
+    initial={{ opacity: 0, y: 100 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: 100 }}
+    transition={{ duration: 0.3 }}
+    className={`bg-black-1300 hover:border-primary-color rounded-2xl w-full border border-transparent ${className} ${favorite ? 'border-yellow-1000' : 'border-transparent'}`}>
       {/* Head */}
       <div className="w-full flex items-center justify-between p-4">
         <div className="flex items-center gap-4">
@@ -270,7 +276,7 @@ export const AuctionsCard = (props:AuctionsCardProps) => {
 
 
       </div>
-    </div>
+    </motion.div>
     </Link>
   );
 };
