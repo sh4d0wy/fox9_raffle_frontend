@@ -127,7 +127,7 @@ function RafflesPage() {
   };
   return (
     <motion.main 
-    className="flex-1 font-inter bg-black-1100">
+    className="flex-1  font-inter bg-black-1100">
 
       <motion.section
       initial={{ opacity: 0, y: 100 }}
@@ -136,7 +136,7 @@ function RafflesPage() {
       transition={{ duration: 0.3 }}
       className="w-full relative z-10 pt-10 md:pt-[122px] pb-32 md:pb-[160px]" id="raffles">
        
-        <div className="w-full max-w-[1440px] px-4 md:px-5 mx-auto ">
+        <div className="w-full max-w-[1360px] px-4 md:px-5 mx-auto ">
         <div className="w-full md:pb-12 pb-10 mt-10">
         <h1 className='lg:text-[60px] text-4xl leading-tight text-white font-semibold font-inter'>Participate in Raffles</h1>
         <p className='lg:text-xl text-base font-inter text-cream-1000'>Participate in Raffles and win exciting prizes.</p>

@@ -1,10 +1,16 @@
 import { Link } from "@tanstack/react-router";
+import { motion } from "motion/react";
 
 
 const Footer = () => {
   return (
     <footer className="w-full pb-8 bg-black-1100 font-inter">
-      <div className="max-w-[1440px] mx-auto md:px-[52px] px-5 relative">
+      <motion.div 
+      initial={{ opacity: 0, y: 100 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 100 }}
+      transition={{ duration: 0.3 }}
+      className="max-w-[1440px] mx-auto md:px-[52px] px-5 relative">
         <img src="/footer-frame-left.png" className="absolute hidden md:block left-10 top-[22px] h-[166px]" alt="" />
         <img src="/footer-frame-right.png" className="absolute hidden md:block right-10 top-[22px] h-[166px]" alt="" />
         <div className="text-center -mb-2">
@@ -38,7 +44,7 @@ const Footer = () => {
         <div className="text-center mt-4">
           <h6 className="md:text-base text-sm text-white font-inter font-light">All rights reserved. © 2025 LUCKIT</h6>
         </div>
-      </div>
+      </motion.div>
     </footer>
   );
 };

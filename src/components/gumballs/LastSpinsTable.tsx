@@ -12,7 +12,7 @@ const SoldGumball: BoughtRow[] = [
 
 export const LastSpinsTable = () => {
   return (
-    <div className="border relative border-gray-1100 md:pb-32 pb-10 min-h-[494px] rounded-[20px] w-full overflow-hidden">
+    <div className="border relative border-gray-1100 md:pb-32 pb-10 h-full rounded-[20px] w-full overflow-hidden">
       {SoldGumball.length === 0 && (
         <div className="absolute w-full h-full flex items-center justify-center py-10">
           <p className="md:text-base text-sm font-medium text-center font-inter text-white">

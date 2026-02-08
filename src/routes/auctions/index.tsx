@@ -13,6 +13,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { useFiltersStore } from 'store/filters-store';
 import { filterAuctions, getActiveFiltersList, hasActiveFilters, type AuctionItem, sortAuctions } from '@/utils/sortAndFilter';
 import { motion } from 'motion/react';
+import { useWallet } from '@solana/wallet-adapter-react';
 const options = [
   { label: "Recently Added", value: "Recently Added" },
   { label: "Expiring Soon", value: "Expiring Soon" },
@@ -29,7 +30,8 @@ export const Route = createFileRoute('/auctions/')({
 
 function Auctions() {
   const { filter, setFilter } = useAucationsStore();
-  const { data, fetchNextPage, hasNextPage, isLoading } = useAuctionsQuery(filter);
+  const { publicKey } = useWallet();
+  const { data, fetchNextPage, hasNextPage, isLoading } = useAuctionsQuery(filter, publicKey?.toString() || "");
   const { sort, setSort, searchQuery, setSearchQuery } = useGlobalStore();
 
   const {
@@ -121,14 +123,14 @@ function Auctions() {
     exit={{ opacity: 0, y: 100 }}
     transition={{ duration: 0.3 }}
     className='w-full md:pt-48 pt-36 pb-20 md:pb-[120px]'>
-       <div className="w-full max-w-[1440px] px-5 mx-auto">
+       <div className="w-full max-w-[1360px] px-5 mx-auto">
         <div className="md:pb-16 pb-10">
         <h1 className='lg:text-[60px] text-4xl leading-tight text-white font-semibold font-inter'>Live Auctions Happening Now</h1>
         <p className='lg:text-xl text-base font-inter text-cream-1000'>Discover exclusive NFTs from top creators. Bid in real-time and own digital masterpieces.</p>
         </div>
             <div className="w-full flex items-center justify-between gap-5 lg:gap-10 flex-wrap">
                   <ul className="flex items-center bg-white/[15%] backdrop-blur-[27px] rounded-[40px] p-1 md:gap-4 gap-1.5">
-                  {["All Auctions", "Past Auctions"].map((f, index) => (
+                  {["All Auctions", "My Auctions","Past Auctions"].map((f, index) => (
                     <li key={index}>
                     <button onClick={() => setFilter(f)} className={`md:text-base text-sm cursor-pointer  font-inter font-normal min-w-[115px] transition duration-300 hover:bg-primary-color hover:text-black-1000 text-black-1000 rounded-full py-3 px-3 leading-[19px]
                     ${filter === f ? 'bg-primary-color font-semibold text-black-1000' : 'bg-transparent text-gray-1200'}`}> {f}</button>

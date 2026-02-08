@@ -50,9 +50,9 @@ export default function PopupModal({
             {showCloseButton && (
               <button
                 onClick={() => onClose?.()}
-                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-1000 hover:bg-gray-1100 transition-colors cursor-pointer"
+                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-1000 hover:bg-primary-color/10 hover:text-primary-color transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4 text-white" />
+                <X className="w-4 h-4 text-white hover:text-primary-color transition-colors" />
               </button>
             )}
             {children}

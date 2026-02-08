@@ -17,7 +17,7 @@ export default function RevealPrizePopup({ isOpen, shouldEnableAutoClose = true,
         return `${numPrice}`;
       }
     return (
-    <PopupModal isOpen={isOpen} showCloseButton={true} shouldEnableAutoClose={shouldEnableAutoClose}>
+    <PopupModal isOpen={isOpen} onClose={onClose} showCloseButton={true} shouldEnableAutoClose={shouldEnableAutoClose}>
       <div className="flex h-full flex-col  items-center justify-start gap-2">
         <div className="w-full flex flex-col items-center justify-center gap-4">
           <h1 className="md:text-2xl text-xl text-center font-bold text-primary-color mb-2">Congratulations! 🎉 </h1>

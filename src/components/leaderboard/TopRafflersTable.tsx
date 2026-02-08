@@ -28,7 +28,7 @@ export function TopRafflersTable<T>({
             {columns.map((col, index) => (
               <th key={String(col.key)}
                 className={`
-                    text-base text-start font-inter text-gray-1600 font-medium px-2.5 2xl:px-5 py-4
+                    text-base text-start font-inter text-white font-medium px-2.5 2xl:px-5 py-4
                     ${col.className ?? ""}`}>
                       <div className="bg-gray-1000 absolute left-0 h-[94%] w-full rounded-t-xl top-0 z-0"></div>
                 <div className={`${index !== 0 ? '':''} pl-5 h-6 relative z-10`}>

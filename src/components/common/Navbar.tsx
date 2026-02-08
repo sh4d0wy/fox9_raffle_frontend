@@ -273,8 +273,8 @@ export const Navbar = () => {
 
 
   return (
-    <header className="w-full flex  py-8  xl:px-[52px] px-6 absolute z-40 ">
-      <nav className="w-full lg:h-[72px] bg-black-1200 backdrop-blur-[132px] py-2 rounded-[56px] h-20 border border-yellow-1000/[70%] max-w-[1420px] mx-auto px-4 lg:px-[14px] flex justify-between items-center">
+    <header className="w-full flex  py-8  xl:px-[52px] items-center justify-center px-6 absolute z-40 ">
+      <nav className="w-full max-w-[1360px] lg:h-[72px] bg-black-1200 backdrop-blur-[132px] py-2 rounded-[56px] h-20 border border-yellow-1000/[70%] mx-auto px-4 lg:px-[14px] flex justify-between items-center">
         <div className="flex  items-center lg:justify-start justify-between gap-4 xl:gap-12 w-full  flex-1">
           <Link to="/" className="inline-flex">
             <img

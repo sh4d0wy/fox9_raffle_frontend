@@ -3,10 +3,10 @@ import { fetchAuctionById, fetchAuctions } from "../../api/AuctionsApi"
 import type { AuctionTypeBackend } from "../../types/backend/auctionTypes"
 import type { TransactionTypeBackend } from "../../types/backend/raffleTypes"
 
-export const useAuctionsQuery = (filter: string) => {
+export const useAuctionsQuery = (filter: string , currentWallet: string) => {
   return useInfiniteQuery({
     queryKey: ["auctions", filter],
-    queryFn: ({ pageParam = 1 }) => fetchAuctions({ pageParam, filter }),
+    queryFn: ({ pageParam = 1 }) => fetchAuctions({ pageParam, filter, currentWallet }),
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 1,
   })

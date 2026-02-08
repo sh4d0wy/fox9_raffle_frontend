@@ -9,9 +9,11 @@ interface AuctionsPage {
 export const fetchAuctions = async ({
   pageParam = 1,
   filter = "All Auctions",
+  currentWallet = "",
 }: {
   pageParam?: number;
   filter?: string;
+  currentWallet?: string;
 }): Promise<AuctionsPage> => {
   const pageSize = 8;
   const response = await getAuctions(pageParam, pageSize);
@@ -21,6 +23,8 @@ export const fetchAuctions = async ({
     filteredData = filteredData.filter((r) => r.status === "ACTIVE" || r.status === "INITIALIZED");
   } else if (filter === "Past Auctions") {
     filteredData = filteredData.filter((r) => r.status === "COMPLETED_SUCCESSFULLY" || r.status === "COMPLETED_FAILED");
+  } else if (filter === "My Auctions") {
+    filteredData = filteredData.filter((r) => r.createdBy === currentWallet);
   }
 
   const pageItems = filteredData.slice((pageParam - 1) * pageSize, pageParam * pageSize);

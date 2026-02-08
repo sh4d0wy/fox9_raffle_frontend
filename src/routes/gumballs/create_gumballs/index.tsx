@@ -43,7 +43,7 @@ function CreateGumballs() {
   return (
     <main className='flex-1 bg-black-1400'>
     <section className="md:pt-48 pt-36 md:pb-[122px] pb-5 ">
-      <div className="max-w-[1440px] mx-auto w-full md:px-10 px-4">
+        <div className="max-w-[1360px] mx-auto w-full md:px-10 px-4">
         <div className="max-w-[1008px] w-full mx-auto">
           <div className="flex flex-col items-start">
           <Link

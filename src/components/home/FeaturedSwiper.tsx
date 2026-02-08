@@ -6,6 +6,7 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { useFeaturedRafflesStore } from "../../../store/featured-raffles-store";
 import { ArrowRightIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 const FeaturedSwiper = () => {
   const { raffles, fetchRaffles } = useFeaturedRafflesStore();
@@ -22,16 +23,12 @@ const FeaturedSwiper = () => {
             <h1 className="md:text-[120px] sm:text-[64px] text-5xl md:mt-0 mt-5 font-semibold mb-5 leading-[116%] text-white">LUCKIT </h1>
             <p className="md:text-xl text-base md:mb-12 mb-5 font-normal text-cream-1000">There are a thousand more NFTs that interest you, find and collect what you like!</p>
            <div className="flex items-center gap-5">
-            <a 
-              href="#raffles" 
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById('raffles')?.scrollIntoView({ behavior: 'smooth' });
-              }}
+            <Link
+              to="/raffles" 
               className="text-base group transition hover:bg-primary-color/10 duration-500 font-medium text-yellow-1000 flex items-center justify-center gap-2.5 py-[13px] px-8 border border-yellow-1000 rounded-full max-w-[184px]"
             >
               Explore <ArrowRightIcon/>
-            </a>
+            </Link>
            </div>
           </div>
         </div>

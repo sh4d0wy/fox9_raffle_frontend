@@ -18,7 +18,7 @@ export const SoldGumballTable = ({gumballId}: {gumballId: string}) => {
   const claimedGumballs = gumball?.spins.filter((spin) => spin.prize?.prizeIndex !== undefined && spin.prize?.prizeIndex !== null && spin.claimedAt !== null);
 
   return (
-    <div className="mt-5 border relative border-gray-1100 md:pb-32 pb-10 min-h-[494px] rounded-[20px] w-full overflow-hidden">
+    <div className={`mt-5 border relative border-gray-1100 md:pb-32 pb-10 h-full rounded-[20px] w-full overflow-hidden ${claimedGumballs?.length === 0 ? "min-h-[394px]" : ""}`}>
       {claimedGumballs?.length === 0&& (
         <div className="absolute w-full h-full flex items-center justify-center py-10">
           <p className="md:text-base text-sm font-medium text-center font-inter text-white">

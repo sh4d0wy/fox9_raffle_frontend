@@ -128,8 +128,8 @@ export const AuctionsCard = (props:AuctionsCardProps) => {
         </div> */}
       </div>
 
-      <div className="w-full relative group">
-        <div className="w-full px-3">
+      <div className="w-full relative group overflow-hidden">
+        <div className="w-full px-3 group-hover:scale-105 transition duration-300">
         <img
           src={prizeImage}
           alt="featured-card"

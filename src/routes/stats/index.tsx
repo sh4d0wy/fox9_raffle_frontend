@@ -252,7 +252,7 @@ function Leaderboard() {
                   
                 </div>
                 <div className="w-full flex md:bg-primary-color/15 rounded-full p-2 items-center justify-between gap-5 mb-10 md:flex-nowrap flex-wrap">
-                <ul className="md:inline-flex flex md:flex-initial flex-1 items-center bg-white/[15%] backdrop-blur-[27px] rounded-[40px] p-1 md:gap-3 gap-1.5">
+                <ul className="md:inline-flex flex md:flex-initial flex-1 items-center bg-white/15 backdrop-blur-[27px] rounded-[40px] p-1 md:gap-3 gap-1.5">
                  {tabNames.map((tab) => (
                     <li key={tab} className='flex-1 sm:flex-none'>
                       <button

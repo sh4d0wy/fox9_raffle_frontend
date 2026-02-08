@@ -14,7 +14,7 @@ export const GumballPrizesTable = ({prizes}:GumballPrizesTableProps) => {
     return `${numPrice}`;
   }
   return (
-    <div className="border relative border-gray-1100  min-h-[494px] rounded-[20px] w-full overflow-hidden">
+    <div className={`border relative border-gray-1100  h-full rounded-[20px] w-full overflow-hidden ${prizes.length === 0 ? "min-h-[394px]" : ""}`}>
       {prizes.length === 0 && (
         <div className="absolute w-full h-full flex items-center justify-center py-10">
           <p className="md:text-base text-sm font-medium text-center font-inter text-white">

@@ -1,3 +1,4 @@
+import { VerifiedTokens } from "@/utils/verifiedTokens";
 import { useGumballById } from "hooks/gumball/useGumballsQuery";
 import { useMemo } from "react";
 import type { GumballBackendDataType, PrizeDataBackend } from "types/backend/gumballTypes";
@@ -8,7 +9,10 @@ interface AvailablePrize extends PrizeDataBackend {
 
 export const AvailableGumballTable = ({gumballId}: {gumballId: string}) => {
   const { data: gumball } = useGumballById(gumballId) as { data: GumballBackendDataType };
-  
+  const formatPrice = (price: string, mint: string) => {
+    const numPrice = parseFloat(price)/ 10**(VerifiedTokens.find((token: typeof VerifiedTokens[0]) => token.address === mint)?.decimals || 0);
+    return `${numPrice}`;
+  }
   const availableGumballs = useMemo(() => {
     if (!gumball?.prizes) return [];
     
@@ -26,7 +30,7 @@ export const AvailableGumballTable = ({gumballId}: {gumballId: string}) => {
       .filter((prize) => prize.remainingQuantity > 0);
   }, [gumball?.prizes, gumball?.spins]);
   return (
-    <div className="mt-5 border relative border-gray-1100 min-h-[494px] rounded-[20px] w-full overflow-hidden">
+    <div className={`mt-5 border relative border-gray-1100 h-full rounded-[20px] w-full overflow-hidden ${availableGumballs?.length === 0 ? "min-h-[394px]" : ""}`}>
       {(availableGumballs?.length === 0 || gumball?.status === "CANCELLED") && (
         <div className="absolute w-full h-full flex items-center justify-center py-20">
           <p className="md:text-base text-sm font-medium text-center font-inter text-white">
@@ -54,7 +58,7 @@ export const AvailableGumballTable = ({gumballId}: {gumballId: string}) => {
           {availableGumballs?.map((row, idx) => {
             const displayQuantity = row.isNft 
             ? row.remainingQuantity 
-            : `${(parseFloat(row.prizeAmount) / 10 ** (row.decimals || 0)) * row.remainingQuantity} ${row.symbol || ''}`;
+            : `${parseFloat((parseFloat(formatPrice(row.prizeAmount, row.mint)) * row.remainingQuantity).toFixed(6))} ${row.symbol || ''}`;
           
           const displayFloorPrice = row.isNft 
             ? (row.floorPrice ? `${parseFloat(row.floorPrice) / 10 ** 9} SOL` : "N/A")

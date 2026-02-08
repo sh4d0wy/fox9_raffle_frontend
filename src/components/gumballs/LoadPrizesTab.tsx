@@ -56,7 +56,7 @@ export const LoadPrizesTab = ({gumballId}: {gumballId: string}) => {
 
           <div className="w-full grid md:grid-cols-4 grid-cols-2 gap-5">
             <div className="bg-black-1300 flex-1 border border-gray-1000 my-10  px-6 py-4 rounded-[10px] flex flex-col items-center justify-center">
-                <h3 className='text-base text-white font-medium font-inter mb-5'>Price Loaded</h3>
+                <h3 className='text-base text-white font-medium font-inter mb-5'>Prize Loaded</h3>
                 <h4 className='text-2xl font-bold font-inter text-white'>{gumball?.prizes.reduce((acc, prize) => acc + prize.quantity, 0)}/{gumball?.maxPrizes}</h4>
             </div>
 
@@ -92,7 +92,8 @@ export const LoadPrizesTab = ({gumballId}: {gumballId: string}) => {
                     </h4>
                     <button
                     onClick={() => setIsAddNftModalOpen(true)}
-                    className="text-black-1000 cursor-pointer font-semibold hover:from-primary-color hover:via-primary-color hover:to-primary-color text-sm lg:text-base leading-normal font-inter h-10 lg:h-11 rounded-full inline-flex items-center justify-center px-5 lg:px-[26px] transition duration-500 hover:opacity-90 bg-primary-color gap-2"
+                    className="disabled:opacity-50 disabled:cursor-not-allowed text-black-1000 cursor-pointer font-semibold hover:from-primary-color hover:via-primary-color hover:to-primary-color text-sm lg:text-base leading-normal font-inter h-10 lg:h-11 rounded-full inline-flex items-center justify-center px-5 lg:px-[26px] transition duration-500 hover:opacity-90 bg-primary-color gap-2"
+                    disabled={ gumball?.prizes.reduce((acc, prize) => acc + prize.quantity, 0)===gumball?.maxPrizes}
                     >
                     <span className="w-6 h-6 flex items-center justify-center">
                         <svg
@@ -126,7 +127,8 @@ export const LoadPrizesTab = ({gumballId}: {gumballId: string}) => {
                     </h4>
                        <button
                     onClick={() => setIsAddTokenModalOpen(true)}
-                    className="text-black-1000 cursor-pointer font-semibold hover:from-primary-color hover:via-primary-color hover:to-primary-color text-sm lg:text-base leading-normal font-inter h-10 lg:h-11 rounded-full inline-flex items-center justify-center px-5 lg:px-[26px] transition duration-500 hover:opacity-90 bg-primary-color gap-2"
+                    className="disabled:opacity-50 disabled:cursor-not-allowed text-black-1000 cursor-pointer font-semibold hover:from-primary-color hover:via-primary-color hover:to-primary-color text-sm lg:text-base leading-normal font-inter h-10 lg:h-11 rounded-full inline-flex items-center justify-center px-5 lg:px-[26px] transition duration-500 hover:opacity-90 bg-primary-color gap-2"
+                    disabled={ gumball?.prizes.reduce((acc, prize) => acc + prize.quantity, 0)===gumball?.maxPrizes}
                     >
                     <span className="w-6 h-6 flex items-center justify-center">
                         <svg

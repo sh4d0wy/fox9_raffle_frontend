@@ -17,11 +17,14 @@ import { VerifiedTokens } from '@/utils/verifiedTokens';
 import { useGetTotalPrizeValueInSol } from 'hooks/useGetTotalPrizeValueInSol';
 import { GumballBouncingBalls } from '@/components/gumballs/GumballBouncingBalls';
 import { DEFAULT_AVATAR } from 'store/userStore';
-import { API_URL } from '@/constants';
+import { API_URL, NATIVE_SOL_MINT } from '@/constants';
 import { DynamicCounter } from '@/components/common/DynamicCounter';
 import { motion } from 'motion/react';
 import SpinGumballPopup from '@/components/ui/popups/gumballs/SpinPopup';
 import RevealPrizePopup from '@/components/ui/popups/gumballs/RevealPrizePopup';
+import PageTimer from '@/components/common/PageTimer';
+import { Loader } from 'lucide-react';
+import { useFetchUserToken, type UserToken } from 'hooks/useFetchUserToken';
 
 export const Route = createFileRoute('/gumballs/$id')({
   component: GumballsDetails,
@@ -44,6 +47,11 @@ function GumballsDetails() {
     const { publicKey } = useWallet();
     const { favouriteGumball } = useToggleFavourite(publicKey?.toString() || "");
     const { getFavouriteGumball } = useQueryFavourites(publicKey?.toString() || "","Gumballs");
+    const { userVerifiedTokens, isLoading: isUserTokensLoading, error: userTokensError } = useFetchUserToken();
+    const ticketToken = gumball?.isTicketSol ? NATIVE_SOL_MINT : gumball?.ticketMint;
+
+    const balance = userVerifiedTokens.find((token:UserToken)=>token.address === ticketToken)?.balance || 0;
+    
     const isFavorite = useMemo(() => getFavouriteGumball.data?.some(
       (favourite) => favourite.id === Number(id)
     ), [getFavouriteGumball.data, id]);
@@ -122,7 +130,7 @@ function GumballsDetails() {
         return `${priceNum.toFixed(7)} `;
       }
       const numPrice = parseFloat(price)/ 10**(VerifiedTokens.find((token: typeof VerifiedTokens[0]) => token.address === gumball?.ticketMint)?.decimals || 0);
-      return `${numPrice.toFixed(7)} `;
+      return `${numPrice.toFixed(7)}`;
     };
   
     const progressPercent = gumball ? (gumball.ticketsSold / gumball.totalTickets) * 100 : 0;
@@ -279,7 +287,7 @@ function GumballsDetails() {
         <div className="w-full max-w-[1440px] px-5 mx-auto">
             <div className="w-full flex gap-[60px] md:gap-8 md:flex-row flex-col">
                 <div className="flex-1">
-                    <div className="md:p-[18px] p-3 bg-black-1300 rounded-[20px]">
+                    <div className="md:p-[18px] h-full p-3 bg-black-1300 rounded-[20px]">
                     <GumballBouncingBalls 
                           prizes={availableGumballs} 
                           isActive={isActive} 
@@ -341,31 +349,36 @@ function GumballsDetails() {
                                 </div>  
                             </div>
                               {gumball.status==="ACTIVE" && 
-                            <div className="w-full flex items-center justify-start">
+                            <div className="w-full flex items-center justify-start px-5 bg-primary-color/10 rounded-[20px] py-4 mb-4">
                               <p className='text-lg font-semibold font-inter text-white w-full'>Ends in</p>
-                              <DynamicCounter  endsAt={new Date(gumball.endTime)} status={gumball.status === "ACTIVE" ? "ACTIVE" : "ENDED"} className="" />
+                              <PageTimer targetDate={new Date(gumball.endTime)} />
                             </div>
                               }
 
                             <div className="w-full flex items-center justify-between py-4 px-5 rounded-[20px] bg-primary-color/10">
                                 <div className="inline-flex flex-col gap-2.5">
                                     <p className='font-inter text-sm text-gray-1200'>Ticket Price </p>
-                                    <h3 className='lg:text-[28px] text-xl font-semibold font-inter text-primary-color'>{formatPrice(gumball.ticketPrice, gumball.isTicketSol)}{gumball.isTicketSol ? " SOL" : VerifiedTokens.find((token: typeof VerifiedTokens[0]) => token.address === gumball.ticketMint)?.symbol}</h3>
+                                    <h3 className='lg:text-[24px] text-lg font-semibold font-inter text-primary-color'>{parseFloat(formatPrice(gumball.ticketPrice, gumball.isTicketSol))}{gumball.isTicketSol ? " SOL" : VerifiedTokens.find((token: typeof VerifiedTokens[0]) => token.address === gumball.ticketMint)?.symbol}</h3>
                                 </div>
                                 
                             </div>
 
                             <div className="w-full">
-                                {gumball.status === "ACTIVE" ? 
-                                <div className="w-full mt-10">
+                                {gumball.status === "ACTIVE" && publicKey?.toBase58()!==gumball.creatorAddress ? 
+                                <div className="w-full mt-5">
 
                                     {/* <QuantityBox/> */}
 
                                 <div className="w-full flex">
-                                <PrimaryButton onclick={handleSpinClick} text='Press To Spin' className='w-full h-12' disabled={spinGumballFunction.isPending || isSpinning || availableGumballs.length === 0 || !publicKey || gumball.ticketsSold===gumball.totalTickets} />
+                                <PrimaryButton 
+                                  onclick={handleSpinClick} 
+                                  text={spinGumballFunction.isPending ? <Loader className="w-5 h-5 animate-spin text-black-1000" /> : isSpinning ? "Spinning..." : availableGumballs.length === 0 ? "No Prizes Available" : !publicKey ? "Connect Wallet" : gumball.ticketsSold===gumball.totalTickets ? "Sold Out" : "Press To Spin"}
+                                  className='w-full h-12 flex items-center justify-center' 
+                                  disabled={spinGumballFunction.isPending || isSpinning || availableGumballs.length === 0 || !publicKey || gumball.ticketsSold===gumball.totalTickets} 
+                                />
                                 </div>
 
-                                <p className='md:text-base text-sm text-white font-medium font-inter pt-[18px] pb-10'>Your balance: 0 SOL</p>
+                                <p className='md:text-base text-sm text-white font-medium font-inter pt-[18px] pb-10'>Your balance: </p>
                                 </div>
                                 :
                                 gumball.creatorAddress !== publicKey?.toString() ?
@@ -440,7 +453,7 @@ function GumballsDetails() {
                 </div>
         </div>
     </motion.section>
-    <PrizeModal
+    {/* <PrizeModal
       isOpen={isPrizeModalOpen}
       onClose={() => {
         setIsPrizeModalOpen(false);
@@ -456,6 +469,6 @@ function GumballsDetails() {
       isClaimPending={claimGumballPrizeFunction.isPending}
       isClaimed={isPrizeClaimed} 
       canClose={isPrizeClaimed}
-    />
+    /> */}
 </main>
   )}

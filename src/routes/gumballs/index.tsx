@@ -120,7 +120,7 @@ function Gumballs() {
       exit={{ opacity: 0, y: 100 }}
       transition={{ duration: 0.3 }}
       className='w-full pt-10 md:pt-[122px] pb-24 md:pb-[90px] z-10 relative'>
-        <div className="w-full max-w-[1440px] px-4 mx-auto">
+        <div className="w-full max-w-[1360px] px-4 mx-auto">
         <div className="w-full md:pb-12 pb-10 mt-10">
         <h1 className='lg:text-[60px] text-4xl leading-tight text-white font-semibold font-inter'>Gumball Spins & Rewards</h1>
         <p className='lg:text-xl text-base font-inter text-cream-1000'>Spin the gumball and win exciting prizes</p>

@@ -292,10 +292,10 @@ export const GumballBouncingBalls = ({ prizes, isActive, status, isSpinning = fa
 
   if (!prizes || prizes.length === 0) {
     return (
-      <div className="w-full h-[506px] rounded-[20px] bg-white flex items-center justify-center">
-        <div className="relative  w-full h-full bg-black/50 flex items-center justify-center z-10 rounded-[20px]">
+      <div className="w-full h-full rounded-[20px] bg-transparent flex items-center justify-center">
+        <div className="relative  w-full h-full bg-black/70 flex items-center justify-center z-10 rounded-[20px]">
           <img src="/images/ended-img-1.png" alt="no-prizes" className="w-full h-full object-cover absolute -z-10 rounded-[20px]" />
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10 rounded-[20px]"></div>
+          <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10 rounded-[20px]"></div>
           <p className="md:text-[28px] text-lg text-white font-bold font-inter absolute z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">No Prizes Available</p>
         </div>
       </div>
@@ -307,7 +307,7 @@ export const GumballBouncingBalls = ({ prizes, isActive, status, isSpinning = fa
       {/* Gumball machine container */}
       <div 
         ref={containerRef}
-        className="relative w-full h-[506px] rounded-[20px] overflow-hidden bg-white"
+        className="relative w-full h-full rounded-[20px] overflow-hidden bg-transparent"
       >
         {/* Canvas for floating balls */}
         <canvas
@@ -327,7 +327,7 @@ export const GumballBouncingBalls = ({ prizes, isActive, status, isSpinning = fa
         )}
 
         {/* Ball count indicator */}
-        <div className="absolute top-4 right-4 bg-gray-100 px-3 py-1.5 rounded-full z-20">
+        <div className="absolute top-4 right-4 bg-primary-color px-3 py-1.5 rounded-full z-20">
           <span className="text-gray-600 text-sm font-inter font-medium">
             {totalBalls} {totalBalls === 1 ? 'prize' : 'prizes'}
           </span>

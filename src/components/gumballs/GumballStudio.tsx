@@ -68,9 +68,8 @@ const hasSoldTicket = useMemo(()=>{
 const showClaimButton = useMemo(()=>{
   const isCompleted = gumball?.status === "COMPLETED_SUCCESSFULLY" || gumball?.status === "COMPLETED_FAILED";
   const hasAvailablePrizes = availablePrizeIndexes.length > 0;
-  const ticketClaimedByCreator = gumball?.ticketAmountClaimedByCreator;
-  return isCompleted && (hasAvailablePrizes || !ticketClaimedByCreator);
-}, [gumball?.status, availablePrizeIndexes, gumball?.ticketAmountClaimedByCreator]);
+  return isCompleted && hasAvailablePrizes;
+}, [gumball?.status, availablePrizeIndexes]);
 
   return (
     <div className="w-full">

@@ -5,13 +5,21 @@ import { VerifiedTokens, NATIVE_SOL_MINT } from "../src/utils/verifiedTokens";
 import { NETWORK } from "../src/constants";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
+export interface UserToken {
+    name: string;
+    address: string;
+    symbol: string;
+    image: string;
+    decimals: number;
+    balance: number;
+}
 export const useFetchUserToken = () => {
     const { connection } = useConnection();
     const wallet = useWallet();
 
-    const { data: userVerifiedTokens = [], isLoading, error } = useQuery({
+    const { data: userVerifiedTokens = [], isLoading, error } = useQuery<UserToken[]>({
         queryKey: ['userTokens', wallet.publicKey?.toString()],
-        queryFn: async () => {
+        queryFn: async (): Promise<UserToken[]> => {
             if (!wallet.publicKey) return [];
             console.log("Entered useFetchUserToken");
             const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
@@ -43,7 +51,10 @@ export const useFetchUserToken = () => {
             console.log("userSolbalance", userSolbalance);
             
             if (NETWORK === "devnet") {
-                return VerifiedTokens.filter((token) => (token.address === NATIVE_SOL_MINT || token.address === "BZfZhBoQSAMQVshvApFzwbKNA3dwuxKhK8m5GVCQ26yG"));
+                return VerifiedTokens.filter((token) => (token.address === NATIVE_SOL_MINT || token.address === "BZfZhBoQSAMQVshvApFzwbKNA3dwuxKhK8m5GVCQ26yG")).map((token) => ({
+                    ...token,
+                    balance: 0,
+                }));
             }
             if (userSolbalance > 0) {
                 return [...tokensWithBalance, {

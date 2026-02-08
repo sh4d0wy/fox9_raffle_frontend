@@ -84,7 +84,7 @@ const totalVolume = data.reduce((sum, item) => sum + item.value, 0)
         </div> */}
       </div>
 
-      <div className="w-full h-[340px] pt-10 pb-6">
+      <div className="w-full h-[340px] pt-10 pb-6 px-5">
       {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-color"></div>

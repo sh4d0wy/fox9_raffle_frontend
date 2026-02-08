@@ -230,7 +230,7 @@ function CreateProfile() {
          exit={{ opacity: 0, y: -100 }}
          transition={{ duration: 0.3 }}
          className='w-full md:pt-48 pt-36 pb-[120px]'>
-          <div className="w-full max-w-[1440px] px-5 mx-auto">
+          <div className="w-full max-w-[1360px] px-5 mx-auto">
             <div className="w-full flex lg:flex-row flex-col gap-10">
                 <div className="flex-1 space-y-6 md:max-w-[320px]">
                     <div className="w-full bg-black-1300 border flex items-center justify-center border-gray-1100 rounded-[18px] py-5">

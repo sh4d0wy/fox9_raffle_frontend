@@ -27,7 +27,7 @@ function RouteComponent() {
         className='w-full md:pt-48 pt-36 pb-[100px]'>
                 <div className="w-full max-w-[1440px] px-5 mx-auto">
                     <div className="pb-12">
-                    <h1 className='text-[28px] font-semibold text-white font-inter'>Analytics</h1>
+                    <h1 className='text-[28px] font-semibold text-white font-inter'>Raffle Analytics</h1>
                     </div>
 
                     <div className="w-full lg:flex-nowrap flex-wrap flex gap-5">
