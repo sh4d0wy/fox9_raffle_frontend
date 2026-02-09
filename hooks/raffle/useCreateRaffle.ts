@@ -46,6 +46,7 @@ export const useCreateRaffle = () => {
     getEndTimestamp,
     setIsCreatingRaffle,
     maximumTickets,
+    reset,
   } = useCreateRaffleStore();
 
   const { getRaffleConfig } = useRaffleAnchorProgram();
@@ -168,6 +169,7 @@ export const useCreateRaffle = () => {
     mutationFn: async () => {
       if (!(await validateForm())) {
         setIsCreatingRaffle(false);
+        reset();
         throw new Error("Validation failed");
       }
 
@@ -215,6 +217,7 @@ export const useCreateRaffle = () => {
       });
 
       if (confirmation.value.err) {
+        reset();
         throw new Error("Failed to create raffle");
       }
 
@@ -277,11 +280,13 @@ export const useCreateRaffle = () => {
     onSuccess: (raffleId: number) => {
       queryClient.invalidateQueries({ queryKey: ["raffles", raffleId.toString()] });
       setIsCreatingRaffle(false);
+      reset();
       toast.success("Raffle created successfully");
       router.navigate({ to: "/raffles/$id", params: { id: raffleId.toString() } });
     },
     onError: async (error) => {
       setIsCreatingRaffle(false);
+      reset();
       if (error.message !== "Validation failed") {
         toast.error("Failed to create raffle");
       }

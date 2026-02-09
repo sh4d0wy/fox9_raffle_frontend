@@ -516,7 +516,7 @@ function AuctionDetails() {
                             <div className="inline-flex flex-col gap-2.5">
                            
                                 <h3 className="md:text-xl w-full px-4 py-2 text-primary-color text-center font-semibold font-inter ">
-                                {(auction?.highestBidAmount!/(10**(VerifiedTokens.find((token)=>token.symbol===auction?.currency)?.decimals || 0))).toFixed(6)} {auction?.currency}
+                                {parseFloat((auction?.highestBidAmount!/(10**(VerifiedTokens.find((token)=>token.symbol===auction?.currency)?.decimals || 0))).toFixed(6))} {auction?.currency}
                                 </h3>
                                 <p className="font-inter text-center text-gray-1200 text-sm font-normal">
                                 Highest Bid
@@ -546,7 +546,7 @@ function AuctionDetails() {
                                 <WalletMultiButton />
                             </div>
                       
-                      : publicKey.toBase58() === auction?.createdBy ?
+                      : publicKey.toBase58() === auction?.createdBy  ?
                       <div className="w-full flex items-center justify-center py-4 px-6 gap-4 rounded-[20px] bg-black-1300">
                             <button onClick={handleCancelAuction} disabled={isCancellingAuction} className={`w-full  bg-red-800 cursor-pointer text-white px-4 py-4 rounded-full text-sm md:text-base font-inter font-medium ${isCancellingAuction ? "opacity-50 cursor-not-allowed" : ""}`}>
                               {isCancellingAuction ? <Loader className="w-6 h-6 animate-spin text-white text-center mx-auto" /> : <span className="text-center mx-auto">Cancel Auction</span>}
@@ -569,10 +569,10 @@ function AuctionDetails() {
                         className={`w-full h-full outline-none ${isWrongBid && bidAmountInput !== "" ? "border-red-500" : ""} py-2 rounded-full text-white text-base font-inter font-medium`} placeholder="0.00" />
                         <span className="text-primary-color text-sm font-inter font-medium">{auction?.currency}</span>
                         </div>
-                        <p className={`text-[10px] text-gray-500 w-full px-5 absolute my-1 ${isWrongBid && bidAmountInput !== "" ? "text-red-500" : ""}`}>
+                        <p className={`text-[13px] text-gray-300 w-full px-5 absolute my-1 ${isWrongBid && bidAmountInput !== "" ? "text-red-500" : ""}`}>
                               {auction.hasAnyBid
-                                ? `Your bid must be atleast ${minBidInSol.toFixed(6)}`
-                                : `Your bid must be greater than ${minBidInSol.toFixed(6)}`}{" "}
+                                ? `Your bid must be atleast ${parseFloat(minBidInSol.toFixed(6))}`
+                                : `Your bid must be greater than ${parseFloat(minBidInSol.toFixed(6))}`}{" "}
                               {auction.currency}
                             </p>
                             </div>
@@ -591,7 +591,7 @@ function AuctionDetails() {
                       </div>
                     </div> 
                             :
-                            computedStatus === "COMPLETED" &&
+                            computedStatus === "COMPLETED" ?
                             (
                               <>
                             <div className="w-full border border-primary-color flex flex-col md:gap-10 gap-6 sm:py-[22px] pt-5 pb-4 px-4 sm:px-[26px] rounded-[20px] bg-black-1300">
@@ -640,7 +640,82 @@ function AuctionDetails() {
                       </div>
                        </div>
                        </>
-                            )}
+                            ):
+                            computedStatus === "CANCELLED" ?
+                            (
+                              <>
+                              <div className="w-full flex items-center justify-center py-4 px-6 gap-4 rounded-[20px] bg-primary-color/10">
+                                <h3 className="md:text-base text-sm text-primary-color font-inter font-medium text-center">
+                                This auction has been cancelled by the creator.
+                                </h3>
+                              </div>
+                              </>
+                            ):computedStatus === "UPCOMING" &&
+                            (
+                              <>
+                              <div className="flex flex-col items-center justify-between gap-4">
+                          <div className="w-full flex items-center flex-col-reverse md:flex-row justify-between py-4 px-[26px] rounded-[20px] bg-primary-color/10">
+                            <div className="inline-flex w-full md:w-fit flex-col gap-2.5">
+                              <PageTimer targetDate={new Date(auction?.startsAt || "")} />
+                                <p className="text-sm font-inter text-gray-1200 font-normal">
+                                Time Left
+                                </p>
+                            </div>
+                            <div className="flex-1 md:flex-none md:w-1/2 flex justify-between w-full pb-6 md:pb-0">
+                            <div className="inline-flex flex-col gap-2.5">
+                           
+                                <h3 className="md:text-xl w-full px-4 py-2 text-primary-color text-center font-semibold font-inter ">
+                                {parseFloat((auction?.highestBidAmount!/(10**(VerifiedTokens.find((token)=>token.symbol===auction?.currency)?.decimals || 0))).toFixed(6))} {auction?.currency}
+                                </h3>
+                                <p className="font-inter text-center text-gray-1200 text-sm font-normal">
+                                Highest Bid
+                                </p>
+                            </div>
+
+                            <div className="inline-flex flex-col gap-2.5">
+                              
+                                <h3 className={`md:text-xl text-base text-center font-semibold rounded-xl px-4 py-2 font-inter ${computedStatus === "UPCOMING" ? "bg-primary-color/10 text-primary-color " : "text-red-500 bg-red-800/40"}`}>
+                                {computedStatus.toUpperCase()}
+                                </h3>
+                                <p className="font-inter text-center text-gray-1200 text-sm font-normal">
+                                Status
+                                </p>
+                             
+                            </div>
+                            </div>
+                            </div>
+
+
+                      <div className={`w-full flex flex-col gap-3 justify-between pt-8 pb-10 px-[26px] rounded-[20px] bg-[#1b1b21] border ${publicKey && publicKey.toBase58() === auction?.createdBy ? "border-red-800" : "border-primary-color"}`}>
+                        {!publicKey ?
+                        <div className="w-full flex items-center flex-col justify-center py-[18px] md:py-[22px] px-[26px] gap-4 md:gap-[26px] rounded-[20px] bg-black-1300">
+                                <h3 className="md:text-base text-sm text-gray-1200 font-inter font-medium text-center">
+                                Please connect your wallet first to bid on this auction.
+                                </h3>
+                                <WalletMultiButton />
+                            </div>
+                      
+                      : publicKey.toBase58() === auction?.createdBy  && computedStatus === "UPCOMING" ?
+                      <div className="w-full flex items-center justify-center py-4 px-6 gap-4 rounded-[20px] bg-black-1300">
+                            <button onClick={handleCancelAuction} disabled={isCancellingAuction} className={`w-full  bg-red-800 cursor-pointer text-white px-4 py-4 rounded-full text-sm md:text-base font-inter font-medium ${isCancellingAuction ? "opacity-50 cursor-not-allowed" : ""}`}>
+                              {isCancellingAuction ? <Loader className="w-6 h-6 animate-spin text-white text-center mx-auto" /> : <span className="text-center mx-auto">Cancel Auction</span>}
+                              </button>
+                      </div>
+                      :
+                      <div className="w-full flex items-center justify-center py-4 px-6 gap-4 rounded-[20px] bg-black-1300">
+                            <h3 className="md:text-base text-sm text-gray-1200 font-inter font-medium text-center">
+                                Auction will start soon....
+                            </h3>
+                      </div>
+
+                      }
+                        
+                      
+                      </div>
+                    </div> 
+                              </>
+                            )
+                            }
 
                             <div className="w-full">
                                 <div className="w-full overflow-x-auto">

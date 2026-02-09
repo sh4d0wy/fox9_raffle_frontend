@@ -20,7 +20,7 @@ import { useGetCollectionFP } from 'hooks/useGetCollectionFP';
 import { VerifiedNftCollections } from '@/utils/verifiedNftCollections';
 import clsx from 'clsx';
 import { VerifiedTokens } from '@/utils/verifiedTokens';
-import { Loader } from 'lucide-react';
+import { ChevronDownIcon, Loader } from 'lucide-react';
 
 export const Route = createFileRoute('/auctions/create_auctions')({
   component: CreateAucations,
@@ -639,22 +639,16 @@ console.log("startType", startType);
                                 onClick={toggleDropdown}
                               >
                                 <p>{symbol}</p>
-                                <span>
-                                  <img
-                                    src="/icons/down-arw.svg"
-                                    alt="toggle"
-                                    className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-                                  />
-                                </span>
+                                <ChevronDownIcon className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
                               </button>
 
                               {isOpen && (
-                                <ol className="absolute top-full right-0 w-full bg-black-1300 border border-gray-1100 rounded-md mt-3 z-10">
+                                <ol className="absolute top-full right-0 w-full bg-black-1300 border border-gray-1100 rounded-lg mt-3 z-10">
                                   {VerifiedTokens.map((token) => (
                                     <li key={token.symbol}>
                                       <button
                                         type="button"
-                                        className="w-full text-left px-3 py-2 hover:bg-gray-100"
+                                        className={`w-full text-white text-left px-3 py-2 hover:bg-primary-color/20 rounded-sm ${token.symbol === symbol ? "bg-primary-color text-black! hover:bg-primary-color!" : ""}`}
                                         onClick={() =>
                                           handleSelect(
                                             token.address,
