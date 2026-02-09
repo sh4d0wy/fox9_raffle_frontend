@@ -63,10 +63,10 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
   const decrease = (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    const previousQuantity = getTicketQuantityById(raffle.id!);
+    const previousQuantity = getTicketQuantityById(raffle.id || 0);
     updateTicketQuantityById(raffle.id!, Math.max(1, previousQuantity - 1));
     if(previousQuantity === 1){
-      updateTicketQuantityById(raffle.id!, 1);
+      updateTicketQuantityById(raffle.id || 0, 1);
     }
   };
 
@@ -74,9 +74,9 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
     e.preventDefault();
     e.stopPropagation();
     const previousQuantity = getTicketQuantityById(raffle.id!);
-    updateTicketQuantityById(raffle.id!, Math.min(MAX, previousQuantity + 1));
+    updateTicketQuantityById(raffle.id || 0, Math.min(MAX, previousQuantity + 1));
     if(previousQuantity === MAX){
-      updateTicketQuantityById(raffle.id!, MAX);
+      updateTicketQuantityById(raffle.id || 0, MAX);
     }
   };
   const ticketPrice = useMemo(()=>{
@@ -274,9 +274,9 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
               </button>
 
               <input
-                value={Math.min(MAX, Math.max(1, getTicketQuantityById(raffle.id!)))}
+                value={Math.min(MAX, Math.max(1, getTicketQuantityById(raffle.id || 0)))}
                 onChange={(e) =>
-                  updateTicketQuantityById(raffle.id!, Math.min(MAX, Math.max(1, Number(e.target.value))))
+                  updateTicketQuantityById(raffle.id || 0, Math.min(MAX, Math.max(1, Number(e.target.value))))
                 }
                 className="outline-0 w-full text-center font-bold text-white bg-transparent"
                 type="number"
@@ -292,7 +292,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                buyTicket.mutate({ raffleId: raffle.id!, ticketsToBuy: getTicketQuantityById(raffle.id!) })
+                buyTicket.mutate({ raffleId: raffle.id || 0, ticketsToBuy: getTicketQuantityById(raffle.id || 0) })
               }}
               className="flex-1 h-11 bg-primary-color rounded-full
                 flex items-center justify-center cursor-pointer
@@ -300,7 +300,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
             >
               Buy 
               <div className="flex items-center gap-1">
-              <span className=""> {getTicketQuantityById(raffle.id!) * ticketPrice} </span>
+              <span className=""> {getTicketQuantityById(raffle.id || 0) * ticketPrice} </span>
               <span className=""> {raffle.ticketTokenSymbol}</span>
               </div>
             </button>
