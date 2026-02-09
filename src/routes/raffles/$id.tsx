@@ -794,110 +794,100 @@ function RouteComponent() {
                     }
 
                   </div>
-                  {raffle.prizeData.type === "NFT" ? (
-                    <div className="md:hidden block border-t border-solid border-gray-1100">
-                      <div className="w-full pb-7 pt-6 md:py-10 flex items-center justify-between">
-                        <div className="flex items-center gap-5 md:gap-3 2xl:gap-5">
-                          <img
-                            src={`${API_URL}${raffle?.creator?.profileImage}`}
-                            className="w-12 h-12 rounded-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = DEFAULT_AVATAR;
-                            }}
-                            alt=""
-                          />
-                          <h3 className="md:text-[28px] text-lg font-bold text-black-1000 font-inter">
-                            {raffle.prizeData.name}
-                          </h3>
-                        </div>
+                  {raffle.prizeData.type === "NFT" && (
+                    <>
+                <div className="w-full pb-7 pt-6 md:py-10 flex md:hidden items-center justify-between">
+                  <div className="flex items-center gap-3 2xl:gap-5">
+                    <img
+                      src={VerifiedNftCollections.find((collection) => collection.address === raffle?.prizeData.collection)?.image}
+                      className="w-12 h-12 object-contain rounded-full"
+                      alt=""
+                    />
+                    <h3 className="md:text-[28px] text-lg font-bold text-white font-inter">
+                      {VerifiedNftCollections.find((collection) => collection.address === raffle?.prizeData.collection)?.name}
+                    </h3>
+                  </div>
 
-                        <ul className="flex items-center gap-6">
-                          <li>
-                            <a href={VerifiedNftCollections.find((collection) => collection.address === raffle?.prizeData.collection)?.twitter}>
-                              <img
-                                src="/icons/twitter-icon.svg"
-                                className="md:w-7 md:h-7 w-6 h-6 object-contain"
-                                alt=""
-                              />
-                            </a>
-                          </li>
+                  <ul className="flex items-center gap-2">
+                    <li>
+                      <a href={VerifiedNftCollections.find((collection) => collection.address === raffle?.prizeData.collection)?.twitter}>
+                      <FaXTwitter className="w-7 h-7 object-contain text-white" />
+                      </a>
+                    </li>
 
-                          <li>
-                            <a href={VerifiedNftCollections.find((collection) => collection.address === raffle?.prizeData.collection)?.website}>
-                              {" "}
-                              <img
-                                src="/icons/mcp-server-icon.svg"
-                                className="md:w-7 md:h-7 w-6 h-6 object-contain"
-                                alt=""
-                              />
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                      <div className="w-full space-y-5">
-                        {isNftMetadataLoading ? (
-                          <div className="w-full py-10 flex items-center justify-center">
-                            <Loader className="w-8 h-8 animate-spin text-primary-color" />
-                          </div>
-                        ) : nftSections.map((section, index) => (
-                          <Disclosure
-                            as="div"
-                            key={section.title}
-                            defaultOpen={index === 0}
-                            className="w-full py-4 md:py-6 px-5 border border-gray-1100 rounded-[20px]"
-                          >
-                            {({ open }) => (
-                              <>
-                                <Disclosure.Button
-                                  className={`flex items-center justify-between w-full text-base md:text-xl font-bold font-inter text-white ${open ? "text-primary-color" : ""
-                                    }`}
-                                >
-                                  <span>{section.title}</span>
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width={16}
-                                    height={9}
-                                    viewBox="0 0 16 9"
-                                    fill="none"
-                                    className={`${open ? `rotate-180` : ``
-                                      } transition-transform`}
-                                  >
-                                    <path
-                                      d="M15 1L8 8L1 1"
-                                      stroke="currentColor"
-                                      strokeWidth={2}
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
-                                </Disclosure.Button>
-
-                                <Disclosure.Panel className="w-full">
-                                  <ul className="space-y-6 pt-6">
-                                    {section.items.map((item) => (
-                                      <li
-                                        key={item.label}
-                                        className="flex items-center justify-between"
-                                      >
-                                        <p className="md:text-base text-sm font-inter font-medium text-gray-1100/40">
-                                          {item.label}
-                                        </p>
-                                        <p className="md:text-base text-sm font-inter font-medium text-white">
-                                          {item.value}
-                                        </p>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </Disclosure.Panel>
-                              </>
-                            )}
-                          </Disclosure>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <></>
-                  )}
+                    <li>
+                      <a href={VerifiedNftCollections.find((collection) => collection.address === raffle?.prizeData.collection)?.website}>
+                        {" "}
+                        <Globe2Icon className="w-7 h-7 object-contain text-white" />
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                 <div className="w-full space-y-5">
+                 {raffle.prizeData.type === "NFT" && nftSections.length > 0 ? (
+                   isNftMetadataLoading ? (
+                     <div className="w-full py-10 flex items-center justify-center">
+                       <Loader className="w-8 h-8 animate-spin text-primary-color" />
+                     </div>
+                   ) : nftSections.map((section, index) => (
+                     <Disclosure
+                       as="div"
+                       key={section.title}
+                       defaultOpen={index === 0}
+                       className="w-full py-4 md:py-6 px-5 border border-gray-1100 rounded-[20px]"
+                     >
+                       {({ open }) => (
+                         <>
+                           <Disclosure.Button
+                             className={`flex items-center justify-between w-full text-base md:text-xl font-bold font-inter text-white ${open ? "text-primary-color" : ""
+                               }`}
+                           >
+                             <span>{section.title}</span>
+                             <svg
+                               xmlns="http://www.w3.org/2000/svg"
+                               width={16}
+                               height={9}
+                               viewBox="0 0 16 9"
+                               fill="none"
+                               className={`${open ? `rotate-180` : ``
+                                 } transition-transform`}
+                             >
+                               <path
+                                 d="M15 1L8 8L1 1"
+                                 stroke="currentColor"
+                                 strokeWidth={2}
+                                 strokeLinecap="round"
+                                 strokeLinejoin="round"
+                               />
+                             </svg>
+                           </Disclosure.Button>
+ 
+                           <Disclosure.Panel className="w-full">
+                             <ul className="space-y-6 pt-6">
+                               {section.items.map((item) => (
+                                 <li
+                                   key={item.label}
+                                   className="flex items-center justify-between"
+                                 >
+                                   <p className="md:text-base text-sm font-inter font-medium text-gray-1100/40">
+                                     {item.label}
+                                   </p>
+                                   <p className="md:text-base text-sm font-inter font-medium text-white">
+                                     {item.value}
+                                   </p>
+                                 </li>
+                               ))}
+                             </ul>
+                           </Disclosure.Panel>
+                         </>
+                       )}
+                     </Disclosure>
+                   ))) : (
+                   <></>
+                 )}
+               </div>
+               </>
+              )} 
 
                 </div>
               </div>
