@@ -38,7 +38,8 @@ export const Navbar = () => {
   const { publicKey, connected, signMessage } = useWallet();
   const location = useLocation();
   const tokenCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const authenticatingWalletRef = useRef<string | null>(null); // Track which wallet is being authenticated
+  const authenticatingWalletRef = useRef<string | null>(null);
+  const isAuthenticatingRef = useRef(false);
   const hasInitializedRef = useRef(false);
   const lastNotifiedWalletRef = useRef<string | null>(null);
   const hasShownNotificationsRef = useRef(false);
@@ -67,14 +68,24 @@ export const Navbar = () => {
   };
 
   const authenticateWallet = async (currentWalletKey: string, reason: string) => {
+    if (isAuthenticatingRef.current) {
+      return;
+    }
+    
     if (authenticatingWalletRef.current === currentWalletKey) {
       return;
     }
 
     try {
+      isAuthenticatingRef.current = true;
       authenticatingWalletRef.current = currentWalletKey;
       
       const message = await requestMessage(currentWalletKey);
+      
+      if (authenticatingWalletRef.current !== currentWalletKey) {
+        return;
+      }
+      
       const result = await signAndVerifyMessage(message.message);
       
       if (authenticatingWalletRef.current !== currentWalletKey) {
@@ -100,6 +111,7 @@ export const Navbar = () => {
       if (authenticatingWalletRef.current === currentWalletKey) {
         authenticatingWalletRef.current = null;
       }
+      isAuthenticatingRef.current = false;
     }
   };
 
@@ -112,6 +124,7 @@ export const Navbar = () => {
           hasInitializedRef.current = false;
           if (authenticatingWalletRef.current && authenticatingWalletRef.current !== currentWalletKey) {
             authenticatingWalletRef.current = null;
+            isAuthenticatingRef.current = false;
           }
           removeToken();
         }
@@ -120,7 +133,7 @@ export const Navbar = () => {
           return;
         }
 
-        if (authenticatingWalletRef.current === currentWalletKey) {
+        if (authenticatingWalletRef.current === currentWalletKey || isAuthenticatingRef.current) {
           return;
         }
 
@@ -136,9 +149,10 @@ export const Navbar = () => {
           await authenticateWallet(currentWalletKey, "initial connection");
         }
       } else if (!connected) {
-        if (hasInitializedRef.current) {
+        if (hasInitializedRef.current || authenticatingWalletRef.current) {
           hasInitializedRef.current = false;
           authenticatingWalletRef.current = null;
+          isAuthenticatingRef.current = false;
           removeToken();
           setAuth(false, null);
         }
@@ -163,6 +177,10 @@ export const Navbar = () => {
 
     tokenCheckIntervalRef.current = setInterval(() => {
       if (document.hidden) {
+        return;
+      }
+      
+      if (isAuthenticatingRef.current) {
         return;
       }
       
