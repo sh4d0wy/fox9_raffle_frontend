@@ -499,13 +499,7 @@ function CreateProfile() {
                       <NoRaffles />
                     ) : (
                       <div
-                        className={`grid ${
-                          activeRafflerTab === `purchased`
-                            ? `grid-cols-1`
-                            : activeRafflerTab === `favourite`
-                              ? `grid-cols-3`
-                              : `lg:grid-cols-3 md:grid-cols-2 grid-cols-1`
-                        } lg:gap-y-10 lg:gap-x-[26px] gap-4`}
+                        className={`grid ${activeRafflerTab !== "purchased" ? "lg:grid-cols-3 md:grid-cols-2 grid-cols-1" : "grid-cols-1"} lg:gap-y-10 lg:gap-x-[20px] gap-2 pt-3`}
                       >
                         {activeRafflerTab === "purchased"
                           ? sortedRafflePurchasedCards.map((card: any) => (
@@ -517,6 +511,7 @@ function CreateProfile() {
                                   key={card.id}
                                   raffle={card}
                                   soldTickets={card.ticketSold}
+                                  category="favourite"
                                 />
                               ))
                             : sortedRaffleCreatedCards.map((card: any) => (

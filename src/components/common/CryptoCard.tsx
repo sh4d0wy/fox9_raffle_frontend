@@ -265,11 +265,11 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
 
         {canBuyRaffle && (
           <>
-          <div className="w-full flex items-center sm:flex-row flex-col gap-4">
+          <div className="w-full flex items-center sm:flex-row flex-col md:gap-1 gap-4">
             {/* Quantity */}
             
-            <div className="flex flex-1 items-center justify-between py-2 px-3 border border-gray-1000 rounded-full">
-              <button onClick={(e) => decrease(e)} className="min-w-8 h-8 cursor-pointer rounded-lg bg-primary-color">
+            <div className="flex w-full items-center justify-between py-2 px-3 border border-gray-1000 rounded-full">
+              <button onClick={(e) => decrease(e)} className="min-w-6 h-6 cursor-pointer rounded-lg bg-primary-color">
                 −
               </button>
 
@@ -282,7 +282,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
                 type="number"
               />
 
-              <button onClick={(e) => increase(e)} className="min-w-8 h-8 cursor-pointer rounded-lg bg-primary-color">
+              <button onClick={(e) => increase(e)} className="min-w-6 h-6 cursor-pointer rounded-lg bg-primary-color">
                 +
               </button>
             </div>
@@ -296,7 +296,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
               }}
               className="flex-1 h-11 bg-primary-color rounded-full
                 flex items-center justify-center cursor-pointer
-                text-black-1000 font-semibold px-4 py-2 gap-2 w-full md:w-fit"
+                text-black-1000 font-semibold px-4 py-2 gap-2 w-full md:w-fit text-sm md:text-base"
             >
               Buy 
               <div className="flex items-center gap-1">
