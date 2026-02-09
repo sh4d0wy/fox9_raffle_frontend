@@ -175,7 +175,6 @@ function AuctionDetails() {
     }
     return null;
   }, [auction?.status]);
-  console.log("auction",auction)
 
   useEffect(() => {
     if (!auction) return;
@@ -553,11 +552,11 @@ function AuctionDetails() {
                               </button>
                       </div>
                       :
-                      <div className="flex flex-col items-start gap-2">
+                      <div className="flex flex-col items-start gap-4 md:gap-2">
                         <label htmlFor="bid-amount" className="text-sm md:text-base font-inter text-white font-normal">
                         Enter Bid Amount ({auction?.currency})
                       </label>
-                      <div className="flex flex-col md:flex-row items-center w-full gap-2">
+                      <div className="flex flex-col md:flex-row items-center -mb-8 md:mb-0 w-full gap-2">
                         <div className={`w-full md:w-2/3 relative ${isWrongBid && bidAmountInput !== "" ? "border-red-500" : ""}`}>
                         <div className={`w-full rounded-full py-1 border  ${isWrongBid && bidAmountInput !== "" ? "border-red-500" : "border-white/20"} flex items-center justify-between px-5`}>
                         <input 
@@ -569,19 +568,27 @@ function AuctionDetails() {
                         className={`w-full h-full outline-none ${isWrongBid && bidAmountInput !== "" ? "border-red-500" : ""} py-2 rounded-full text-white text-base font-inter font-medium`} placeholder="0.00" />
                         <span className="text-primary-color text-sm font-inter font-medium">{auction?.currency}</span>
                         </div>
-                        <p className={`text-[13px] text-gray-300 w-full px-5 absolute my-1 ${isWrongBid && bidAmountInput !== "" ? "text-red-500" : ""}`}>
+                        <p className={`text-[13px] hidden md:block text-gray-300 w-full absolute  px-5 my-1 ${isWrongBid && bidAmountInput !== "" ? "text-red-500" : ""}`}>
                               {auction.hasAnyBid
                                 ? `Your bid must be atleast ${parseFloat(minBidInSol.toFixed(6))}`
                                 : `Your bid must be greater than ${parseFloat(minBidInSol.toFixed(6))}`}{" "}
                               {auction.currency}
                             </p>
                             </div>
+                            <div className="w-full md:w-1/3 flex gap-2 flex-col ">
                         <button
                         disabled={isBiddingAuction || isWrongBid}
                         onClick={()=>setShowConfirmBidPopup(true)}
-                        className="w-full md:w-1/3 disabled:opacity-50 disabled:cursor-not-allowed bg-primary-color cursor-pointer text-black px-4 py-2 rounded-full text-sm md:text-base font-inter font-medium">
+                        className="w-full disabled:opacity-50 disabled:cursor-not-allowed bg-primary-color cursor-pointer text-black px-4 py-2 rounded-full text-sm md:text-base font-inter font-medium">
                           {isBiddingAuction ? <Loader className="w-6 h-6 animate-spin text-white text-center mx-auto" /> : <span className="text-center mx-auto">Place Bid</span>}
                         </button>
+                        <p className={`text-xs md:text-[13px] text-gray-300 w-full md:hidden px-3 md:px-5 my-1 ${isWrongBid && bidAmountInput !== "" ? "text-red-500" : ""}`}>
+                              {auction.hasAnyBid
+                                ? `Your bid must be atleast ${parseFloat(minBidInSol.toFixed(6))}`
+                                : `Your bid must be greater than ${parseFloat(minBidInSol.toFixed(6))}`}{" "}
+                              {auction.currency}
+                            </p>
+                        </div>
                       </div>
                     </div>
 
@@ -753,80 +760,72 @@ function AuctionDetails() {
                     </div>
                 </div>
                 {/*Mobile section*/}
-                    <div className="md:hidden block border-t border-solid border-gray-1100">
-                              <div className="w-full pb-7 pt-6 md:py-10 flex items-center justify-between">
-                                <div className="flex items-center gap-5 md:gap-3 2xl:gap-5">
-                                  <img
-                                    src={auction?.creator.profileImage?API_URL+auction.creator.profileImage:DEFAULT_AVATAR}
-                                    className="w-12 h-12 rounded-full object-cover"
-                                    alt=""
-                                  />
-                                  <h3 className="md:text-[28px] text-lg font-bold text-white font-inter">
-                                    {shortenAddress(auction?.createdBy)}
-                                  </h3>
-                                </div>
-                              </div>
-                              <div className="w-full space-y-5">
-                                {isNftMetadataLoading ? (
-                                  <div className="w-full py-10 flex items-center justify-center">
-                                    <Loader className="w-8 h-8 animate-spin text-primary-color" />
-                                  </div>
-                                ) : nftSections.map((section, index) => (
-                                  <Disclosure
-                                    as="div"
-                                    key={section.title}
-                                    defaultOpen={index === 0}
-                                    className="w-full py-4 md:py-6 px-5 border border-gray-1100 rounded-[20px] transition duration-300"
-                                  >
-                                    {({ open }) => (
-                                      <>
-                                        <Disclosure.Button
-                                          className={`flex items-center justify-between w-full text-base md:text-xl font-bold font-inter transition duration-300 ${
-                                            open ? "text-primary-color" : "text-white"
-                                          }`}
-                                        >
-                                          <span>{section.title}</span>
-                                          <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width={16}
-                                            height={9}
-                                            viewBox="0 0 16 9"
-                                            fill="none"
-                                            className={`${open ? "rotate-180" : ""} transition-transform`}
-                                          >
-                                            <path
-                                              d="M15 1L8 8L1 1"
-                                              stroke="currentColor"
-                                              strokeWidth={2}
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
-                                            />
-                                          </svg>
-                                        </Disclosure.Button>
-                
-                                        <Disclosure.Panel className="w-full">
-                                          <ul className="space-y-6 pt-6">
-                                            {section.items.map((item) => (
-                                              <li
-                                                key={item.label}
-                                                className="flex items-center justify-between"
-                                              >
-                                                <p className="md:text-base text-sm font-inter font-medium text-gray-1100/40">
-                                                  {item.label}
-                                                </p>
-                                                <p className="md:text-base text-sm font-inter font-medium text-white">
-                                                  {item.value}
-                                                </p>
-                                              </li>
-                                            ))}
-                                          </ul>
-                                        </Disclosure.Panel>
-                                      </>
-                                    )}
-                                  </Disclosure>
-                                ))}
-                              </div>
+                <div className="w-full pb-7 pt-6 md:py-10 md:hidden flex items-center justify-between">
+                        <div className="flex items-center gap-3 2xl:gap-5">
+                            <img  src={VerifiedNftCollections.find((item)=>item.name===auction?.collectionName)?.image} className='w-12 h-12 rounded-full object-cover' alt="" />
+                            <h3 className='md:text-2xl text-lg font-bold text-white font-inter'>{auction?.collectionName}</h3>
+                        </div>
+
+                        <ul className='flex items-center bg-primary-color/20 rounded-full p-2 gap-6'>
+                            <li>
+                                <a href={VerifiedNftCollections.find((item)=>item.name===auction?.collectionName)?.twitter}><img src="/icons/twitter-icon.svg" className='w-7 invert h-7 object-contain' alt="" /></a>
+                            </li>
+
+                                <li>
+                                <a href={VerifiedNftCollections.find((item)=>item.name===auction?.collectionName)?.website}> <img src="/icons/mcp-server-icon.svg" className='w-7 invert h-7 object-contain' alt="" /></a>
+                            </li>
+                        </ul>
+
                     </div>
+                 <div className="w-full space-y-5 md:hidden block">
+                    {nftSections.length > 0 ? (
+                      isNftMetadataLoading ? (
+                        <div className="w-full py-10 flex items-center justify-center">
+                          <Loader className="w-8 h-8 animate-spin text-primary-color" />
+                        </div>
+                      ) : nftSections.map((section, index) => (
+                        <Disclosure as="div" key={section.title} defaultOpen={index === 0} className="w-full py-4 md:py-6 px-5 border border-gray-1100 rounded-[20px] transition duration-300">
+                        {({ open }) => (
+                            <>
+                            <Disclosure.Button className={`flex items-center justify-between w-full text-base md:text-xl font-bold font-inter text-white ${
+                                open ? 'text-primary-color!' : ''}`}>
+                                <span>{section.title}</span>
+                                <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width={16}
+                                height={9}
+                                viewBox="0 0 16 9"
+                                fill="none"
+                                className={`${open ? 'rotate-180' : ''} transition-transform`}
+                                >
+                                <path
+                                    d="M15 1L8 8L1 1"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                />
+                                </svg>
+                            </Disclosure.Button>
+
+                            <Disclosure.Panel className="w-full">
+                                <ul className="space-y-6 pt-6">
+                                {section.items.map((item) => (
+                                    <li key={item.label} className="flex items-center justify-between">
+                                    <p className="md:text-base text-sm font-inter font-medium text-gray-1100/40">{item.label}</p>
+                                    <p className="md:text-base text-sm font-inter font-medium text-white">{item.value}</p>
+                                    </li>
+                                ))}
+                                </ul>
+                            </Disclosure.Panel>
+                            </>
+                             )}
+                        </Disclosure>
+                      ))
+                    ) : (
+                      <></>
+                    )}
+                     </div>
             </div>
         </div>
     </section>
