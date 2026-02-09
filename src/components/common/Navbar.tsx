@@ -446,5 +446,5 @@ export const Navbar = () => {
       {/* MODALS */}
       <SettingsModel isOpen={showSettingsModal} onClose={closeSettings} />
     </header>
-  );
+  )
 };
