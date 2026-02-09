@@ -31,7 +31,7 @@ function RouteComponent() {
                     </div>
 
                     <div className="w-full lg:flex-nowrap flex-wrap flex gap-5">
-                        <div className="lg:flex-1">
+                        <div className="lg:flex-1 w-full max-w-full">
                         <USDVolumeChart
                         data={volume.data?.data || []}
                         timeframe={volume.data?.timeframe || 'day'}
@@ -59,7 +59,7 @@ function RouteComponent() {
                     </div>
 
                       <div className="w-full lg:flex-nowrap flex-wrap flex gap-5">
-                      <div className="lg:flex-1">
+                      <div className="lg:flex-1 lg:w-auto w-full lg:max-w-[435px] max-w-full">
               <UniqueBuyersChart
                 data={uniqueBuyers.data?.data || []}
                 totalUniqueBuyers={uniqueBuyers.data?.totalUniqueBuyers || 0}

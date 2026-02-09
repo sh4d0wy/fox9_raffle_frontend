@@ -34,6 +34,7 @@ export const Route = createFileRoute('/raffles/$id')({
 import type { NftMetadata } from 'hooks/useNftMetadata';
 import RaffleEndedPopup from '@/components/ui/popups/raffle/RaffleEndedPopup';
 import { motion } from 'motion/react';
+import ToolTip from '@/components/common/ToolTip';
 
 const getNftSections = (nftMetadata: NftMetadata | null | undefined, prizeData: any) => {
   const traits: { label: string; value: string }[] = [];
@@ -125,10 +126,12 @@ function RouteComponent() {
   const { claimTicket } = useClaimTicketRaffle();
   const [maxTicketsBought, setMaxTicketsBought] = useState(false);
   const DEFAULT_AVATAR = "/icons/user-avatar.png";
+  const [ttvTooltipOpen, setTTVTooltipOpen] = useState(false);
+  const [prizeValueTooltipOpen, setPrizeValueTooltipOpen] = useState(false);
+  const [roiTooltipOpen, setRoiTooltipOpen] = useState(false);
+
   const { data: winnersWhoClaimedPrize } = useRaffleWinnersWhoClaimedPrize(id || "");
   const [showWinnersModal, setShowWinnersModal] = useState(false);
-  const [showSoldoutPopup, setShowSoldoutPopup] = useState(false);
-  const [soldoutPopupDismissed, setSoldoutPopupDismissed] = useState(false);
   const { showBuyTicketPopup, setShowBuyTicketPopup, showRaffleEndedPopup, setShowRaffleEndedPopup } = useCreateRaffleStore();
   const nftMintAddress = raffle?.prizeData?.type === "NFT" ? raffle?.prizeData?.mintAddress : undefined;
   const { data: nftMetadata, isLoading: isNftMetadataLoading } = useNftMetadata(nftMintAddress);
@@ -367,23 +370,38 @@ function RouteComponent() {
                 <h1 className='md:text-[28px] text-xl font-inter md:mt-6 my-5 md:mb-5 font-bold text-white'>{raffle?.prizeData?.type === "NFT" ? raffle?.prizeData?.name : `${(raffle?.prizeData?.amount ?? 0) / (10 ** (raffle?.prizeData?.decimals || 0))} ${raffle?.prizeData?.symbol}`}</h1>
                 <div className="flex relative items-start md:items-center md:flex-row flex-col md:gap-0 gap-5 justify-between pb-6 md:pb-8 border-b border-gray-1000">
                   <ul className="flex items-center gap-3 2xl:gap-5 flex-wrap">
-                    <li>
+                    <li className="relative group cursor-help" onMouseEnter={() => setPrizeValueTooltipOpen(true)} onMouseLeave={() => setPrizeValueTooltipOpen(false)}>
                       <p className="md:text-sm text-xs inline-block px-2 sm:px-2.5 py-2 md:py-1.5 font-semibold text-center font-inter text-black-1000 bg-primary-color rounded-lg">
                         {raffle?.prizeData?.type === "NFT" ? "Floor Price: " : "Prize Value: "}
 
                         {raffle?.prizeData?.type === "NFT" ? raffle?.prizeData?.floor! / 10 ** 9 : raffle?.val ?? 0} {" "}
                          <span>SOL</span>
                       </p>
+                      <ToolTip 
+                      label={raffle?.prizeData?.type === "NFT" ? "Floor Price" : "Prize Value"} 
+                      isOpen={prizeValueTooltipOpen} 
+                      children={
+                        <p className="text-white text-sm font-inter">
+                          {raffle?.prizeData?.type === "NFT" ? "Floor Price is the lowest price of the NFT in the collection." : "Prize Value is the value of the prize in SOL."}
+                        </p>} />
                     </li>
-                    <li>
+                    <li className="relative group cursor-help" onMouseEnter={() => setTTVTooltipOpen(true)} onMouseLeave={() => setTTVTooltipOpen(false)}>
                       <p className="md:text-sm text-xs inline-block px-2 sm:px-2.5 py-2 md:py-1.5 font-semibold text-center font-inter bg-gray-1000 text-white  rounded-lg">
-                        TTV: {raffle?.ttv} {" "} SOL
+                        TTV: {parseFloat(raffle?.ttv.toFixed(6))} {" "} SOL
                       </p>
+                      <ToolTip label="TTV" isOpen={ttvTooltipOpen} children={
+                        <p className="text-white text-sm font-inter">
+                          TTV is Ticket To Value. It is the max value in SOL that can be earned by creator if all tickets are sold.
+                        </p>} />
                     </li>
-                    <li>
+                    <li className="relative group cursor-help" onMouseEnter={() => setRoiTooltipOpen(true)} onMouseLeave={() => setRoiTooltipOpen(false)}>
                       <p className="md:text-sm text-xs inline-block px-2 sm:px-2.5 py-2 md:py-1.5 font-semibold text-center font-inter bg-gray-1000 text-white  rounded-lg">
                         {raffle?.roi > 0 ? "+" : ""}{raffle?.roi}%
                       </p>
+                      <ToolTip label="ROI" isOpen={roiTooltipOpen} className='w-40' children={
+                        <p className="text-white text-sm font-inter">
+                          ROI is Return On Investment. It is the percentage of profit earned by creator if all tickets are sold.
+                        </p>} />
                     </li>
                   </ul>
 

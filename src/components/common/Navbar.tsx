@@ -370,7 +370,6 @@ export const Navbar = () => {
               <li key={link.label}>
                 <Link
                   to={link.path}
-                  onClick={toggleMobileMenu}
                   className={`justify-center xl:min-w-24 px-3 flex items-center h-[31px] transition duration-500 text-sm md:text-base font-normal font-inter rounded-full ${isActive(link.path) ? 'text-black-1200 bg-primary-color font-semibold' : 'text-gray-1200 hover:text-primary-color'
                     }`}
                 >
@@ -379,7 +378,7 @@ export const Navbar = () => {
               </li>
             ))}
 
-            <StatsDropdown onClick={toggleMobileMenu} />
+            <StatsDropdown onClick={()=>{}} />
             {/* <div className="w-full flex justify-center">
             <WalletMultiButton className="inline-flex cursor-pointer w-11 h-11 transition duration-300 hover:opacity-90 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5" />
             </div> */}
@@ -388,7 +387,6 @@ export const Navbar = () => {
                 <li>
                   <Link
                     to={"/profile"}
-                    onClick={toggleMobileMenu}
                     className="inline-flex w-11 h-11 [&.active]:from-primary-color [&.active]:to-primary-color [&.active]:via-primary-color  bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5 transition duration-300"
                   >
                     <img src="/icons/user-icon.svg" className="w-5 lg:w-6" />
@@ -397,7 +395,7 @@ export const Navbar = () => {
               )}
               <li>
                 <button
-                  onClick={()=>{openSettings(); toggleMobileMenu();}}
+                  onClick={()=>{openSettings();}}
                   className="inline-flex cursor-pointer w-11 h-11 transition duration-300 hover:opacity-90 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5"
                 >
                   <img src="/icons/settings-icon.svg" className="w-5" />

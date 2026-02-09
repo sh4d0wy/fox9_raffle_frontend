@@ -16,16 +16,16 @@ interface BoughtTableProps {
 
 export const BoughtTable = ({ data, isLoading }: BoughtTableProps) => {
   return (
-    <div className="border relative border-gray-1100 rounded-[20px] w-full overflow-hidden">
+    <div className="border relative border-gray-1100 rounded-[20px] w-full overflow-hidden h-full min-h-[150px]">
       {data.length === 0 && (
-        <div className="absolute w-full h-full flex items-center justify-center py-20">
+        <div className="absolute w-full h-full flex items-center justify-center md:py-20 py-[120px]">
           <p className="md:text-base text-sm font-medium text-center font-inter text-white">
             No data found
           </p>
         </div>
       )}
 <div className="overflow-auto">
-      <table className="table md:w-full w-[767px]">
+      <table className="table md:w-full w-[767px] ">
         <thead className="bg-black-1300 border-b border-gray-1100 ">
           <tr>
             <th className="md:text-base text-sm text-start font-inter text-gray-1600 font-medium px-6 py-7">

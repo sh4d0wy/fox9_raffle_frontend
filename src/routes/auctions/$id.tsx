@@ -26,6 +26,7 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton'
 import { AuctionParticipants } from '@/components/auctions/AuctionParticipants'
 import AuctionEndedPopup from '@/components/ui/popups/auction/AuctionEndedPopup'
 import ConfirmBidPopup from '@/components/ui/popups/auction/ConfirmBidPopup'
+import ToolTip from '@/components/common/ToolTip'
 
 export const Route = createFileRoute('/auctions/$id')({
   component: AuctionDetails,
@@ -108,6 +109,9 @@ const getNftSections = (nftMetadata: NftMetadata | null | undefined, auctionData
 };
  
 function AuctionDetails() {
+  const [floorPriceTooltipOpen, setFloorPriceTooltipOpen] = useState(false);
+  const [bidIncrementPercentTooltipOpen, setBidIncrementPercentTooltipOpen] = useState(false);
+  const [timeExtensionTooltipOpen, setTimeExtensionTooltipOpen] = useState(false);
   const { id } = Route.useParams();
   const { data: auction, isLoading } = useAuctionById(id || "");
   const { publicKey } = useWallet();
@@ -420,20 +424,32 @@ function AuctionDetails() {
                         <div className="flex relative items-start md:items-end md:flex-row flex-col md:gap-0 gap-5 justify-between pb-6 md:pb-8 border-b border-gray-1000">
 
                           <ul className="flex items-center gap-3 2xl:gap-5 flex-wrap">
-                                <li>
+                                <li className="relative group cursor-help" onMouseEnter={() => setFloorPriceTooltipOpen(true)} onMouseLeave={() => setFloorPriceTooltipOpen(false)}>
                                 <p className="md:text-sm text-xs inline-block px-2 sm:px-2.5 py-2 md:py-1.5 font-semibold text-center font-inter text-black-1000 bg-primary-color rounded-lg">
                                     FP: {(auction?.floorPrice!/(10**9)).toFixed(2)} SOL
                                 </p>
+                                <ToolTip label="Floor Price" isOpen={floorPriceTooltipOpen} children={
+                                  <p className="text-white text-sm font-inter">
+                                    Floor Price is the lowest price of the NFT in the collection.
+                                  </p>} />
                                 </li>
-                                <li>
+                                <li className="relative group cursor-help" onMouseEnter={() => setBidIncrementPercentTooltipOpen(true)} onMouseLeave={() => setBidIncrementPercentTooltipOpen(false)}>
                                 <p className="md:text-sm text-xs inline-block px-2 sm:px-2.5 py-2 md:py-1.5 font-semibold text-center font-inter bg-gray-1000 text-white rounded-lg">
                                     INCR: {auction?.bidIncrementPercent}%
                                 </p>
+                                <ToolTip label="Bid Increment Percent" isOpen={bidIncrementPercentTooltipOpen} className='w-40' children={
+                                  <p className="text-white text-sm font-inter">
+                                    Bid Increment Percent is the percentage of the highest bid that the next bid must be greater than.
+                                  </p>} />
                                 </li>
-                                <li>
+                                <li className="relative group cursor-help" onMouseEnter={() => setTimeExtensionTooltipOpen(true)} onMouseLeave={() => setTimeExtensionTooltipOpen(false)}>
                                 <p className="md:text-sm text-xs inline-block px-2 sm:px-2.5 py-2 md:py-1.5 font-semibold text-center font-inter bg-gray-1000 text-white rounded-lg">
                                     EXT: {auction?.timeExtension} mins
                                 </p>
+                                <ToolTip label="Time Extension" isOpen={timeExtensionTooltipOpen} className='w-40' children={
+                                  <p className="text-white text-sm font-inter">
+                                    Time Extension is the number of minutes the auction will be extended if there is a bid made while auction is about to end.
+                                  </p>} />
                                 </li>
                           </ul>
 
