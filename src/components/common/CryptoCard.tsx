@@ -63,20 +63,20 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
   const decrease = (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    const previousQuantity = getTicketQuantityById(raffle.id || 0);
-    updateTicketQuantityById(raffle.id || 0, Math.max(1, previousQuantity - 1));
+    const previousQuantity = getTicketQuantityById(raffle.id!);
+    updateTicketQuantityById(raffle.id!, Math.max(1, previousQuantity - 1));
     if(previousQuantity === 1){
-      updateTicketQuantityById(raffle.id || 0, 1);
+      updateTicketQuantityById(raffle.id!, 1);
     }
   };
 
   const increase = (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    const previousQuantity = getTicketQuantityById(raffle.id || 0);
-    updateTicketQuantityById(raffle.id || 0, Math.min(MAX, previousQuantity + 1));
+    const previousQuantity = getTicketQuantityById(raffle.id!);
+    updateTicketQuantityById(raffle.id!, Math.min(MAX, previousQuantity + 1));
     if(previousQuantity === MAX){
-      updateTicketQuantityById(raffle.id || 0, MAX);
+      updateTicketQuantityById(raffle.id!, MAX);
     }
   };
   const ticketPrice = useMemo(()=>{
