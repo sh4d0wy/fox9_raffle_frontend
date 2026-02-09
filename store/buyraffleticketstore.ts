@@ -17,6 +17,6 @@ export const useBuyRaffleTicketStore = create<State>((set, get) => ({
   setTicketQuantity: (quantity) => set({ ticketQuantity: quantity }),
   ticketQuantityById: [],
   setTicketQuantityById: (raffleId, quantity) => set({ ticketQuantityById: [...get().ticketQuantityById, { raffleId, quantity }] }),
-  getTicketQuantityById: (raffleId) => get().ticketQuantityById.find((item) => item.raffleId === raffleId)?.quantity || 0,
+  getTicketQuantityById: (raffleId) => get().ticketQuantityById.find((item) => item.raffleId === raffleId)?.quantity || 1,
   updateTicketQuantityById: (raffleId, quantity) => set({ ticketQuantityById: get().ticketQuantityById.map((item) => item.raffleId === raffleId ? { ...item, quantity } : item) }),
 }))
