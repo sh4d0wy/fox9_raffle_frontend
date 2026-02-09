@@ -16,6 +16,7 @@ export const auctionSchema = z.object({
   details: z.any().optional(),
 
   // Timing
+  startImmediately: z.boolean().optional(),
   startsAt: z.coerce.date().default(() => new Date()),
   endsAt: z.coerce.date(),
   timeExtension: z.number().int().optional(),

@@ -164,6 +164,7 @@ export const useCreateAuction = () => {
                 prizeMint: args.prizeMint,
                 collectionVerified: true,
                 floorPrice: args.floorPrice,
+                startImmediately: args.startImmediately,
                 startsAt: args.startImmediately ? new Date((args.startTime) * 1000) : new Date((args.startTime + 60) * 1000),
                 endsAt: new Date((args.endTime + 100) * 1000),
                 timeExtension: args.timeExtension,
@@ -179,7 +180,7 @@ export const useCreateAuction = () => {
                 hasAnyBid: false,
                 highestBidAmount: 0,
                 highestBidderWallet: "",
-                status: "INITIALIZED",
+                status: args.startImmediately ? "ACTIVE" : "INITIALIZED",
                 txSignature: signature,
             });
             if (response.error) {
