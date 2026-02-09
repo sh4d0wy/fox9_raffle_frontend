@@ -164,7 +164,7 @@ export const useCreateAuction = () => {
                 prizeMint: args.prizeMint,
                 collectionVerified: true,
                 floorPrice: args.floorPrice,
-                startsAt: args.startImmediately ? new Date() : new Date((args.startTime + 60) * 1000),
+                startsAt: args.startImmediately ? new Date((args.startTime) * 1000) : new Date((args.startTime + 60) * 1000),
                 endsAt: new Date((args.endTime + 100) * 1000),
                 timeExtension: args.timeExtension,
                 reservePrice: (args.baseBid * Math.pow(10, decimals)).toString(),
