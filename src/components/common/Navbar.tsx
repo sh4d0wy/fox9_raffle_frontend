@@ -38,12 +38,12 @@ export const Navbar = () => {
   const { publicKey, connected, signMessage } = useWallet();
   const location = useLocation();
   const tokenCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const isAuthenticatingRef = useRef(false);
+  const authenticatingWalletRef = useRef<string | null>(null); // Track which wallet is being authenticated
   const hasInitializedRef = useRef(false);
   const lastNotifiedWalletRef = useRef<string | null>(null);
   const hasShownNotificationsRef = useRef(false);
   const hasShownEndedRafflesNotificationsRef = useRef(false);
-
+  
   const signAndVerifyMessage = async (message: string) => {
     if (!publicKey || !signMessage) {
         throw new Error("Wallet not connected");
@@ -52,7 +52,7 @@ export const Navbar = () => {
       const encodedMessage = new TextEncoder().encode(message);
       const signature = await signMessage(encodedMessage);
       const data = await verifyMessage(publicKey.toBase58(), message, bs58.encode(signature));
-
+      
       if(!data.error && data.token){
         setToken(data.token.toString());
         invalidateQueries(queryClient, publicKey?.toBase58() ?? "");
@@ -67,22 +67,20 @@ export const Navbar = () => {
   };
 
   const authenticateWallet = async (currentWalletKey: string, reason: string) => {
-    if (isAuthenticatingRef.current) {
-
+    if (authenticatingWalletRef.current === currentWalletKey) {
       return;
     }
 
     try {
-      isAuthenticatingRef.current = true;
-
+      authenticatingWalletRef.current = currentWalletKey;
+      
       const message = await requestMessage(currentWalletKey);
       const result = await signAndVerifyMessage(message.message);
-
-
-
-
-
-
+      
+      if (authenticatingWalletRef.current !== currentWalletKey) {
+        return;
+      }
+      
       if (result.success && result.data?.token) {
         setToken(result.data.token.toString());
         setAuth(true, currentWalletKey);
@@ -93,11 +91,15 @@ export const Navbar = () => {
         hasInitializedRef.current = false;
       }
     } catch (error) {
-      removeToken();
-      setAuth(false, null);
-      hasInitializedRef.current = false;
+      if (authenticatingWalletRef.current === currentWalletKey) {
+        removeToken();
+        setAuth(false, null);
+        hasInitializedRef.current = false;
+      }
     } finally {
-      isAuthenticatingRef.current = false;
+      if (authenticatingWalletRef.current === currentWalletKey) {
+        authenticatingWalletRef.current = null;
+      }
     }
   };
 
@@ -105,31 +107,29 @@ export const Navbar = () => {
     const fetchMessage = async () => {
       if (connected && publicKey) {
         const currentWalletKey = publicKey.toBase58();
-
-        // Check if wallet changed - reset initialization state
+        
         if (walletAddress && walletAddress !== currentWalletKey) {
           hasInitializedRef.current = false;
-          isAuthenticatingRef.current = false;   // Remove old token when wallet changes
+          if (authenticatingWalletRef.current && authenticatingWalletRef.current !== currentWalletKey) {
+            authenticatingWalletRef.current = null;
+          }
           removeToken();
         }
-
+        
         if (hasInitializedRef.current && isAuth && walletAddress === currentWalletKey) {
           return;
         }
 
-        // Skip if authentication is in progress
-        if (isAuthenticatingRef.current) {
+        if (authenticatingWalletRef.current === currentWalletKey) {
           return;
         }
 
         const authToken = localStorage.getItem('authToken');
-
-        // Check if token is valid AND belongs to the current wallet
+        
         if (isTokenValidForWallet(authToken, currentWalletKey)) {
           setAuth(true, currentWalletKey);
           hasInitializedRef.current = true;
         } else {
-          // Remove invalid/mismatched token before authentication
           if (authToken) {
             removeToken();
           }
@@ -138,7 +138,7 @@ export const Navbar = () => {
       } else if (!connected) {
         if (hasInitializedRef.current) {
           hasInitializedRef.current = false;
-          isAuthenticatingRef.current = false;
+          authenticatingWalletRef.current = null;
           removeToken();
           setAuth(false, null);
         }
@@ -162,15 +162,13 @@ export const Navbar = () => {
     }
 
     tokenCheckIntervalRef.current = setInterval(() => {
-      // Don't prompt for re-auth if the page is not visible (user is on different window/tab)
       if (document.hidden) {
         return;
       }
-
+      
       const authToken = localStorage.getItem('authToken');
       const currentWalletKey = publicKey.toBase58();
-
-      // Only re-authenticate if token is expired or doesn't belong to current wallet
+      
       if (!isTokenValidForWallet(authToken, currentWalletKey)) {
         console.log("Token check: Token expired or invalid, renewing...");
         authenticateWallet(currentWalletKey, "token renewal");
@@ -213,7 +211,7 @@ export const Navbar = () => {
     }
     console.log("checking for wallet change")
     const walletChanged = lastNotifiedWalletRef.current !== publicKey.toBase58();
-
+    
     if (walletChanged) {
       console.log("wallet changed");
       hasShownNotificationsRef.current = false;
@@ -235,7 +233,7 @@ export const Navbar = () => {
       hasShownNotificationsRef.current = true;
 
       unclaimedWinnings.forEach(
-        (raffle: { id: number; }, index: number) => {
+        (raffle: { id: number; claimed: boolean }, index: number) => {
           setTimeout(() => {
             toast.custom(
               (toastId) => (
