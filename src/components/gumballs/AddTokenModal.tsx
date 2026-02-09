@@ -54,7 +54,7 @@ function TokenPrizeRow({ prize, onUpdate, onRemove, onValueChange, exceedsLimit 
   return (
     <div className="mb-6">
       <div className="flex items-start gap-4">
-        <div className="w-16 h-16 rounded-xl overflow-hidden bg-black-1300 shrink-0 border border-gray-1100">
+        <div className="w-16 h-16 mt-12 md:mt-0 rounded-xl overflow-hidden bg-black-1300 shrink-0 border border-gray-1100">
           <img 
             src={prize.token.image} 
             alt={prize.token.symbol}
@@ -62,7 +62,7 @@ function TokenPrizeRow({ prize, onUpdate, onRemove, onValueChange, exceedsLimit 
           />
         </div>
 
-        <div className="flex-1 grid grid-cols-2 gap-4">
+        <div className="flex-1 grid md:grid-cols-2 grid-cols-1 gap-4">
           <div>
             <label className="text-sm text-white font-medium font-inter mb-2 block">
               Prize size

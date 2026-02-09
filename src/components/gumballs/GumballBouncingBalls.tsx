@@ -292,7 +292,7 @@ export const GumballBouncingBalls = ({ prizes, isActive, status, isSpinning = fa
 
   if (!prizes || prizes.length === 0) {
     return (
-      <div className="w-full h-full rounded-[20px] bg-transparent flex items-center justify-center">
+      <div className="w-full h-[300px] rounded-[20px] bg-transparent flex items-center justify-center">
         <div className="relative  w-full h-full bg-black/70 flex items-center justify-center z-10 rounded-[20px]">
           <img src="/images/ended-img-1.png" alt="no-prizes" className="w-full h-full object-cover absolute -z-10 rounded-[20px]" />
           <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10 rounded-[20px]"></div>

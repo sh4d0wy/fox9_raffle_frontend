@@ -81,7 +81,7 @@ export const AddNftModal = ({ isOpen, onClose, gumballId }: AddNftModalProps) =>
       mint: nft.id, 
     }));
   }, [userNfts, collectionFPMap]);
-
+  console.log("nfts", nfts);
 
   const totalPrizesAdded = useMemo(() => {
     return gumball?.prizes.reduce((sum, prize) => sum + prize.quantity, 0) || 0;
@@ -97,7 +97,7 @@ export const AddNftModal = ({ isOpen, onClose, gumballId }: AddNftModalProps) =>
     return nfts.filter((nft: any) => 
       nft.name.toLowerCase().includes(query)
     );
-  }, [searchQuery,userNfts]);
+  }, [searchQuery, nfts]);
 
   const toggleNftSelection = (nftId: string) => {
     setSelectedNfts(prev => {
@@ -298,7 +298,7 @@ export const AddNftModal = ({ isOpen, onClose, gumballId }: AddNftModalProps) =>
                         </div>
 
                         <div className="font-semibold  font-inter">
-                          {nft.floorPrice ? (nft.floorPrice/1e9).toFixed(3) : 0} SOL
+                          {nft.floorPrice ? parseFloat((nft.floorPrice/1e9).toFixed(3)).toFixed(3) : 0} SOL
                         </div>
 
                         {isSelected && (
