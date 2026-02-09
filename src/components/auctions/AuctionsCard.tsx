@@ -239,7 +239,7 @@ export const AuctionsCard = (props:AuctionsCardProps) => {
             UPCOMING
           </h4>:
           <h4 className="md:text-base text-sm text-primary-color font-inter font-semibold">
-          {highestBidAmount || 0}
+          {highestBidAmount/(10**currencyDecimals)} {currency}
         </h4>
           }
               

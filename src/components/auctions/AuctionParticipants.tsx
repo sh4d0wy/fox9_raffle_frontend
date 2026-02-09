@@ -52,20 +52,20 @@ export const AuctionParticipants = ({
       <table className="table w-full min-w-[600px]">
         <thead className="bg-black-1300 border-b border-gray-1100">
           <tr className="flex-1">
-            <th className="text-base md:w-1/3 text-start font-inter text-gray-1600 font-medium md:px-10 px-4 py-7">
+            <th className="text-sm md:text-base md:w-1/3 text-start font-inter text-gray-1600 font-medium md:px-10 px-4 py-7">
               User
             </th>
-            <th className="text-base md:w-1/5 text-start font-inter text-gray-1600 font-medium">
+            <th className="text-sm md:text-base md:w-1/5 text-start font-inter text-gray-1600 font-medium">
               <div className="px-5 h-6">
                 Bid amount
               </div>
             </th>
-            <th className="text-base md:w-1/5 text-start font-inter text-gray-1600 font-medium">
+            <th className="text-sm md:text-base md:w-1/5 text-start font-inter text-gray-1600 font-medium">
               <div className="px-5 h-6">
                 Tx
               </div>
             </th>
-            <th className="text-base md:w-1/5 text-start font-inter text-gray-1600 font-medium">
+            <th className="text-sm md:text-base md:w-1/5 text-start font-inter text-gray-1600 font-medium">
               <div className="px-5 h-6">
                 Bid time
               </div>
@@ -104,31 +104,31 @@ export const AuctionParticipants = ({
               ))
           ) : (
             bids?.map((b) => (
-              <tr key={b.id} className="flex-1">
+              <tr key={b.id} className="flex-1 border-b border-gray-1100">
                 <td>
-                  <div className="md:px-10 px-4 flex items-center gap-2.5 py-4 border-b border-gray-1100">
+                  <div className="md:px-10 px-4 flex items-center gap-2.5 py-4 ">
                     <img
                       src={b.bidder.profileImage?API_URL + b.bidder.profileImage:DEFAULT_AVATAR}
-                      className="w-10 h-10 rounded-full object-cover"
+                      className="md:w-10 md:h-10 w-8 h-8 rounded-full object-cover"
                       alt="user"
                     />
-                    <p className="text-base text-white font-medium font-inter">
+                    <p className="text-sm md:text-base text-white font-medium font-inter">
                       { b.bidder.walletAddress.slice(0, 4) + "..." + b.bidder.walletAddress.slice(-4)}
                     </p>
                   </div>
                 </td>
 
                 <td>
-                  <div className="px-5 py-6 border-b border-gray-1100">
-                    <p className="text-base text-white font-medium font-inter">
+                  <div className="px-5 py-6 ">
+                    <p className="text-sm md:text-base text-white font-medium font-inter">
                       {b.bidAmount/(10**currencyDecimals)} {currency}
                     </p>
                   </div>
                 </td>
 
                 <td>
-                    <div className="px-5 py-6 border-b border-gray-1100 flex items-center gap-2.5">
-                      <p className="text-base text-white font-medium font-inter">
+                    <div className="px-5 py-6  flex items-center gap-2.5">
+                      <p className="text-sm md:text-base text-white font-medium font-inter">
                         {b.transactionId.slice(0, 6)}...
                         {b.transactionId.slice(-4)}
                       </p>
@@ -146,8 +146,8 @@ export const AuctionParticipants = ({
                     </div>
                   </td>
                   <td>
-                    <div className="px-5 py-6 border-b border-gray-1100">
-                      <p className="text-base text-white font-medium font-inter">
+                    <div className="px-5 py-6">
+                      <p className="text-sm md:text-base text-white font-medium font-inter">
                         {formatDate(b.bidTime)}
                       </p>
                     </div>
