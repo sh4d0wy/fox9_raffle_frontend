@@ -25,7 +25,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <div className="bg-white shadow-lg rounded-md p-2">
         <p className="text-sm font-inter font-semibold">{label}</p>
-        <p className="text-black-1000 text-sm font-inter font-semibold">Raffles: ${payload[0].value}</p>
+        <p className="text-black-1000 text-sm font-inter font-semibold">Raffles: {payload[0].value}</p>
       </div>
     )
   }

@@ -7,6 +7,7 @@ import { useLeaderboard } from 'hooks/stats/useLeaderboard';
 import { NoRaffles } from '@/components/home/NoRaffles';
 import StatsDropdown from '@/components/stats/StatsDropdown';
 import { motion } from 'motion/react';
+import { Loader } from 'lucide-react';
 export const Route = createFileRoute('/stats/')({
   component: Leaderboard,
 })
@@ -92,7 +93,7 @@ const columns: Column<TopRaffle>[] = [
             alt={row.user}
           />
         )}
-        <span className="text-base text-white font-medium font-inter">
+        <span className="text-base text-white font-medium font-inter ">
           {row.user}
         </span>
       </div>
@@ -289,7 +290,7 @@ function Leaderboard() {
 
                 <div className="w-full flex-1 max-w-full">
 
-                <div className="relative z-10 mt-8">
+                <div className="relative z-10 md:mt-8 mt-4">
                 {activeTab === "Top Rafflers" && (
                 rafflersData.length > 0 ? (
                   <TopRafflersTable
@@ -297,6 +298,10 @@ function Leaderboard() {
                     data={rafflersData}
                     rowKey={(row) => row.user}
                   />
+                ) : rafflerLeaderboard.isLoading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Loader className="w-10 h-10 animate-spin text-primary-color" />
+                  </div>
                 ) : (
                   <NoRaffles />
                 )
@@ -309,6 +314,11 @@ function Leaderboard() {
                     data={buyersData}
                     rowKey={(row) => row.user}
                   />
+                ) :
+                 raffleBuyerLeaderboard.isLoading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Loader className="w-10 h-10 animate-spin text-primary-color" />
+                  </div>
                 ) : (
                   <NoRaffles />
                 )
