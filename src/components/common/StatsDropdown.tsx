@@ -2,7 +2,7 @@ import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
 
-function StatsDropdown() {
+function StatsDropdown({onClick}: {onClick: () => void}) {
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
@@ -40,6 +40,7 @@ function StatsDropdown() {
                         ? 'bg-primary-color'
                         : 'text-white'
                       }`}
+                      onClick={onClick}
                   >
                     Leaderboard
                   </Link>
@@ -55,6 +56,7 @@ function StatsDropdown() {
                         ? 'bg-primary-color'
                         : 'text-white'
                       }`}
+                      onClick={onClick}
                   >
                     Analytics
                   </Link>
@@ -70,6 +72,7 @@ function StatsDropdown() {
                         ? 'bg-primary-color'
                         : 'text-white'
                       }`}
+                      onClick={onClick}
                   >
                     P&L
                   </Link>

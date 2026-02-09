@@ -17,6 +17,7 @@ import EndedRaffleToast from "./EndedRaffleToast";
 import { invalidateQueries } from "../../utils/invalidateQueries";
 import { useQueryClient } from "@tanstack/react-query";
 import WinnerModel from "./WinnerModel";
+import { AnimatePresence, motion } from "motion/react";
 
 export const Navbar = () => {
 
@@ -295,11 +296,13 @@ export const Navbar = () => {
             />
           </Link>
           <div className="flex items-center lg:hidden gap-3">
-            <div className="lg:block hidden">
+            <div className="block">
             <DynamicNewLink isAuth={true} />
             </div>
 
-            <WalletMultiButton className="inline-flex cursor-pointer w-11 h-11 transition duration-300 hover:opacity-90 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5" />
+            <div className="hidden lg:block">
+              <WalletMultiButton className="inline-flex cursor-pointer w-11 h-11 transition duration-300 hover:opacity-90 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5" />
+            </div>
 
             <button
               onClick={toggleMobileMenu}
@@ -309,15 +312,21 @@ export const Navbar = () => {
             </button>
 
           </div>
-
-          <ul
+            {showMobileMenu ? (
+          <AnimatePresence>
+          <motion.ul
+            initial={{ opacity: 0, y: -100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -100 }}
+            transition={{ duration: 0.3,ease: "easeInOut" }}
             className={`${showMobileMenu ? "flex" : "hidden"
-              } lg:flex lg:flex-row flex-col lg:shadow-none shadow-2xl lg:max-w-[456px] lg:items-center xl:gap-5 gap-2 lg:static absolute top-20 md:top-[90px] p-[5px] left-0 lg:w-fit w-full  lg:bg-white/[15%] bg-black-1000 rounded-[40px] backdrop-blur-[174px]`}
+              } lg:flex lg:flex-row flex-col py-4 lg:shadow-none shadow-2xl lg:max-w-[456px] lg:items-center xl:gap-5 gap-2 lg:static absolute top-20 md:top-[90px] p-[5px] left-0 lg:w-fit w-full  lg:bg-white/[15%] bg-black-1000 rounded-[40px] backdrop-blur-[174px]`}
           >
             {navLinks.map((link) => (
               <li key={link.label}>
                 <Link
                   to={link.path}
+                  onClick={toggleMobileMenu}
                   className={`justify-center xl:min-w-24 px-3 flex items-center h-[31px] transition duration-500 text-sm md:text-base font-normal font-inter rounded-full ${isActive(link.path) ? 'text-black-1200 bg-primary-color font-semibold' : 'text-gray-1200 hover:text-primary-color'
                     }`}
                 >
@@ -326,13 +335,16 @@ export const Navbar = () => {
               </li>
             ))}
 
-            <StatsDropdown />
-
+            <StatsDropdown onClick={toggleMobileMenu} />
+            <div className="w-full flex flex-col items-center gap-2 justify-center">           
+            <WalletMultiButton className="inline-flex cursor-pointer w-11 h-11 transition duration-300 hover:opacity-90 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5" />
+            </div>
             <ul className="lg:hidden flex items-center lg:justify-start justify-center lg:pb-0 pb-6 gap-2 mt-4">
               {isAuth && (
                 <li>
                   <Link
                     to={"/profile"}
+                    onClick={toggleMobileMenu}
                     className="inline-flex w-11 h-11 [&.active]:from-primary-color [&.active]:to-primary-color [&.active]:via-primary-color  bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5 transition duration-300"
                   >
                     <img src="/icons/user-icon.svg" className="w-5 lg:w-6" />
@@ -341,20 +353,64 @@ export const Navbar = () => {
               )}
               <li>
                 <button
-                  onClick={openSettings}
+                  onClick={()=>{openSettings(); toggleMobileMenu();}}
                   className="inline-flex cursor-pointer w-11 h-11 transition duration-300 hover:opacity-90 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5"
                 >
                   <img src="/icons/settings-icon.svg" className="w-5" />
                 </button>
               </li>
             </ul>
-          </ul>
+          </motion.ul>
+          </AnimatePresence>
+          ) : (
+            <motion.ul
+            className={`hidden lg:flex lg:flex-row flex-col lg:shadow-none shadow-2xl lg:max-w-[456px] lg:items-center xl:gap-5 gap-2 lg:static absolute top-20 md:top-[90px] p-[5px] left-0 lg:w-fit w-full  lg:bg-white/[15%] bg-black-1000 rounded-[40px] backdrop-blur-[174px]`}
+          >
+            {navLinks.map((link) => (
+              <li key={link.label}>
+                <Link
+                  to={link.path}
+                  onClick={toggleMobileMenu}
+                  className={`justify-center xl:min-w-24 px-3 flex items-center h-[31px] transition duration-500 text-sm md:text-base font-normal font-inter rounded-full ${isActive(link.path) ? 'text-black-1200 bg-primary-color font-semibold' : 'text-gray-1200 hover:text-primary-color'
+                    }`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+
+            <StatsDropdown onClick={toggleMobileMenu} />
+            {/* <div className="w-full flex justify-center">
+            <WalletMultiButton className="inline-flex cursor-pointer w-11 h-11 transition duration-300 hover:opacity-90 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5" />
+            </div> */}
+            <ul className="lg:hidden flex items-center lg:justify-start justify-center lg:pb-0 pb-6 gap-2 mt-4">
+              {isAuth && (
+                <li>
+                  <Link
+                    to={"/profile"}
+                    onClick={toggleMobileMenu}
+                    className="inline-flex w-11 h-11 [&.active]:from-primary-color [&.active]:to-primary-color [&.active]:via-primary-color  bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5 transition duration-300"
+                  >
+                    <img src="/icons/user-icon.svg" className="w-5 lg:w-6" />
+                  </Link>
+                </li>
+              )}
+              <li>
+                <button
+                  onClick={()=>{openSettings(); toggleMobileMenu();}}
+                  className="inline-flex cursor-pointer w-11 h-11 transition duration-300 hover:opacity-90 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5"
+                >
+                  <img src="/icons/settings-icon.svg" className="w-5" />
+                </button>
+              </li>
+            </ul>
+          </motion.ul>
+          )}
         </div>
 
         <div className="hidden lg:flex items-center xl:gap-3 gap-2">
           <DynamicNewLink isAuth={true} />
           <WalletMultiButton className="inline-flex cursor-pointer w-11 h-11 transition duration-300 hover:opacity-90 bg-linear-to-r from-black-1000 via-neutral-500 to-black-1000 hover:from-primary-color hover:via-primary-color hover:to-primary-color rounded-full justify-center items-center gap-2.5" />
-
           {isAuth && (
             <Link
               to={"/profile"}

@@ -136,16 +136,16 @@ function RafflesPage() {
       transition={{ duration: 0.3 }}
       className="w-full relative z-10 pt-10 md:pt-[122px] pb-32 md:pb-[160px]" id="raffles">
        
-        <div className="w-full max-w-[1360px] px-4 md:px-5 mx-auto ">
-        <div className="w-full md:pb-12 pb-10 mt-10">
+        <div className="w-full max-w-[1360px] px-6 md:px-5 mx-auto ">
+        <div className="w-full md:pb-12 pb-10 md:mt-10 mt-25">
         <h1 className='lg:text-[60px] text-4xl leading-tight text-white font-semibold font-inter'>Participate in Raffles</h1>
         <p className='lg:text-xl text-base font-inter text-cream-1000'>Participate in Raffles and win exciting prizes.</p>
         </div>
           <div className="w-full flex items-center justify-between gap-5 lg:gap-10 flex-wrap">
-            <ul className="flex items-center bg-white/[15%] backdrop-blur-[27px] rounded-[40px] p-1 md:gap-4 gap-1.5">
+            <ul className="flex items-center flex-col md:flex-row flex-wrap w-full md:w-auto bg-white/[15%] backdrop-blur-[27px] rounded-[40px] p-1 md:gap-4 gap-1.5">
               {["All Raffles", "My Raffles", "Past Raffles"].map((f, index) => (
-                <li key={index}>
-                  <button onClick={() => setFilter(f)} className={`md:text-base text-sm cursor-pointer  font-inter font-normal md:min-w-[115px] transition duration-300 hover:bg-primary-color hover:text-black-1000 text-black-1000 rounded-full py-3 px-3 leading-[19px]
+                <li key={index} className='w-full md:w-auto flex justify-center'  >
+                  <button onClick={() => setFilter(f)} className={`md:text-base text-sm cursor-pointer w-full md:w-auto text-center font-inter font-normal md:min-w-[115px] transition duration-300 hover:bg-primary-color hover:text-black-1000 text-black-1000 rounded-full py-3 px-3 leading-[19px]
                  ${filter === f ? 'bg-primary-color font-semibold text-black-1000' : 'bg-transparent text-gray-1200'}`}> {f}</button>
                 </li>
               ))}

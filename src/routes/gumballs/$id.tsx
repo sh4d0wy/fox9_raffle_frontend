@@ -283,9 +283,9 @@ function GumballsDetails() {
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -100 }}
     transition={{ duration: 0.3 }}
-    className='w-full pb-20'>
+    className='w-full pb-20 pt-10 md:pt-0'>
         <div className="w-full max-w-[1440px] px-5 mx-auto">
-            <div className="w-full flex gap-[60px] md:gap-8 md:flex-row flex-col">
+            <div className="w-full flex gap-[20px] md:gap-8 md:flex-row flex-col">
                 <div className="flex-1">
                     <div className="md:p-[18px] h-full p-3 bg-black-1300 rounded-[20px]">
                     <GumballBouncingBalls 
@@ -301,10 +301,10 @@ function GumballsDetails() {
 
                 <div className="flex-1 max-w-[467px] bg-black-1300 p-6 rounded-[20px]">
                     <div className="w-full">
-                      <div className="w-full flex flex-col  items-start justify-center md:items-center md:flex-row md:justify-between">
+                      <div className="w-full flex items-start md:items-center justify-between">
                         <h1 className='md:text-[28px] text-xl font-inter font-bold text-white'>{gumball.name?.slice(0, 20)+(gumball.name?.length > 20 ? "..." : "")}</h1>
                         <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
-                            gumball.status === "ACTIVE" ? "bg-green-100 text-green-600" :
+                            gumball.status === "ACTIVE" ? "bg-green-500 text-white" :
                             gumball.status === "COMPLETED_SUCCESSFULLY" || gumball.status === "COMPLETED_FAILED" ? "bg-red-600 text-white" :
                             gumball.status === "CANCELLED" ? "bg-red-600 text-white" :
                             "bg-yellow-600 text-white"
@@ -314,7 +314,7 @@ function GumballsDetails() {
                           </div>
                         <div className="w-full">
                             <div className="w-full flex items-center justify-between md:pt-5 py-6 md:pb-6">
-                                <div className="flex w-full flex-col md:flex-row md:items-center items-start justify-between">
+                                <div className="flex w-full flex-row items-center justify-between">
                                     <div className="inline-flex flex-col gap-2">
                                       <p className='text-base font-inter font-normal text-white'>Creator</p>
                                       <div className="inline-flex items-center gap-2">
@@ -328,7 +328,7 @@ function GumballsDetails() {
                                       gumballId: Number(id) || 0,
                                     });
                                   }}
-                                  className={`border hover:bg-primary-color hover:border-primary-color transition duration-300 cursor-pointer px-5 py-[7px] md:py-2.5 gap-2.5 border-black-1000 rounded-full text-sm md:text-base font-semibold font-inter text-black-1000 inline-flex items-center justify-center ${
+                                  className={`border hover:bg-primary-color hover:border-primary-color transition duration-300 cursor-pointer px-3 py-3 gap-2.5 border-black-1000 rounded-full text-sm md:text-base font-semibold font-inter text-black-1000 inline-flex items-center justify-center ${
                                     isFavorite ? "bg-primary-color border-primary-color text-black-1000 transition duration-300 " : " text-white border-white"
                                   }`}
                                 >
@@ -344,13 +344,12 @@ function GumballsDetails() {
                                       fill="currentColor"
                                     />
                                   </svg>
-                                  Favourite
                                 </button>
                                 </div>  
                             </div>
                               {gumball.status==="ACTIVE" && 
-                            <div className="w-full flex items-center justify-start px-5 bg-primary-color/10 rounded-[20px] py-4 mb-4">
-                              <p className='text-lg font-semibold font-inter text-white w-full'>Ends in</p>
+                            <div className="w-full flex flex-col gap-4 md:flex-row items-center justify-start px-5 py-3 bg-primary-color/10 rounded-[20px] mb-4">
+                              <p className='text-sm font-medium font-inter text-gray-1200 w-full'>Ends in</p>
                               <PageTimer targetDate={new Date(gumball.endTime)} />
                             </div>
                               }

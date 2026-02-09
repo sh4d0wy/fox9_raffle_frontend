@@ -126,13 +126,13 @@ function Auctions() {
        <div className="w-full max-w-[1360px] px-5 mx-auto">
         <div className="md:pb-16 pb-10">
         <h1 className='lg:text-[60px] text-4xl leading-tight text-white font-semibold font-inter'>Live Auctions Happening Now</h1>
-        <p className='lg:text-xl text-base font-inter text-cream-1000'>Discover exclusive NFTs from top creators. Bid in real-time and own digital masterpieces.</p>
+        <p className='lg:text-xl text-sm pt-2 font-inter text-cream-1000'>Discover exclusive NFTs from top creators. Bid in real-time and own digital masterpieces.</p>
         </div>
             <div className="w-full flex items-center justify-between gap-5 lg:gap-10 flex-wrap">
-                  <ul className="flex items-center bg-white/[15%] backdrop-blur-[27px] rounded-[40px] p-1 md:gap-4 gap-1.5">
+                  <ul className="flex flex-col md:flex-row flex-wrap w-full md:w-auto items-center bg-white/[15%] backdrop-blur-[27px] rounded-[40px] p-1 md:gap-4 gap-1.5">
                   {["All Auctions", "My Auctions","Past Auctions"].map((f, index) => (
-                    <li key={index}>
-                    <button onClick={() => setFilter(f)} className={`md:text-base text-sm cursor-pointer  font-inter font-normal min-w-[115px] transition duration-300 hover:bg-primary-color hover:text-black-1000 text-black-1000 rounded-full py-3 px-3 leading-[19px]
+                    <li key={index} className='w-full md:w-auto flex justify-center'>
+                    <button onClick={() => setFilter(f)} className={`md:text-base text-sm cursor-pointer w-full md:w-auto text-center font-inter font-normal min-w-[115px] transition duration-300 hover:bg-primary-color hover:text-black-1000 text-black-1000 rounded-full py-3 px-3 leading-[19px]
                     ${filter === f ? 'bg-primary-color font-semibold text-black-1000' : 'bg-transparent text-gray-1200'}`}> {f}</button>
                     </li>
                   ))}

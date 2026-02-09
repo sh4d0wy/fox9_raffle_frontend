@@ -13,7 +13,7 @@ import { API_URL } from "@/constants";
 import { HeartIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 
 export interface GumballsCardProps {
   gumball: GumballBackendDataType;
@@ -133,8 +133,7 @@ export const GumballsCard: React.FC<GumballsCardProps> = ({
               className="w-full h-[300px] group-hover:scale-105 transition duration-300"
               rotation={-35}
               gridSize={3}
-            />
-
+          />
         <div className="w-full h-full flex flex-col items-start justify-between p-4 absolute top-0 left-0">
           <div className="w-full h-full transition duration-300 group-hover:visible group-hover:opacity-100 invisible opacity-0 absolute left-0 p-4 top-0 flex flex-col items-start justify-between">
 
@@ -206,6 +205,7 @@ export const GumballsCard: React.FC<GumballsCardProps> = ({
           </div>
         </div>
       </div>
+      <Link to="/gumballs/$id" params={{ id: id.toString() }} className="w-full">
 
       <div className="w-full flex flex-col px-2 py-4 gap-2">
         <div className="w-full flex items-center gap-5 justify-between">
@@ -239,6 +239,7 @@ export const GumballsCard: React.FC<GumballsCardProps> = ({
         </div>
 
       </div>
+      </Link>
     </motion.div>
   );
 };

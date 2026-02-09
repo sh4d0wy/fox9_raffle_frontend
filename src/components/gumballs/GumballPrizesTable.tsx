@@ -52,10 +52,10 @@ export const GumballPrizesTable = ({prizes}:GumballPrizesTableProps) => {
         />
         <p className="md:text-base text-sm text-white font-medium font-inter">
         {prize.isNft ? (
-                      <p className="md:text-base text-sm text-black-1000 font-medium font-inter">
+                      <p className="md:text-base text-sm text-white font-medium font-inter">
                         {prize.name?.slice(0, 10) + "..." || prize.symbol || "Prize"}
                       </p>) : (
-                        <p className="text-md text-black-1000 font-medium font-inter">
+                        <p className="text-md text-white font-medium font-inter">
                           {formatPrice(prize.prizeAmount, prize.mint)}
                         </p>
                       )}

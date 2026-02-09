@@ -34,8 +34,8 @@ export const GumballBouncingBalls = ({ prizes, isActive, status, isSpinning = fa
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   const calculateBallSize = useCallback((quantity: number, totalQuantity: number, isNft: boolean) => {
-    const minSize = 15;
-    const maxSize = 40;
+    const minSize = 20;
+    const maxSize = 30;
     const nftBonus = isNft ? 30 : 0;
     const quantityRatio = quantity / Math.max(totalQuantity, 1);
     const size = minSize + (quantityRatio * (maxSize - minSize - nftBonus)) + nftBonus;
@@ -303,18 +303,18 @@ export const GumballBouncingBalls = ({ prizes, isActive, status, isSpinning = fa
   }
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full min-h-[300px]  rounded-[20px]">
       {/* Gumball machine container */}
       <div 
         ref={containerRef}
-        className="relative w-full h-full rounded-[20px] overflow-hidden bg-transparent"
+        className="relative w-full min-h-[300px] h-full rounded-[20px] overflow-hidden bg-transparent"
       >
         {/* Canvas for floating balls */}
         <canvas
           ref={canvasRef}
           width={dimensions.width}
           height={dimensions.height}
-          className="absolute inset-0"
+          className="absolute inset-0 "
         />
 
         {/* Inactive overlay */}

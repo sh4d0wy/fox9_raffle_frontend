@@ -9,9 +9,11 @@ interface GumballsPage {
 export const fetchGumballs = async ({
   pageParam = 1,
   filter = "All Gumballs",
+  currentWallet = "",
 }: {
   pageParam?: number;
   filter?: string;
+  currentWallet?: string;
 }): Promise<GumballsPage> => {
   const pageSize = 8;
   const response = await getGumballs(pageParam, pageSize);
@@ -21,7 +23,10 @@ export const fetchGumballs = async ({
     filteredData = filteredData.filter((r) => r.status === "ACTIVE");
   } else if (filter === "Past Gumballs") {
     filteredData = filteredData.filter((r) => r.status === "COMPLETED_SUCCESSFULLY" || r.status === "COMPLETED_FAILED");
-  }else{
+  }else if (filter === "My Gumballs") {
+    filteredData = filteredData.filter((r) => r.creatorAddress === currentWallet);
+  }
+  else{
     filteredData = []
   }
 

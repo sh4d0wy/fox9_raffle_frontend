@@ -1,6 +1,6 @@
 import { Link, useLocation } from '@tanstack/react-router';
 
-function DynamicNewLink({ isAuth }: { isAuth: boolean }) {
+function DynamicNewLink({ isAuth, onClick }: { isAuth: boolean, onClick?: () => void }) {
   const location = useLocation();
   let linkTo = '';
   let enabled = false;
@@ -25,6 +25,7 @@ function DynamicNewLink({ isAuth }: { isAuth: boolean }) {
         ? 'bg-primary-color border-black-1000 hover:border-primary-color'
         : 'border border-black-1000 cursor-not-allowed opacity-50 pointer-events-none'
         }`}
+        onClick={onClick}
     >
       <img src="/icons/plus-icon.svg" className="size-4" />
       <span className="text-neutral-800 text-base font-semibold font-inter">
