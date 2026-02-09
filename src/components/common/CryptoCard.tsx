@@ -296,7 +296,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
               }}
               className="flex-1 h-11 bg-primary-color rounded-full
                 flex items-center justify-center cursor-pointer
-                text-black-1000 font-semibold px-4 py-2 gap-2"
+                text-black-1000 font-semibold px-4 py-2 gap-2 w-full md:w-fit"
             >
               Buy 
               <div className="flex items-center gap-1">

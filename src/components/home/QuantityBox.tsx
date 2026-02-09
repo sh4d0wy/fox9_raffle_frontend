@@ -1,3 +1,4 @@
+import { MinusIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { useBuyRaffleTicketStore } from "store/buyraffleticketstore";
 
@@ -39,7 +40,7 @@ export default function QuantityBox({max}: {max: number}) {
           onClick={dec}
           className="w-8 h-8 cursor-pointer rounded bg-primary-color flex items-center justify-center"
         >
-          <img src="/icons/min-icon.svg" alt="" />
+          <MinusIcon className="w-5 h-5 text-black-1000" />
         </button>
 
         <input
@@ -53,7 +54,7 @@ export default function QuantityBox({max}: {max: number}) {
           onClick={inc}
           className="w-8 h-8 cursor-pointer rounded bg-primary-color flex items-center justify-center"
         >
-          <img src="/icons/plus-white-icon.svg" alt="" />
+          <PlusIcon className="w-5 h-5 text-black-1000" />
         </button>
       </div>
 

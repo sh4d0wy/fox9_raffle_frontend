@@ -538,15 +538,15 @@ function RouteComponent() {
                             })}
                           </div>
                         ) : (
-                          <div className="w-full rounded-xl px-4 py-3 flex items-center gap-3">
+                          <div className="w-full rounded-xl px-2 md:px-4 py-3 flex items-center justify-start  md:justify-center md:gap-3 ">
                             <div className="relative">
                               <img
                                 src={raffle?.winners?.[0]?.profileImage ? API_URL + raffle?.winners?.[0]?.profileImage : DEFAULT_AVATAR}
-                                className="w-12 h-12 rounded-full object-cover border-2 border-primary-color"
+                                className="md:w-12 md:h-12 w-10 h-10 rounded-full object-cover border-2 border-primary-color"
                                 alt="winner"
                               />
                             </div>
-                            <div className="flex justify-between items-center w-full">
+                            <div className="flex flex-col md:flex-row justify-between items-center w-full ">
                               <h3 className="md:text-xl text-base font-bold text-white truncate">
                                 {raffle?.winners?.[0]?.walletAddress?.slice(0, 6)}....{raffle?.winners?.[0]?.walletAddress?.slice(-6)}
                               </h3>
@@ -668,12 +668,13 @@ function RouteComponent() {
                             <PrimaryButton
                               className="w-full py-3 h-full mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
                               disabled={isBuyTicketDisabled || buyTicket.isPending || showBuyTicketPopup}
-                              text={buyTicket.isPending ? <Loader className="w-5 h-5 animate-spin" /> : isBuyTicketDisabled ? maxTicketsBought ? "Max Tickets Bought" : "Sold Out" : `Buy for ${((raffle?.ticketPrice /
+                              text={buyTicket.isPending ? <Loader className="w-5 h-5 animate-spin" /> : isBuyTicketDisabled ? maxTicketsBought ? "Max Tickets Bought" : "Sold Out" : 
+                                `Buy for ${parseFloat(((raffle?.ticketPrice /
                                 10 **
                                 (VerifiedTokens.find(
                                   (token) =>
                                     token.address === raffle?.ticketTokenAddress
-                                )?.decimals || 0)) * ticketQuantity).toFixed(6)
+                                )?.decimals || 0)) * ticketQuantity).toFixed(6))
                                 } ${VerifiedTokens.find(
                                   (token) =>
                                     token.address === raffle?.ticketTokenAddress
@@ -823,7 +824,7 @@ function RouteComponent() {
                     </li>
                   </ul>
                 </div>
-                 <div className="w-full space-y-5">
+                 <div className="w-full space-y-5 hidden md:block">
                  {raffle.prizeData.type === "NFT" && nftSections.length > 0 ? (
                    isNftMetadataLoading ? (
                      <div className="w-full py-10 flex items-center justify-center">
