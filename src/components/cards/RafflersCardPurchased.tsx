@@ -75,7 +75,7 @@ export const RafflersCardPurchased: React.FC<RafflersCardPurchasedProps> = (prop
                 </div>
               )}
             </div>
-            <div className="flex items-center justify-center gap-5">
+            <div className="md:flex hidden md:flex-row items-center justify-center gap-5">
               {isWinner && (
                 <button
                 onClick={() => {
@@ -88,7 +88,7 @@ export const RafflersCardPurchased: React.FC<RafflersCardPurchasedProps> = (prop
                   })
                 }}  
                 disabled={hasClaimed || claimPrize.isPending} 
-                className="inline-flex justify-center  cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed items-center px-3 bg-primary-color py-2.5 rounded-full">
+                className="inline-flex justify-center  cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed items-center text-xs md:text-base  px-3 bg-primary-color py-2.5 rounded-full w-full md:w-fit">
                 <img src="/icons/gift-line-icon.svg" alt="" />
                 {claimPrize.isPending ? <Loader className="w-5 h-5 animate-spin" /> : "Claim Prize"}
                 </button>
@@ -134,6 +134,48 @@ export const RafflersCardPurchased: React.FC<RafflersCardPurchasedProps> = (prop
               {prizeData?.symbol}
             </p>
           </div>
+          <div className="flex md:hidden w-full md:flex-row items-center justify-center gap-5">
+              {isWinner && (
+                <button
+                onClick={() => {
+                  claimPrize.mutate({
+                    raffleId: Number(id) || 0,
+                  }, {
+                    onSuccess: () => {
+                      queryClient.invalidateQueries({ queryKey: ["profile-raffle-purchased", publicKey?.toBase58() || ""] });
+                    }
+                  })
+                }}  
+                disabled={hasClaimed || claimPrize.isPending} 
+                className="inline-flex justify-center  cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed items-center text-xs md:text-base  px-3 bg-primary-color py-2.5 rounded-full w-full md:w-fit">
+                <img src="/icons/gift-line-icon.svg" alt="" />
+                {claimPrize.isPending ? <Loader className="w-5 h-5 animate-spin" /> : "Claim Prize"}
+                </button>
+              )}
+              
+              
+            <Link
+              to="/raffles/$id"
+              params={{ id: id?.toString() || "" }}
+              className="w-10 h-10 transition duration-300 hover:opacity-90 flex items-center justify-center text-white font-semibold font-inter bg-primary-color rounded-md"
+            >
+              <svg
+                width={20}
+                height={20}
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M7.5 4.16665L13.3333 9.99998L7.5 15.8333"
+                  stroke="#212121"
+                  strokeWidth="1.66667"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
+            </div>
         </div>
       </div>
 
