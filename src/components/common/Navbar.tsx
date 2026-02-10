@@ -44,6 +44,8 @@ export const Navbar = () => {
   const lastNotifiedWalletRef = useRef<string | null>(null);
   const hasShownNotificationsRef = useRef(false);
   const hasShownEndedRafflesNotificationsRef = useRef(false);
+  const authDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const lastProcessedWalletRef = useRef<string | null>(null);
   
   const signAndVerifyMessage = async (message: string) => {
     if (!publicKey || !signMessage) {
@@ -76,10 +78,10 @@ export const Navbar = () => {
       return;
     }
 
+    isAuthenticatingRef.current = true;
+    authenticatingWalletRef.current = currentWalletKey;
+
     try {
-      isAuthenticatingRef.current = true;
-      authenticatingWalletRef.current = currentWalletKey;
-      
       const message = await requestMessage(currentWalletKey);
       
       if (authenticatingWalletRef.current !== currentWalletKey) {
@@ -110,55 +112,76 @@ export const Navbar = () => {
     } finally {
       if (authenticatingWalletRef.current === currentWalletKey) {
         authenticatingWalletRef.current = null;
+        isAuthenticatingRef.current = false;
       }
-      isAuthenticatingRef.current = false;
     }
   };
 
   useEffect(() => {
-    const fetchMessage = async () => {
-      if (connected && publicKey) {
-        const currentWalletKey = publicKey.toBase58();
-        
-        if (walletAddress && walletAddress !== currentWalletKey) {
-          hasInitializedRef.current = false;
-          if (authenticatingWalletRef.current && authenticatingWalletRef.current !== currentWalletKey) {
-            authenticatingWalletRef.current = null;
-            isAuthenticatingRef.current = false;
-          }
+    if (authDebounceRef.current) {
+      clearTimeout(authDebounceRef.current);
+      authDebounceRef.current = null;
+    }
+
+    if (connected && publicKey) {
+      const currentWalletKey = publicKey.toBase58();
+      
+      if (lastProcessedWalletRef.current === currentWalletKey && hasInitializedRef.current) {
+        return;
+      }
+      
+      if (authenticatingWalletRef.current === currentWalletKey) {
+        return;
+      }
+      
+      if (isAuthenticatingRef.current) {
+        return;
+      }
+      
+      if (walletAddress && walletAddress !== currentWalletKey) {
+        hasInitializedRef.current = false;
+        removeToken();
+      }
+      
+      if (hasInitializedRef.current && isAuth && walletAddress === currentWalletKey) {
+        lastProcessedWalletRef.current = currentWalletKey;
+        return;
+      }
+
+      const authToken = localStorage.getItem('authToken');
+      
+      if (isTokenValidForWallet(authToken, currentWalletKey)) {
+        setAuth(true, currentWalletKey);
+        hasInitializedRef.current = true;
+        lastProcessedWalletRef.current = currentWalletKey;
+      } else {
+        if (authToken) {
           removeToken();
         }
-        
-        if (hasInitializedRef.current && isAuth && walletAddress === currentWalletKey) {
-          return;
-        }
-
-        if (authenticatingWalletRef.current === currentWalletKey || isAuthenticatingRef.current) {
-          return;
-        }
-
-        const authToken = localStorage.getItem('authToken');
-        
-        if (isTokenValidForWallet(authToken, currentWalletKey)) {
-          setAuth(true, currentWalletKey);
-          hasInitializedRef.current = true;
-        } else {
-          if (authToken) {
-            removeToken();
+          authDebounceRef.current = setTimeout(() => {
+          authDebounceRef.current = null;
+          if (!isAuthenticatingRef.current && authenticatingWalletRef.current !== currentWalletKey) {
+            authenticateWallet(currentWalletKey, "initial connection");
           }
-          await authenticateWallet(currentWalletKey, "initial connection");
-        }
-      } else if (!connected) {
-        if (hasInitializedRef.current || authenticatingWalletRef.current) {
-          hasInitializedRef.current = false;
-          authenticatingWalletRef.current = null;
-          isAuthenticatingRef.current = false;
-          removeToken();
-          setAuth(false, null);
-        }
+        }, 100);
+      }
+    } else if (!connected) {
+      if (hasInitializedRef.current || authenticatingWalletRef.current) {
+        hasInitializedRef.current = false;
+        authenticatingWalletRef.current = null;
+        isAuthenticatingRef.current = false;
+        lastProcessedWalletRef.current = null;
+        removeToken();
+        setAuth(false, null);
+      }
+    }
+
+    return () => {
+      if (authDebounceRef.current) {
+        clearTimeout(authDebounceRef.current);
+        authDebounceRef.current = null;
       }
     };
-    fetchMessage();
   }, [connected, publicKey]);
 
   useEffect(() => {
