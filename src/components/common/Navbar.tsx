@@ -65,26 +65,26 @@ export const Navbar = () => {
     }
   };
 
-  const authenticateWallet = async () => {
+  const authenticateWallet = async (currentWalletKey: string, reason: string) => {
     // Check if we're already authenticating this specific wallet
-    if (authenticatingWalletRef.current === publicKey?.toBase58()) {
+    if (authenticatingWalletRef.current === currentWalletKey) {
       return;
     }
 
     try {
-      authenticatingWalletRef.current = publicKey?.toBase58() ?? null;
+      authenticatingWalletRef.current = currentWalletKey;
       
-      const message = await requestMessage(publicKey?.toBase58() ?? "");
+      const message = await requestMessage(currentWalletKey);
       const result = await signAndVerifyMessage(message.message);
       
       // Only update state if we're still authenticating the same wallet
-      if (authenticatingWalletRef.current !== publicKey?.toBase58()) {
+      if (authenticatingWalletRef.current !== currentWalletKey) {
         return; // Wallet changed during authentication, ignore result
       }
       
       if (result.success && result.data?.token) {
         setToken(result.data.token.toString());
-        setAuth(true, publicKey?.toBase58() ?? "");
+        setAuth(true, currentWalletKey);
         hasInitializedRef.current = true;
       } else {
         removeToken();
@@ -93,14 +93,14 @@ export const Navbar = () => {
       }
     } catch (error) {
       // Only update state if we're still authenticating the same wallet
-      if (authenticatingWalletRef.current === publicKey?.toBase58()) {
+      if (authenticatingWalletRef.current === currentWalletKey) {
         removeToken();
         setAuth(false, null);
         hasInitializedRef.current = false;
       }
     } finally {
       // Only clear if we're still the active authentication
-      if (authenticatingWalletRef.current === publicKey?.toBase58()) {
+      if (authenticatingWalletRef.current === currentWalletKey) {
         authenticatingWalletRef.current = null;
       }
     }
@@ -142,7 +142,7 @@ export const Navbar = () => {
           if (authToken) {
             removeToken();
           }
-          await authenticateWallet();
+          await authenticateWallet(currentWalletKey, "initial connection");
         }
       } else if (!connected) {
         if (hasInitializedRef.current) {
@@ -177,11 +177,12 @@ export const Navbar = () => {
       }
       
       const authToken = localStorage.getItem('authToken');
+      const currentWalletKey = publicKey.toBase58();
       
       // Only re-authenticate if token is expired or doesn't belong to current wallet
-      if (!isTokenValidForWallet(authToken, publicKey?.toBase58() ?? "")) {
+      if (!isTokenValidForWallet(authToken, currentWalletKey)) {
         console.log("Token check: Token expired or invalid, renewing...");
-        authenticateWallet();
+        authenticateWallet(currentWalletKey, "token renewal");
       }
     }, 60 * 1000);
 
@@ -215,7 +216,7 @@ export const Navbar = () => {
       return;
     }
     console.log("checking for wallet change")
-    const walletChanged = lastNotifiedWalletRef.current !== publicKey?.toBase58();
+    const walletChanged = lastNotifiedWalletRef.current !== publicKey.toBase58();
     
     if (walletChanged) {
       console.log("wallet changed");
