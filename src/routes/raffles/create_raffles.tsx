@@ -244,7 +244,7 @@ function CreateRaffles() {
       <section className="md:pt-48 pt-36 pb-[122px]">
         <div className="max-w-[1440px] mx-auto w-full px-4 lg:px-10">
           <div>
-            <Link to={"/"}
+            <Link to={"/raffles"}
               className="bg-gray-1000 mb-10 rounded-[80px] inline-flex h-10 md:h-[49px] justify-center items-center pl-5 pr-3.5 md:px-6 gap-2 md:gap-2.5  md:text-base text-sm font-semibold text-white font-inter"
 >
               <span>
