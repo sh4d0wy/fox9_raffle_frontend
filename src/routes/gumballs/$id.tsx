@@ -24,6 +24,7 @@ import SpinGumballPopup from '@/components/ui/popups/gumballs/SpinPopup';
 import RevealPrizePopup from '@/components/ui/popups/gumballs/RevealPrizePopup';
 import PageTimer from '@/components/common/PageTimer';
 import { Loader } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 import { useFetchUserToken, type UserToken } from 'hooks/useFetchUserToken';
 
 export const Route = createFileRoute('/gumballs/$id')({
@@ -231,8 +232,7 @@ function GumballsDetails() {
         return (
           <main className="w-full min-h-[calc(100vh-300px)] flex items-center justify-center bg-black-1400">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-color mx-auto"></div>
-              <p className="mt-4 text-white font-inter">Loading gumball...</p>
+              <Loader className="w-12 h-12 animate-spin text-primary-color mx-auto" />
             </div>
           </main>
         );
@@ -241,11 +241,12 @@ function GumballsDetails() {
       if (isError || !gumball) {
         return (
           <main className="w-full min-h-[calc(100vh-300px)] flex items-center justify-center bg-black-1400">
-            <div className="text-center">
-              <p className="text-xl text-white font-inter font-semibold">Gumball not found</p>
-              <button onClick={() => router.navigate({ to: "/gumballs" })} className='mt-4 cursor-pointer px-6 py-2.5 bg-primary-color rounded-full text-black-1000 font-semibold'>
-                Go Back
-              </button>
+            <div className="text-center flex-col gap-2">
+              <p className="text-2xl text-red-500 font-inter font-semibold">Gumball not found</p>
+              <Link to={"/gumballs"} className='px-6 cursor-pointer transition duration-300 hover:opacity-80 inline-flex items-center gap-2 py-2.5 bg-gray-1000 rounded-full text-base font-semibold text-white'>
+        <img src="/icons/back-arw.svg" className='invert' alt="" />
+         Back
+         </Link>
             </div>
           </main>
         );
@@ -253,10 +254,10 @@ function GumballsDetails() {
   return (
   <main className='bg-black-1400'>
     <div className="w-full pb-2 md:pb-16 md:pt-44 pt-36 max-w-[1440px] px-5 mx-auto">
-        <button onClick={() => router.history.go(-1)} className='px-6 cursor-pointer transition duration-300 hover:opacity-80 inline-flex items-center gap-2 py-2.5 bg-gray-1000 rounded-full text-base font-semibold text-white'>
+        <Link to={"/gumballs"} className='px-6 cursor-pointer transition duration-300 hover:opacity-80 inline-flex items-center gap-2 py-2.5 bg-gray-1000 rounded-full text-base font-semibold text-white'>
         <img src="/icons/back-arw.svg" className='invert' alt="" />
          Back
-         </button>
+         </Link>
     </div>
     <RevealPrizePopup
     isOpen={isPrizeClaimed}

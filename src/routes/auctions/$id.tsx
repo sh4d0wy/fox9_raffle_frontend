@@ -308,8 +308,12 @@ function AuctionDetails() {
     </div>;
   if (!auction)
     return (
-      <main className="py-20 text-center text-3xl h-[calc(100vh-300px)]  bg-black flex items-center justify-center font-bold text-red-500">
+      <main className="py-20 text-center flex-col gap-2 text-3xl h-[calc(100vh-300px)]  bg-black flex items-center justify-center font-bold text-red-500">
         Auction not found!
+        <Link to={"/auctions"} className='px-6 cursor-pointer transition duration-300 hover:opacity-80 inline-flex items-center gap-2 py-2.5 bg-gray-1000 rounded-full text-base font-semibold text-white'>
+        <img src="/icons/back-arw.svg" className='invert' alt="" />
+         Back
+         </Link>
       </main>
     );
 

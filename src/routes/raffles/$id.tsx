@@ -17,6 +17,7 @@ import { useQueryFavourites } from 'hooks/profile/useQueryFavourites';
 import { useToggleFavourite } from 'hooks/useToggleFavourite';
 import { useCreateRaffleStore } from 'store/createRaffleStore';
 import { CrownIcon, HeartIcon, Loader, Globe2Icon } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 import { VerifiedNftCollections } from '@/utils/verifiedNftCollections';
 import { API_URL } from '@/constants';
 import { VerifiedTokens } from '@/utils/verifiedTokens';
@@ -229,7 +230,7 @@ function RouteComponent() {
 
   if (isLoading) {
     return (
-      <main className="bg-black py-20 text-center text-3xl font-bold text-red-500 w-full flex items-center justify-center">
+      <main className="bg-black py-20 h-[calc(100vh-300px)] text-center text-3xl font-bold text-red-500 w-full flex items-center justify-center">
         <Loader className="w-15 h-15 animate-spin text-primary-color" />
       </main>
     );
@@ -237,8 +238,12 @@ function RouteComponent() {
 
   if (!raffle) {
     return (
-      <main className="bg-black py-20 text-center text-3xl font-bold text-red-500">
+      <main className="bg-black py-20 h-[calc(100vh-300px)] flex items-center justify-center gap-2 flex-col text-center text-3xl font-bold text-red-500">
         Raffle not found!
+        <Link to={"/raffles"} className='px-6 cursor-pointer transition duration-300 hover:opacity-80 inline-flex items-center gap-2 py-2.5 bg-gray-1000 rounded-full text-base font-semibold text-white'>
+        <img src="/icons/back-arw.svg" className='invert' alt="" />
+         Back
+         </Link>
       </main>
     );
   }
@@ -248,10 +253,10 @@ function RouteComponent() {
   return (
     <main className='bg-black-1400'>
       <div className="w-full md:pb-4 md:pt-44 pt-36 max-w-[1440px] px-5 mx-auto">
-        <button onClick={() => router.history.go(-1)} className='px-6 cursor-pointer transition duration-300 hover:opacity-80 inline-flex items-center gap-2 py-2.5 bg-gray-1000 rounded-full text-base font-semibold text-white'>
-          <img src="/icons/back-arw.svg" className='invert' alt="" />
-          Back
-        </button>
+        <Link to={"/raffles"} className='px-6 cursor-pointer transition duration-300 hover:opacity-80 inline-flex items-center gap-2 py-2.5 bg-gray-1000 rounded-full text-base font-semibold text-white'>
+        <img src="/icons/back-arw.svg" className='invert' alt="" />
+         Back
+         </Link>
       </div>
       <BuyTicketPopup isOpen={showBuyTicketPopup && !isEndingConditionMet && raffle?.state?.toLowerCase() === "active"} onClose={() => setShowBuyTicketPopup(false)} />
       <RaffleEndedPopup isOpen={showRaffleEndedPopup} shouldEnableAutoClose={false} />
