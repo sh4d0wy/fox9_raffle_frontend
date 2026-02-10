@@ -172,8 +172,7 @@ function RouteComponent() {
 
   const isActive = useMemo(() => {
     return (
-      raffle?.state !== "SuccessEnded" &&
-      raffle?.state !== "FailedEnded"
+      raffle?.state?.toLowerCase() === "active" || raffle?.state?.toLowerCase() === "cancelled"
     );
   }, [raffle?.state]);
 
@@ -464,10 +463,23 @@ function RouteComponent() {
                   {isActive ? (
                     <div className="w-full flex items-center flex-col-reverse md:flex-row justify-between py-4 px-[26px] rounded-[20px] bg-primary-color/10">
                       <div className="inline-flex w-full md:w-fit flex-col gap-2.5">
-                        <PageTimer targetDate={new Date(raffle?.endsAt || "")} />
-                        <p className="text-sm font-inter text-gray-1200 font-normal">
-                          Time Left
-                        </p>
+                        {raffle?.state?.toLowerCase() === "active" ? (
+                          <>
+                          <PageTimer targetDate={new Date(raffle?.endsAt || "")} />
+                            <p className="text-sm font-inter text-gray-1200 font-normal">
+                              Time Left
+                            </p>
+                          </>
+                        ):
+                        <>
+                          <p className="text-lg font-inter px-4 py-2 border border-gray-1200 rounded-lg text-red-500 font-normal">
+                              CANCELLED
+                            </p>
+                            <p className="text-sm font-inter text-center text-gray-1200 font-normal">
+                            Status
+                            </p>
+                            </>
+                        }
                       </div>
                       <div className="flex-1 md:flex-none md:w-1/2 flex justify-between w-full pb-6 md:pb-0">
                         <div className="inline-flex flex-col gap-2.5">
@@ -499,7 +511,8 @@ function RouteComponent() {
                           </p>
                         </div>
                       </div>
-                    </div>) : (
+                    </div>) :
+                    raffle?.state?.toLowerCase() !== "cancelled" && (
                     <>
                       <div className="w-full rounded-3xl bg-primary-color/10 border border-primary-color border-t-4 p-4 md:p-6">
                         {/* Header */}
