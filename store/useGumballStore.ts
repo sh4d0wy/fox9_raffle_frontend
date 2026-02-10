@@ -190,7 +190,7 @@ interface GumballState {
   // ======================= Computed Getters =======================
   getStartTimestamp: () => number | null;
   getEndTimestamp: () => number | null;
-  getComputedRent: () => number;
+  getComputedRent: () => Promise<number>;
   getMaxROI: () => string;
   getPrizesByCategory: (category: PrizeCategory) => GumballPrize[];
   getNftPrizesCount: () => number;
@@ -327,7 +327,7 @@ export const useGumballStore = create<GumballState>((set, get) => ({
   // Ticket Configuration
   setPrizeCount: async (count) => {
     set({ prizeCount: count });
-    const rentPerPrize = await calculateRent(109); //109 is the byte size of the gumball
+    const rentPerPrize = await calculateRent(229); //229 is the byte size of the gumball
     set({ rent: (rentPerPrize?.rentSol || 0) });
   },
   setTicketPrice: (price) => set({ ticketPrice: price }),
@@ -475,11 +475,10 @@ export const useGumballStore = create<GumballState>((set, get) => ({
     return Math.floor(date.getTime() / 1000);
   },
 
-  getComputedRent: () => {
-    const { prizeCount } = get();
-    const count = parseInt(prizeCount) || 0;
-    const rentPerPrize = 0.00072;
-    return Math.min(Math.round(count * rentPerPrize * 1000) / 1000, 0.72);
+  getComputedRent: async () => {
+    const rent = await calculateRent(229); // 229 is the byte size of the gumball 
+    set({ rent: (rent?.rentSol || 0) });
+    return (rent?.rentSol || 0);
   },
 
   getMaxROI: () => {

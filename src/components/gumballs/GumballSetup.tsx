@@ -10,10 +10,14 @@ import { useCreateGumball } from 'hooks/gumball/useCreateGumball';
 import { useGumballStore } from 'store/useGumballStore';
 import { toast } from 'react-toastify';
 import { NATIVE_SOL_MINT, WRAPPED_SOL_MINT } from '@/utils/verifiedTokens';
-import { PublicKey } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import { useGumballAnchorProgram } from 'hooks/gumball/useGumballAnchorProgram';
+import { GumballTermsConditions } from './GumballTermsConditions';
 
 export const GumballSetup = () => {
   const { createGumball } = useCreateGumball();
+  const { getGumballConfig } = useGumballAnchorProgram();
+  const { data: gumballConfig, isLoading: isLoadingGumballConfig, isError: isErrorGumballConfig } = getGumballConfig;
     const { 
         name, 
         startType, 
@@ -27,6 +31,7 @@ export const GumballSetup = () => {
         isCreateTokenModalOpen,
         getStartTimestamp,
         getEndTimestamp,
+        getComputedRent,
     } = useGumballStore();
 
     const { 
@@ -48,6 +53,13 @@ export const GumballSetup = () => {
     startTimeMinute,
     startTimePeriod,
 } = useGumballStore();
+console.log("gumballConfig", gumballConfig);
+
+const creationFee = useMemo(() => {
+  if (isLoadingGumballConfig || isErrorGumballConfig) return 0;
+  const creationFee = gumballConfig?.creationFeeLamports.toNumber() ?? 0;
+  return creationFee / LAMPORTS_PER_SOL;
+}, [gumballConfig, isLoadingGumballConfig, isErrorGumballConfig]);
 
     const [showModel, setShowModel] = useState(false)
 
@@ -84,6 +96,7 @@ export const GumballSetup = () => {
     const handlePriceCountChange = (value: string) => {
         setIsPriceCountTouched(true);
         setPrizeCount(value);
+        getComputedRent();
     };
   return (
     <div className='w-full'>
@@ -278,78 +291,7 @@ export const GumballSetup = () => {
                           {isCreatingGumball ? "Creating..." : "Create Gumball"}
                         </button>
                       </div>
-                      <div className="bg-black-1300 rounded-[20px] md:p-6 p-4 overflow-hidden">
-                        <h4 className="text-primary-color font-bold text-xl leading-normal mb-6">Terms & Conditions</h4>
-                        <ul className='space-y-2'>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter text-base leading-[160%]  w-6">1.</span>
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">You will be charged an up-front rent fee, in SOL, which will be taken in proportion to the number of prizes you choose to add to the Gumball, with a maximum rent fee of 0.72 SOL. The rent fee will be automatically refunded after the Gumball has been closed.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter md:text-base text-sm leading-[160%]  w-6">2.</span>
-                            {/* <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">You will be charged an up-front rent fee, in SOL, which will be taken in proportion to the number of prizes you choose to add to the Gumball, with a maximum rent fee of 0.72 SOL. The rent fee will be automatically refunded after the Gumball has been closed. */}
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">You will be charged an up-front rent fee, in SOL, which will be taken in proportion to the number of prizes you choose to add to the Gumball, with a maximum rent fee of 0.72 SOL. The rent fee will be automatically refunded after the Gumball has been closed.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter md:text-base text-sm leading-[160%]  w-6">3.</span>
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">FFF and TFF holders will get a 50% fee waiver for staking or sending foxes on missions prior to creating the Gumball and will be hosted on the "Featured" section of the home page.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter md:text-base text-sm leading-[160%]  w-6">4.</span>
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">The prizes that do not get sold will be returned to you upon closing the Gumball.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter md:text-base text-sm leading-[160%]  w-6">5.</span>
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">You can specify the amount of time a Gumball runs at the creation of the Gumball. Gumballs require a minimum 24 hour run time.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter md:text-base text-sm leading-[160%]  w-6">6.</span>
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">You can end the Gumball machine early if the expected value is at least -90% based on remaining prizes or if it has been at least 10 hours since the last spin on that Gumball.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter md:text-base text-sm leading-[160%]  w-6">7.</span>
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">FFF will take a total of 5% commission fee from the Gumball sales.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter md:text-base text-sm leading-[160%]  w-6">8.</span>
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">To enable Holder-only, you will be charged 1 SOL per Gumball creation, withdrawn at the time of creation. More information about holder-only Gumballs is available on the create Gumball site.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter md:text-base text-sm leading-[160%]  w-6">9.</span>
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">Scheduled Gumballs will start at the scheduled date and time even if not all prizes have been added.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter md:text-base text-sm leading-[160%]  w-6">10.</span>
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">Gumballs CANNOT be edited once it has been launched. Gumballs cannot restart once it has been stopped.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter md:text-base text-sm leading-[160%]  w-6">11.</span>
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">Once one Gumball has sold, the machine cannot be closed until the specified end date.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter md:text-base text-sm leading-[160%]  w-6">12.</span>
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">Gumball, its agents, directors, or officers shall not assume any liability or responsibility for your use of Gumball, promoting or marketing the Gumballs.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter md:text-base text-sm leading-[160%] w-6">13.</span>
-                            <p className="flex-1 w-full text-white font-medium font-inter md:text-base text-sm leading-[160%]">Gumball currently does not support cNFTs, the program ID is:
-                              <strong className="font-medium block">MGUMqztv7MHgoHBYWbvMyL3E3NJ4UHfTwgLJUQAbKGa</strong>
-                            </p>
-                          </li>
-                        </ul>
-                      </div>
+                      <GumballTermsConditions/>
                     </div>
               </div>
             </form>

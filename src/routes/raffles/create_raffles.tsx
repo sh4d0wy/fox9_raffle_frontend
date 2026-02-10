@@ -19,6 +19,7 @@ import { formatTimePeriod } from '@/utils/helpers';
 import TokenPrizeInput from '@/components/home/TokenPrizeInput';
 import { Loader } from 'lucide-react';
 import clsx from 'clsx';
+import { RaffleTermsAndConditions } from '@/components/home/RaffleTermsAndConditions';
 
 export const Route = createFileRoute('/raffles/create_raffles')({
   component: CreateRaffles,
@@ -547,111 +548,8 @@ function CreateRaffles() {
                           {isCreatingRaffle ? <Loader className="w-6 h-6 animate-spin" /> : "Create Raffle"}
                         </button>
                       </div>
-                      <div className="bg-[#1B1B21FA] border border-white text-white rounded-[20px] md:p-6 px-4 py-5">
-                        <h4 className="text-primary-color font-bold text-base md:text-xl leading-normal mb-6">
-                          Terms & Conditions
-                        </h4>
-                        <ul>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter text-sm md:text-base leading-[160%]  w-6">
-                              1.
-                            </span>
-                            <p className="flex-1 w-full text-white font-medium font-inter text-sm md:text-base leading-[160%] break-all">
-                            A Raffle is a blockchain-based random draw service.
-                            All results are finalized based on on-chain transactions and are irreversible.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter text-sm md:text-base leading-[160%]  w-6">
-                              2.
-                            </span>
-                            <p className="flex-1 w-full text-white font-medium font-inter text-sm md:text-base leading-[160%] break-all">
-                            Raffle tickets are final upon purchase and cannot be canceled or refunded.
-                            Tickets are non-refundable even if the participant does not win.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter text-sm md:text-base leading-[160%]  w-6">
-                              3.
-                            </span>
-                            <p className="flex-1 w-full text-white font-medium font-inter text-sm md:text-base leading-[160%] break-all">
-                            A single wallet may purchase between {minTicketPercentage} and up to {raffleConfig?.maximumWalletPct ?? 100}% of the total ticket supply, depending on the options set by the raffle creator.
-                            Any attempt to bypass these limits may result in participation restrictions or account sanctions.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter text-sm md:text-base leading-[160%]  w-6">
-                              4.
-                            </span>
-                            <p className="flex-1 w-full text-white font-medium font-inter text-sm md:text-base leading-[160%] break-all">
-                            Winners are determined after the raffle ends, in accordance with smart contract logic and/or platform rules.
-                            Rewards are distributed based on on-chain status, and display delays do not affect validity.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter text-sm md:text-base leading-[160%]  w-6">
-                              5.
-                            </span>
-                            <p className="flex-1 w-full text-white font-medium font-inter text-sm md:text-base leading-[160%] break-all">
-                             Winners are determined after the raffle ends, in accordance with smart contract logic and/or platform rules.
-Rewards are distributed based on on-chain status, and display delays do not affect validity.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter text-sm md:text-base leading-[160%]  w-6">
-                              6.
-                            </span>
-                            <p className="flex-1 w-full text-white font-medium font-inter text-sm md:text-base leading-[160%] break-all">
-                            The creator bears full responsibility for having lawful ownership and distribution rights to all NFTs or reward assets registered in the raffle.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter text-sm md:text-base leading-[160%]  w-6">
-                              7.
-                            </span>
-                            <p className="flex-1 w-full text-white font-medium font-inter text-sm md:text-base leading-[160%] break-all">
-                            Assets registered for a raffle are held in escrow until the raffle ends.
-                            After completion, assets may be claimed by the winner or the creator according to the predefined conditions.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                              <span className="flex items-start justify-end text-white font-medium font-inter text-sm md:text-base leading-[160%]  w-6">
-                              8.
-                            </span>
-                            <p className="flex-1 w-full text-white font-medium font-inter text-sm md:text-base leading-[160%] break-all">
-                            Once a raffle is created, ticket quantity, pricing, duration, and conditions cannot be modified.
-All consequences resulting from configuration errors are solely the responsibility of the creator.
-
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter text-sm md:text-base leading-[160%]  w-6">
-                              9.
-                            </span>
-                            <p className="flex-1 w-full text-white font-medium font-inter text-sm md:text-base leading-[160%] break-all">
-                            Raffle proceeds are distributed automatically via smart contracts or platform logic.
-                            Creators may not dispute or reverse settlement results.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter text-sm md:text-base leading-[160%]  w-6">
-                              10.
-                            </span>
-                            <p className="flex-1 w-full text-white font-medium font-inter text-sm md:text-base leading-[160%] break-all">
-                            A {creationFee / 1e9} SOL creation fee is charged upon raffle creation.
-                            This fee is non-refundable under all circumstances.
-                            </p>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="flex items-start justify-end text-white font-medium font-inter text-sm md:text-base leading-[160%]  w-6">
-                              11.
-                            </span>
-                            <p className="flex-1 w-full text-white font-medium font-inter text-sm md:text-base leading-[160%] break-all">
-                            A {((raffleConfig?.ticketFeeBps && (raffleConfig?.ticketFeeBps / 10000) * 100) || 0)}% fee is deducted from participant payments and is retained by the platform operator.
-                            </p>
-                          </li>
-                        </ul>
-                      </div>
+                     
+                        <RaffleTermsAndConditions supply={supply} />
                     </div>
                   </div>
                 </div>

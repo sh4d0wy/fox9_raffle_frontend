@@ -3,7 +3,6 @@ import { Disclosure } from '@headlessui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { ParticipantsTable } from '../../components/home/ParticipantsTable'
 import { TransactionsTable } from '../../components/auctions/TransactionsTable'
-import { TermsConditions } from '../../components/auctions/TermsConditions'
 import { AucationsData } from "../../../data/aucations-data";
 import { PrimaryLink2 } from '@/components/ui/PrimaryLink2'
 import { useAuctionById } from 'hooks/auction/useAuctionsQuery'
@@ -27,6 +26,7 @@ import { AuctionParticipants } from '@/components/auctions/AuctionParticipants'
 import AuctionEndedPopup from '@/components/ui/popups/auction/AuctionEndedPopup'
 import ConfirmBidPopup from '@/components/ui/popups/auction/ConfirmBidPopup'
 import ToolTip from '@/components/common/ToolTip'
+import { AuctionTermsConditions } from '@/components/auctions/AuctionTermsConditions'
 
 export const Route = createFileRoute('/auctions/$id')({
   component: AuctionDetails,
@@ -754,7 +754,7 @@ function AuctionDetails() {
                             }
 
                             {tabs[1].active &&
-                             <TermsConditions/>
+                             <AuctionTermsConditions/>
                             }
                             
                             </div>

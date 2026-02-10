@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Disclosure } from '@headlessui/react';
 import { ParticipantsTable } from '@/components/home/ParticipantsTable';
 import { TransactionsTable } from '@/components/auctions/TransactionsTable';
-import { TermsConditions } from '@/components/auctions/TermsConditions';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import QuantityBox from '@/components/home/QuantityBox';
 import { useClaimTicketRaffle } from 'hooks/raffle/useClaimTicketRaffle';
@@ -26,6 +25,7 @@ import { FaXTwitter } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useNftMetadata } from 'hooks/useNftMetadata';
 import BuyTicketPopup from '@/components/ui/popups/raffle/BuyTicketPopup';
+import { RaffleTermsAndConditions } from '@/components/home/RaffleTermsAndConditions';
 
 export const Route = createFileRoute('/raffles/$id')({
   component: RouteComponent,
@@ -796,7 +796,7 @@ function RouteComponent() {
                     }
 
                     {tabs[2].active &&
-                      <TermsConditions />
+                      <RaffleTermsAndConditions supply={raffle?.ticketSupply.toString() || "0"} />
                     }
 
                   </div>
