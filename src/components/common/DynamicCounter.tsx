@@ -79,8 +79,8 @@ export const DynamicCounter = ({ endsAt ,status,className}: { endsAt: Date ,stat
             </p>
           </>
         ) : status === "CANCELLED" ? (
-          <p className="text-xs font-semibold font-inter uppercase text-white">
-            
+          <p className="text-xs font-semibold font-inter uppercase text-red-500">
+            Cancelled
           </p>
         ) : (
           <p className="text-xs font-semibold font-inter uppercase text-white">

@@ -14,6 +14,7 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { VerifiedTokens } from "@/utils/verifiedTokens";
 import { DynamicCounter } from "./DynamicCounter";
 import { motion } from "motion/react";
+import { PrimaryButton } from "../ui/PrimaryButton";
 
 export interface CryptoCardProps {
   raffle: RaffleTypeBackend;
@@ -110,7 +111,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: 100 }}
     transition={{ duration: 0.1 }}
-    className={`bg-black-1300 backdrop-blur-[10px] rounded-[10px] p-3 pb-4 ${className}`}>
+    className={`bg-black-1300 backdrop-blur-[10px] rounded-[10px] p-3 pb-2 ${className}`}>
 
       <div className="w-full relative group overflow-hidden">
         <img
@@ -213,7 +214,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
       <Link to="/raffles/$id"
       params={{ id: raffle.id?.toString() || "" }}
     >
-      <div className="w-full flex flex-col py-4">
+      <div className="w-full flex flex-col py-2">
         <div className="w-full flex items-center gap-5 justify-between">
           <h3 className="text-xl text-white font-bold font-inter">
             <span>{raffle.prizeData.type==="NFT" ? raffle.prizeData?.name.slice(0, 20) + "..." || "" : `${totalPriceTokens} ${raffle.prizeData?.symbol || ""}`}</span>
@@ -331,6 +332,28 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
           >
             Raffle Ended
           </Link>
+        )}
+        {(raffle.createdBy === publicKey?.toString() && category === "created") ? (
+          raffle.state?.toLowerCase() === "successended" ? (
+          <PrimaryButton
+          className="w-full h-[40px] mt-4"
+          text="Claim Ticket Amount"
+          disabled={claimTicket.isPending || raffle?.ticketAmountClaimedByCreator}
+          onclick={() => {
+            claimTicket.mutate(raffle?.id || 0);
+          }}
+        />
+        ):(
+            <PrimaryButton
+              className={`w-full h-[40px] mt-4 bg-red-800! border-none! text-white! disabled:opacity-50 disabled:cursor-not-allowed`}
+              text={`Cancel Raffle`}
+              disabled={cancelRaffle.isPending || raffle?.state?.toLowerCase() === "cancelled"}
+              onclick={() => {
+                cancelRaffle.mutate(raffle?.id || 0);
+              }}
+            />
+        )) : (
+          <></>
         )}
 
        {(publicKey && publicKey.toString() !== raffle.createdBy && ticketsBoughtByUser >= raffle.maxEntries) && (
