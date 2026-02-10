@@ -59,6 +59,7 @@ const raffleSchema = z.object({
     raffle: z.string().min(1).optional(),
     createdAt: z.coerce.date().optional(),
     endsAt: z.coerce.date().min(new Date()),
+    endedAt: z.coerce.date().optional(),
     createdBy: z.string().min(1),
     ticketPrice: z.number().gt(0),
     ticketSupply: z.number().gt(0),

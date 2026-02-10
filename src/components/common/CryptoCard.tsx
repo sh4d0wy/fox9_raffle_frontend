@@ -187,7 +187,7 @@ export const CryptoCard: React.FC<CryptoCardProps> = ({
                 </p>
               </div>
             </div> */}
-            <DynamicCounter endsAt={raffle.endsAt} status={raffle.state === "Active" ? "ACTIVE" : (raffle.state === "SuccessEnded" || raffle.state === "FailedEnded") ? "ENDED" : "CANCELLED"} />
+            <DynamicCounter endsAt={raffle.state==="Active" ? raffle.endsAt : raffle.endedAt??raffle.endsAt} status={raffle.state === "Active" ? "ACTIVE" : (raffle.state === "SuccessEnded" || raffle.state === "FailedEnded") ? "ENDED" : "CANCELLED"} />
             <div className="w-full flex items-center justify-between">
               <div className="inline-flex items-center justify-center px-[7px] xl:px-2.5 py-1 rounded-lg bg-black/60">
                 <p className="text-xs font-semibold font-inter uppercase text-white">
